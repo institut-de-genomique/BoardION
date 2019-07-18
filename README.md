@@ -19,13 +19,15 @@ Les données sont générées pendant le basecalling.
 
 ### Fichier run_infostat.txt
 Contient la liste des runs avec des métriques générales. Les statistiques d'un run sont mis à jour au cours du run.
+
 | FLOWCELL | STARTTIME | ENDED | DURATION(mn) | YIELD(b) | #READS | SPEED(b/mn) | QUALITY | N50(b) | AVG(b) | MED(b)
-| ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | -----------
+| ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
 | PAD24850_A | 2019-01-28T10:55:50Z | YES | 3840 | 78656991450 | 8524652 | 362 | 6.34 | 25041 | 9227 | 3753
 | PAD22628_A | 2019-01-28T10:56:10Z | YES | 3840 | 62025108575 | 6405705 | 367 | 6.18 | 26063 | 9683 | 3979
 
 ### Fichier {run}_globalstat.txt
 Statistiques sur le run a des temps régulier. Les stastiques sont calculées sur l'ensemble des données générées depuis le début du run.
+
 | FLOWCELL | DURATION(mn) | YIELD(b) | #READS | SPEED(b/mn) | QUALITY | N50(b) | AVG(b) | MED(b)
 | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
 | PAD58831_A | 10 | 293102483 | 40538 | 366 | 10.15 | 21731 | 7230 | 2026
@@ -33,6 +35,7 @@ Statistiques sur le run a des temps régulier. Les stastiques sont calculées su
 
 ### Fichier {run}_currentstat.txt
 Statistiques sur le run a des temps régulier. Les stastiques sont calculées seulement sur données générées à ce moment.
+
 | FLOWCELL | DURATION(mn) | YIELD(b) | #READS | SPEED(b/mn) | QUALITY | N50(b) | AVG(b) | MED(b)
 | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
 | PAD58831_A | 10 | 293102483 | 40538 | 366 | 10.15 | 21731 | 7230 | 2026
