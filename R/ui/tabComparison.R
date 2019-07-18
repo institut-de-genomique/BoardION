@@ -1,0 +1,18 @@
+testMultiSelect <- selectizeInput(
+	"testRunList",
+	"Choose runs",
+	choices = c(),
+	multiple = TRUE
+)
+
+b_testMultiSelect <-box(
+      title = "Nombre de bases cumulees"
+      ,status = "primary"
+      ,solidHeader = TRUE
+      ,collapsible = TRUE
+      ,plotlyOutput("testMulti", height = "300px")
+)
+
+tabComparison <- tabItem("comparison",
+	fixedRow(testMultiSelect,b_testMultiSelect)
+)
