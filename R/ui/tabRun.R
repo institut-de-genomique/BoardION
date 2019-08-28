@@ -16,7 +16,7 @@ tabRunGlobal <- tabPanel(
 			tabPanel(
 				"Channel",
 				fluidRow(
-					makeGraphBox("Stat per channel","channelStatCumul",12),
+					makeGraphBox("Stat per channel","channelStatCumul",width=12,height="700px"),
 					column(width=3, uiOutput("channelStatCumul_colorMetricChoice"))
 				)
 			),

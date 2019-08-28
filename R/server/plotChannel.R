@@ -31,7 +31,7 @@ plotChannelStat <- function(x) {
 			      )
 		)
 	) +
-	geom_raster() +
+	geom_tile() +
 	facet_grid(~n,scales="free_x") +
 	
 	scale_fill_gradientn(colors=rainbow(5),values=c(0,.5,.6,.7,1) ,limits=c(0,NA), na.value="#E1E1E1") +
