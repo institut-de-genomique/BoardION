@@ -1,7 +1,7 @@
 # ______________________________________________________________________________________
 # CONFIGURATIONS
 
-reportingFolder = "/home/abruno/dashboard_stats"
+reportingFolder = "/test_data"
 #reportingFolder = "/env/ig/atelier/nanopore/cns/PCT0004/promethion_dashboard/report_stats/"
 #reportingFolder = "/env/cns/home/abruno/promethion/PCT0004/reporting/"
 
