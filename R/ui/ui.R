@@ -1,14 +1,15 @@
 # ______________________________________________________________________________________
 # FUNCTIONS
 
-makeGraphBox <- function(name,id,width=6) {
+makeGraphBox <- function(name,id,width=6,height="350px") {
 	box(
 		title = name,
 		status = "primary",
 		solidHeader = TRUE,
                 collapsible = TRUE,
 		width = width,
-		plotlyOutput(paste("plot_",id,sep=""), height = "350px", inline=T)
+#		background="navy",
+		plotlyOutput(paste("plot_",id,sep=""), height = height, inline=T)
 	)
 }
 
@@ -31,15 +32,17 @@ source("ui/sideBar.R")
 source("ui/tabGlobal.R")
 source("ui/tabRun.R")
 source("ui/tabComparison.R")
-#source("ui/tabTest2.R")
+source("ui/tabRunInProgress.R")
 
 body <- dashboardBody (
 	tabItems(
 		tabGlobal,
 		tabRun,
-		tabComparison
+		tabComparison,
+		tabRunInProgress
 	),
 	tags$script(HTML("$('body').addClass('fixed');")) # Lock the header bar and the side bar
+	#shinyDashboardThemes( theme = "grey_light" )
 )
 
 

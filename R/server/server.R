@@ -1,8 +1,8 @@
 # ______________________________________________________________________________________
 # CONFIGURATIONS
 
-reportingFolder = "/home/abruno/reporting"
-#reportingFolder = "/env/ig/atelier/nanopore/cns/PCT0004/reporting"
+reportingFolder = "/home/abruno/dashboard_stats"
+#reportingFolder = "/env/ig/atelier/nanopore/cns/PCT0004/promethion_dashboard/report_stats/"
 #reportingFolder = "/env/cns/home/abruno/promethion/PCT0004/reporting/"
 
 # ______________________________________________________________________________________
@@ -49,5 +49,6 @@ server <- function(input, output, session) {
 	source("server/tabGlobal.R",local=TRUE) # input, output and session arguments
 	source("server/tabRun.R",local=TRUE)
 	source("server/tabComparison.R",local=TRUE)
-	source("server/tabTest2.R",local=TRUE)
+	source("server/plotChannel.R",local=TRUE)
+	source("server/tabRunInProgress.R",local=TRUE)
 }

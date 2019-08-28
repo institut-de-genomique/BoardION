@@ -6,11 +6,12 @@ testMultiSelect <- selectizeInput(
 )
 
 b_testMultiSelect <-box(
-      title = "Nombre de bases cumulees"
-      ,status = "primary"
-      ,solidHeader = TRUE
-      ,collapsible = TRUE
-      ,plotlyOutput("testMulti", height = "300px")
+      title = "Nombre de bases cumulees",
+      status = "primary",
+      solidHeader = TRUE,
+      collapsible = TRUE,
+      width = 12,
+      plotlyOutput("testMulti", height = "300px")
 )
 
 tabComparison <- tabItem("comparison",

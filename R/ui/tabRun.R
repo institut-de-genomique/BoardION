@@ -19,6 +19,13 @@ tabRunGlobal <- tabPanel(
 					makeGraphBox("Stat per channel","channelStatCumul",12),
 					column(width=3, uiOutput("channelStatCumul_colorMetricChoice"))
 				)
+			),
+			tabPanel(
+				"QualityOverTime",
+				fluidRow(
+					makeGraphBox("Quality over time","qualityOverTime",width=12,height="700px"),
+					column(width=3, uiOutput("qualityOverTime_colorMetricChoice"))
+				)
 			)
 		)
 	)
