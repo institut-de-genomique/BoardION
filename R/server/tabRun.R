@@ -20,10 +20,22 @@ currentStatReader <- reactive ({
 })
 
 qualityOverTimeReader <- reactive ({
-	reactiveFileReader(
+	dt = reactiveFileReader(
 		intervalMillis = 60000,
 		session	       = NULL,
 		filePath       = paste(reportingFolder,"/",input$runList,"_quality_stat.txt",sep=""),
+		readFunc       = readCsvSpace2
+	)()
+
+	dt[,LENGTHCUMUL:=LENGTH*`#READS`]
+	return(dt)
+})
+
+readLengthReader <- reactive ({
+	reactiveFileReader(
+		intervalMillis = 60000,
+		session	       = NULL,
+		filePath       = paste(reportingFolder,"/",input$runList,"_readsLength.txt",sep=""),
 		readFunc       = readCsvSpace2
 	)()
 })
@@ -108,17 +120,17 @@ plotRunSpeed <- function(x) {
 plotQualityOverTime <- function(x) {
 
 	ggplot( x(),
-		aes(x=get("STARTTIME"),
+		aes(x=get("TEMPLATESTART"),
 		    y=get("QUALITY"),
 		    fill=get(input$qualityOverTime_col),
-		    text=paste('Duration (mn): ',get("DURATION(mn)"),
+		    text=paste('Duration (mn): ',TEMPLATESTART,
 			       '<br>Quality: ',QUALITY,
 			       '<br>',input$qualityOverTime_col,': ',get(input$qualityOverTime_col),
 			       sep=""
 			      )
 		)
 	) +
-	geom_tile() +
+	geom_tile(width=10,height=0.1) +
 	scale_fill_gradientn(colors=rainbow(5),values=c(0,.5,.6,.7,1) ,limits=c(0,NA), na.value="#E1E1E1") +
 
 	theme_bw() +
@@ -128,6 +140,23 @@ plotQualityOverTime <- function(x) {
 	xlab("Duration(mn)") +
 	ylab("Quality") +
 	labs(fill=input$qualityOverTime_col)
+}
+
+plotReadLength <- function(x) {
+
+	ggplot( x(),
+		aes(x=LENGTH,
+		    weight=COUNT
+		)
+	) +
+	geom_histogram(fill="white",color="black",binwidth=1000) +
+
+	theme_bw() +
+	scale_x_continuous(expand=c(0,0)) +
+	scale_y_continuous(expand=c(0,0)) +
+	
+	xlab("Length(b)") +
+	ylab("Read count")
 }
 
 # ______________________________________________________________________________________
@@ -191,7 +220,7 @@ output$runTable = renderTable(
 output$plot_qualityOverTime <- renderPlotly({
 	req(input$qualityOverTime_col != "")
 	req(nrow(qualityOverTimeReader())>0)
-	ggplotly(plotQualityOverTime(qualityOverTimeReader), tooltip = "text") %>% plotlyConfig() # take only data of the selected run !!!!!!!!!!!!!!!!!!!change condition value to input$runList!!!!!!!!!!!!!!!!!!!
+	ggplotly(plotQualityOverTime(qualityOverTimeReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
 })
 
 
@@ -207,13 +236,18 @@ output$qualityOverTime_colorMetricChoice <- renderUI({
 	)
 })
 
+output$plot_globalReadLength <- renderPlotly({
+	req(nrow(readLengthReader())>0)
+	ggplotly(plotReadLength(readLengthReader)) %>% plotlyConfig() 
+})
+
 # ______________________________________________________________________________________
 # 
 
 # update drop-down list of run
 observe({
 
-	runSelected = isolate(input$runList) # save the selected before the update of the list
+	runSelected = isolate(input$runList) # save the run selected before the update of the list
 	listRun = list()
 	
 	if(is.null(runInfoStatReader()) | nrow(runInfoStatReader())==0) {
@@ -227,7 +261,7 @@ observe({
 		)
 
 		if (runSelected == "") {
-			runSelected = runInfoStatReader()[STARTTIME==max(STARTTIME),FLOWCELL] # if there isn't a run selected, take the most recent
+			runSelected = runInfoStatReader()[STARTTIME==max(na.omit(STARTTIME)),FLOWCELL] # if there isn't a run selected, take the most recent in the finished one (in progress run have NA in STARTTIME)
 		}
 	}
 	

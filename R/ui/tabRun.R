@@ -9,22 +9,16 @@ tabRunGlobal <- tabPanel(
 				fluidRow (
 					makeGraphBox("Nombre de bases","globalRunNbBase"),
 					makeGraphBox("Nombre de read", "globalRunNbRead"),
-					makeGraphBox("Speed", "globalRunSpeed")
+					makeGraphBox("Speed", "globalRunSpeed"),
+					makeGraphBox("Read length", "globalReadLength")
 				)
 			),
 		
 			tabPanel(
 				"Channel",
 				fluidRow(
-					makeGraphBox("Stat per channel","channelStatCumul",width=12,height="700px"),
+					makeGraphBox("Stat per channel","channelStatCumul",width=12,height="500"),
 					column(width=3, uiOutput("channelStatCumul_colorMetricChoice"))
-				)
-			),
-			tabPanel(
-				"QualityOverTime",
-				fluidRow(
-					makeGraphBox("Quality over time","qualityOverTime",width=12,height="700px"),
-					column(width=3, uiOutput("qualityOverTime_colorMetricChoice"))
 				)
 			)
 		)
@@ -32,7 +26,7 @@ tabRunGlobal <- tabPanel(
 )
 
 tabRunCurrent <- tabPanel(
-	"Current stat",
+	"Real time stat",
 	fluidRow(
 		tabBox(
 			width=12,
@@ -50,6 +44,13 @@ tabRunCurrent <- tabPanel(
 					makeGraphBox("Stat per channel","channelStatCurrent",12),
 					column(width=3, uiOutput("channelStatCurrent_colorMetricChoice"))
 				)
+			),
+			tabPanel(
+				"QualityOverTime",
+				fluidRow(
+					makeGraphBox("Quality over time","qualityOverTime",width=12,height="700px"),
+					column(width=3, uiOutput("qualityOverTime_colorMetricChoice"))
+				)
 			)
 		)
 	)
@@ -59,7 +60,8 @@ tabRunCurrent <- tabPanel(
 runListSelect <- selectInput(
 	"runList",
 	"List of run",
-	c()
+	c(),
+	width="20%"
 )
 
 runTitle <- textOutput("runTitle")
@@ -67,12 +69,15 @@ runTitle <- textOutput("runTitle")
 tabRun <- tabItem("run",
 	fluidPage(
 		h1(runTitle),
-		runListSelect,
-		box(tableOutput("runTable"),width=12),
-		tabBox( 
-			width=12,
-			tabRunGlobal,
-			tabRunCurrent
+		box(
+			runListSelect,
+			tableOutput("runTable"),
+			tabBox( 
+				width=12,
+				tabRunGlobal,
+				tabRunCurrent
+			),
+			width=12
 		)
 	)
 )

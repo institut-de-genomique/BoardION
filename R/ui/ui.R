@@ -9,7 +9,7 @@ makeGraphBox <- function(name,id,width=6,height="350px") {
                 collapsible = TRUE,
 		width = width,
 #		background="navy",
-		plotlyOutput(paste("plot_",id,sep=""), height = height, inline=T)
+		plotlyOutput(paste("plot_",id,sep=""), height = height, inline=T) %>% withSpinner(type=6)
 	)
 }
 

@@ -162,7 +162,7 @@ output$ib_nbRuns <- renderInfoBox({
 	valueBox(
 		nb_runs,
 		"Runs sequenced",
-		icon = icon("cogs")
+		icon = icon("check-circle")
 	)
 })
 
@@ -171,7 +171,7 @@ output$ib_nbBases <- renderInfoBox({
 	valueBox(
 		nb_bases,
 		"GB sequenced",
-		icon = icon("cogs")
+		icon = icon("chart-line")
 	)
 })
 
