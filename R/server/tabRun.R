@@ -166,23 +166,9 @@ plotReadLength <- function(x) {
 }
 
 # ______________________________________________________________________________________
-# RENDER
-
-output$runTitle <- renderText({
-	req(input$runList != "")
-	state = ""
-	state = runInfoStatReader()[FLOWCELL==input$runList,ENDED]
-	
-	if(state == "YES") {
-		state = "COMPLETED"
-	} else if(state == "NO") {
-		state = "IN PROGRESS"
-	}
-	paste(input$runList," - ",state,sep="")
-})
+# RENDER PLOT
 
 output$plot_globalRunNbBase <- renderPlotly({
-#output$plot_globalRunNbBase <- renderPlot({
 	req(nrow(globalStatReader())>0)
 	ggplotly(plotRunNbBase(globalStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
 })
@@ -212,18 +198,38 @@ output$plot_currentRunSpeed <- renderPlotly({
 	ggplotly(plotRunSpeed(currentStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
 })
 
-output$runTable = DT::renderDataTable(
-	req(nrow(runInfoStatReader()>0))
-	runInfoStatReader()[FLOWCELL==input$runList],
-	options = list(searching = FALSE, paging = FALSE)
-)
-
 output$plot_qualityOverTime <- renderPlotly({
 	req(input$qualityOverTime_col != "")
 	req(nrow(qualityOverTimeReader())>0)
 	ggplotly(plotQualityOverTime(qualityOverTimeReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
 })
 
+output$plot_globalReadLength <- renderPlotly({
+	req(nrow(readLengthReader())>0)
+	ggplotly(plotReadLength(readLengthReader)) %>% plotlyConfig() 
+})
+
+# ______________________________________________________________________________________
+# RENDER OTHER
+
+output$runTitle <- renderText({
+	req(input$runList != "")
+	state = ""
+	state = runInfoStatReader()[FLOWCELL==input$runList,ENDED]
+	
+	if(state == "YES") {
+		state = "COMPLETED"
+	} else if(state == "NO") {
+		state = "IN PROGRESS"
+	}
+	paste(input$runList," - ",state,sep="")
+})
+
+output$runTable = DT::renderDataTable(
+	req(nrow(runInfoStatReader()>0))
+	runInfoStatReader()[FLOWCELL==input$runList],
+	options = list(searching = FALSE, paging = FALSE)
+)
 
 output$qualityOverTime_colorMetricChoice <- renderUI({
         req(nrow(qualityOverTimeReader())>0)
@@ -237,13 +243,8 @@ output$qualityOverTime_colorMetricChoice <- renderUI({
 	)
 })
 
-output$plot_globalReadLength <- renderPlotly({
-	req(nrow(readLengthReader())>0)
-	ggplotly(plotReadLength(readLengthReader)) %>% plotlyConfig() 
-})
-
 # ______________________________________________________________________________________
-# 
+# UPDATE
 
 # update drop-down list of run
 observe({
