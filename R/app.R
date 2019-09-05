@@ -5,6 +5,7 @@ library(shinydashboard)
 library(data.table)
 library(readr)
 library(shinycssloaders)
+library(DT)
 
 require(bit64)
 

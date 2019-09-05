@@ -48,8 +48,12 @@ tabRunCurrent <- tabPanel(
 			tabPanel(
 				"QualityOverTime",
 				fluidRow(
+					column(width=2,uiOutput("qualityOverTime_colorMetricChoice")),
+					column(width=2,checkboxInput("qualityOverTime_logCheckBox", "Log10_color", FALSE))
+				),
+				fluidRow(
 					makeGraphBox("Quality over time","qualityOverTime",width=12,height="700px"),
-					column(width=3, uiOutput("qualityOverTime_colorMetricChoice"))
+					width=12
 				)
 			)
 		)
@@ -69,15 +73,15 @@ runTitle <- textOutput("runTitle")
 tabRun <- tabItem("run",
 	fluidPage(
 		h1(runTitle),
-		box(
+		fluidRow(column(
 			runListSelect,
-			tableOutput("runTable"),
+			DT::dataTableOutput("runTable"),
 			tabBox( 
 				width=12,
 				tabRunGlobal,
 				tabRunCurrent
 			),
 			width=12
-		)
+		))
 	)
 )

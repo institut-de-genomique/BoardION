@@ -76,10 +76,7 @@ plotRunIPYield <- function(x) {
 # ______________________________________________________________________________________
 # RENDER
 
-output$runIPTable = renderTable(
-	{runInfoStatReader()[ENDED=="NO"]},
-	bordered = TRUE
-)
+output$runIPTable = DT::renderDataTable(runInfoStatReader()[ENDED=="NO"])
 
 output$plot_globalRunIPYield = renderPlotly({
 	if(nrow(runIPGlobalStatReader())) {

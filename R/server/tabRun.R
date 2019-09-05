@@ -119,7 +119,7 @@ plotRunSpeed <- function(x) {
 
 plotQualityOverTime <- function(x) {
 
-	ggplot( x(),
+	g <- ggplot( x(),
 		aes(x=get("TEMPLATESTART"),
 		    y=get("QUALITY"),
 		    fill=get(input$qualityOverTime_col),
@@ -131,15 +131,21 @@ plotQualityOverTime <- function(x) {
 		)
 	) +
 	geom_tile(width=10,height=0.1) +
-	scale_fill_gradientn(colors=rainbow(5),values=c(0,.5,.6,.7,1) ,limits=c(0,NA), na.value="#E1E1E1") +
 
 	theme_bw() +
 	scale_x_continuous(expand=c(0,0)) +
 	scale_y_continuous(expand=c(0,0)) +
-	
+
 	xlab("Duration(mn)") +
 	ylab("Quality") +
 	labs(fill=input$qualityOverTime_col)
+
+	if(input$qualityOverTime_logCheckBox) {
+		g <- g + scale_fill_gradientn(colors=rainbow(5),values=c(0,.5,.6,.7,1), na.value="#E1E1E1", trans="log10")
+	} else {
+		g <- g + scale_fill_gradientn(colors=rainbow(5),values=c(0,.5,.6,.7,1), na.value="#E1E1E1")
+	}
+	return(g)
 }
 
 plotReadLength <- function(x) {
@@ -177,44 +183,39 @@ output$runTitle <- renderText({
 
 output$plot_globalRunNbBase <- renderPlotly({
 #output$plot_globalRunNbBase <- renderPlot({
-	if(nrow(globalStatReader())) {
-		ggplotly(plotRunNbBase(globalStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
-	}
+	req(nrow(globalStatReader())>0)
+	ggplotly(plotRunNbBase(globalStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
 })
 
 output$plot_globalRunNbRead <- renderPlotly({
-	if(nrow(globalStatReader())) {
-		ggplotly(plotRunNbRead(globalStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
-	}
+	req(nrow(globalStatReader())>0)
+	ggplotly(plotRunNbRead(globalStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
 })
 
 output$plot_globalRunSpeed <- renderPlotly({
-	if(nrow(globalStatReader())) {
-		ggplotly(plotRunSpeed(globalStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
-	}
+	req(nrow(globalStatReader())>0)
+	ggplotly(plotRunSpeed(globalStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
 })
 
 output$plot_currentRunNbBase <- renderPlotly({
-	if(nrow(currentStatReader())) {
-		ggplotly(plotRunNbBase(currentStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
-	}
+	req(nrow(currentStatReader())>0)
+	ggplotly(plotRunNbBase(currentStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
 })
 
 output$plot_currentRunNbRead <- renderPlotly({
-	if(nrow(currentStatReader())) {
-		ggplotly(plotRunNbRead(currentStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
-	}
+	req(nrow(currentStatReader())>0)
+	ggplotly(plotRunNbRead(currentStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
 })
 
 output$plot_currentRunSpeed <- renderPlotly({
-	if(nrow(currentStatReader())) {
-		ggplotly(plotRunSpeed(currentStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
-	}
+	req(nrow(currentStatReader())>0)
+	ggplotly(plotRunSpeed(currentStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
 })
 
-output$runTable = renderTable(
-	{runInfoStatReader()[FLOWCELL==input$runList]},
-	bordered = TRUE
+output$runTable = DT::renderDataTable(
+	req(nrow(runInfoStatReader()>0))
+	runInfoStatReader()[FLOWCELL==input$runList],
+	options = list(searching = FALSE, paging = FALSE)
 )
 
 output$plot_qualityOverTime <- renderPlotly({

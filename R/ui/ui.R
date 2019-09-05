@@ -17,7 +17,7 @@ makeGraphBox <- function(name,id,width=6,height="350px") {
 # ______________________________________________________________________________________
 # HEADER
 
-header <- dashboardHeader(title = "PromethIon dashboard")
+header <- dashboardHeader(title = "BoardIon")
 
 
 # ______________________________________________________________________________________
@@ -41,7 +41,11 @@ body <- dashboardBody (
 		tabComparison,
 		tabRunInProgress
 	),
-	tags$script(HTML("$('body').addClass('fixed');")) # Lock the header bar and the side bar
+	tags$script(HTML("$(function(){
+		$('body').addClass('fixed');
+	});
+	
+	")) # Lock the header bar and the side bar
 	#shinyDashboardThemes( theme = "grey_light" )
 )
 
