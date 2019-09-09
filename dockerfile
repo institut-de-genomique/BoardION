@@ -9,8 +9,7 @@ RUN yum update -y && yum install -y \
 	libxml2-devel \
 	udunits2-devel && \
 	yum install -y R && \
-	R -e 'install.packages(c("bit64","ggplot2","plotly","shiny","shinydashboard","data.table","readr","devtools","shinycssloaders"),repos="https://mirror.ibcp.fr/pub/CRAN/");'
-RUN R -e 'install.packages(c("DT"),repos="https://mirror.ibcp.fr/pub/CRAN/");'
+	R -e 'install.packages(c("bit64","ggplot2","plotly","shiny","shinydashboard","data.table","readr","devtools","shinycssloaders","DT"),repos="https://mirror.ibcp.fr/pub/CRAN/");'
 COPY ./R /usr/local/src
 WORKDIR /usr/local/src/
 ENTRYPOINT Rscript app.R

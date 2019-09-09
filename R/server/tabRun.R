@@ -64,7 +64,7 @@ plotRunNbBase <- function(x) {
 	
 	theme_bw() +
 #	theme(text = element_text(size=20)) +
-	scale_fill_gradientn(colors=rainbow(5),values=c(0,.5,.6,.7,1) ,limits=c(0,15)) +
+	scale_fill_gradientn(colors=myColorGrandient,values=myColorStep ,limits=c(0,15)) +
 	xlab("Duration(mn)") +
 	ylab("Yield (bases)") +
 	labs(fill='Quality')
@@ -88,7 +88,7 @@ plotRunNbRead <- function(x) {
 	geom_col(position="dodge", width = 10) +
 	
 	theme_bw() +
-	scale_fill_gradientn(colors=rainbow(5),values=c(0,.5,.6,.7,1) ,limits=c(0,15)) +
+	scale_fill_gradientn(colors=myColorGrandient,values=myColorStep ,limits=c(0,15)) +
 	xlab("Duration(mn)") +
 	ylab("Number of reads") +
 	labs(fill='Quality')
@@ -110,7 +110,7 @@ plotRunSpeed <- function(x) {
 	geom_col(position="dodge", width = 10) +
 	
 	theme_bw() +
-	scale_fill_gradientn(colors=rainbow(5),values=c(0,.5,.6,.7,1) ,limits=c(0,15)) +
+	scale_fill_gradientn(colors=myColorGrandient,values=myColorStep ,limits=c(0,15)) +
 	xlab("Duration(mn)") +
 	ylab("Speed (bases/min)") +
 	labs(fill='Quality')
@@ -141,9 +141,9 @@ plotQualityOverTime <- function(x) {
 	labs(fill=input$qualityOverTime_col)
 
 	if(input$qualityOverTime_logCheckBox) {
-		g <- g + scale_fill_gradientn(colors=rainbow(5),values=c(0,.5,.6,.7,1), na.value="#E1E1E1", trans="log10")
+		g <- g + scale_fill_gradientn(colors=myColorGrandient,values=myColorStep, na.value="#E1E1E1", trans="log10")
 	} else {
-		g <- g + scale_fill_gradientn(colors=rainbow(5),values=c(0,.5,.6,.7,1), na.value="#E1E1E1")
+		g <- g + scale_fill_gradientn(colors=myColorGrandient,values=myColorStep, na.value="#E1E1E1")
 	}
 	return(g)
 }
@@ -226,15 +226,14 @@ output$runTitle <- renderText({
 })
 
 output$runTable = DT::renderDataTable(
-	req(nrow(runInfoStatReader()>0))
 	runInfoStatReader()[FLOWCELL==input$runList],
 	options = list(searching = FALSE, paging = FALSE)
 )
 
 output$qualityOverTime_colorMetricChoice <- renderUI({
         req(nrow(qualityOverTimeReader())>0)
-	colnames(qualityOverTimeReader()) -> cn
-        #cn = cn[ !cn %in% c("flowcell","channel","count") ]
+	cn <- colnames(qualityOverTimeReader())
+        cn = cn[ !cn %in% c("QUALITY","STARTTIME") ]
 	selectInput(
 		"qualityOverTime_col",
 		"Select metric",

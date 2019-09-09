@@ -8,9 +8,8 @@ runInfoStatReader <- reactive ({
 		filePath       = paste(reportingFolder,"/run_infostat.txt",sep=""),
 		readFunc       = readCsvSpace2
 	)()
-
 	data[,STARTTIME := as.POSIXct(STARTTIME,format="%Y-%m-%dT%H:%M:%S")]
-
+	return(data)
 })
 
 # ______________________________________________________________________________________
@@ -82,6 +81,7 @@ plotGlobalAxeChoice <- function(x) {
 # RENDER
 
 output$nbReadRun <- renderPlotly({
+	req(nrow(runInfoStatReader())>0)
 	#plotGlobalNbRead(runInfoStatReader())
 	plot_ly(runInfoStatReader(), x= ~get("FLOWCELL"), y=~get("YIELD(b)"), type= "bar", source = "globalBar") %>% 
 	layout(xaxis = list(title="Flowcell"), yaxis = list(title="Yield (bases)")) %>% 
@@ -94,6 +94,7 @@ output$axeChoice <- renderPlotly ({
 })
 
 output$xAxeChoice <- renderUI({
+	req(nrow(runInfoStatReader())>0)
 	selectInput(
 		"xaxe",
 		"X axe",
@@ -103,6 +104,7 @@ output$xAxeChoice <- renderUI({
 })
 
 output$yAxeChoice <- renderUI({
+	req(nrow(runInfoStatReader())>0)
 	colToDrop = c("FLOWCELL","STARTTIME")
 	colN = colnames(runInfoStatReader())
 	colN = colN[! colN %in% colToDrop]
@@ -116,28 +118,34 @@ output$yAxeChoice <- renderUI({
 })
 
 output$groupByChoice <- renderUI({
+	req(nrow(runInfoStatReader())>0,input$xaxe)
 
-	slider.min=0
-	slider.max=100
-	slider.step=1
-
-	if(input$xaxe == "STARTTIME") {
+	if(input$xaxe == "FLOWCELL") {
+		return()
+	} else if(input$xaxe == "STARTTIME") {
 		bins = c("Year","Month")
+		return(selectInput(
+			"groupBy",
+			"",
+			bins,
+			selected="Month"
+		))
 	} else {
+		slider.min=0
 		slider.max = max(runInfoStatReader()[,get(input$xaxe)])
 		lowestPowOf10 = 10**as.integer(log10(slider.max))
 		slider.max = slider.max + lowestPowOf10
 		slider.step = 0.01*lowestPowOf10
-	}
 
-	sliderInput(
-		"groupBy",
-		"Bin size",
-		min = slider.min,
-		max = slider.max,
-		step = slider.step,
-		value = 0
-	)
+		return(sliderInput(
+			"groupBy",
+			"Bin size",
+			min = slider.min,
+			max = slider.max,
+			step = slider.step,
+			value = 0
+		))
+	}
 
 	#bins = c(100000,1000000,10000000)
 	# selectInput(
@@ -149,6 +157,7 @@ output$groupByChoice <- renderUI({
 })
 
 output$ib_nbRunInProgress <- renderInfoBox({
+	req(nrow(runInfoStatReader())>0)
 	nb_runInProgress = length(runInfoStatReader()[ENDED=="NO",FLOWCELL])
 	valueBox(
 		nb_runInProgress,
@@ -158,6 +167,7 @@ output$ib_nbRunInProgress <- renderInfoBox({
 })
 
 output$ib_nbRuns <- renderInfoBox({
+	req(nrow(runInfoStatReader())>0)
 	nb_runs = nrow(runInfoStatReader())
 	valueBox(
 		nb_runs,
@@ -167,6 +177,7 @@ output$ib_nbRuns <- renderInfoBox({
 })
 
 output$ib_nbBases <- renderInfoBox({
+	req(nrow(runInfoStatReader())>0)
 	nb_bases = as.integer( sum(runInfoStatReader()[,get("YIELD(b)")]) / 1e+09 )
 	valueBox(
 		nb_bases,
