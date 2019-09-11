@@ -155,7 +155,8 @@ plotReadLength <- function(x) {
 		    weight=COUNT
 		)
 	) +
-	geom_histogram(fill="white",color="black",binwidth=1000) +
+	geom_histogram(fill=bluePlotly, binwidth=1000) +
+	coord_cartesian(xlim = c(0, 10000)) +
 
 	theme_bw() +
 	scale_x_continuous(expand=c(0,0)) +
@@ -206,7 +207,7 @@ output$plot_qualityOverTime <- renderPlotly({
 
 output$plot_globalReadLength <- renderPlotly({
 	req(nrow(readLengthReader())>0)
-	ggplotly(plotReadLength(readLengthReader)) %>% plotlyConfig() 
+	ggplotly(plotReadLength(readLengthReader), dynamicTicks = TRUE) %>% plotlyConfig() 
 })
 
 # ______________________________________________________________________________________

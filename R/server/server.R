@@ -9,6 +9,8 @@ reportingFolder = "/test_data"
 myColorGrandient = c("#CC3D3D","#FFDD32","#B3D84B","#50B7C4")
 myColorStep      = c(0,        0.3,      0.7,      1        )
 
+bluePlotly = "#1F77B4"
+
 # ______________________________________________________________________________________
 # FUNCTIONS
 
@@ -42,6 +44,10 @@ plotlyConfig <- function(p) {
 		)
 	)
 }
+
+#nbRunIP <- function(x) {
+#	nrow(x()[ENDED=="NO",FLOWCELL])
+#}
 
 #renderPlotly <- function(p,dynamicTicks=TRUE, tooltip="text") {
 #	ggplotly(p, dynamicTicks = dynamicTicks, tooltip = tooltip) %>% plotlyConfig()
