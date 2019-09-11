@@ -1,19 +1,17 @@
 tabRunInProgress <- tabItem(
 	"runInProgress",
-	tags$script(
-	'$(function(){
-//		$("#coucou_maman2").on("DOMSubtreeModified", ".tab-content:first-of-type", function() {
-//			$(this).css("height",$(".plot-container.plotly").outerHeight());
-//		});
-
-//		$(".tab-content").ready(function(){
-//			$(this).css("height",$(".plot-container.plotly").outerHeight());
-//		});
-		
-
-	});'
-	),
-	tags$div(id="coucou_maman2",
+#	tags$script(
+#	'$(function(){
+#//		$("#coucou_maman2").on("DOMSubtreeModified", ".tab-content:first-of-type", function() {
+#//			$(this).css("height",$(".plot-container.plotly").outerHeight());
+#//		});
+#
+#//		$(".tab-content").ready(function(){
+#//			$(this).css("height",$(".plot-container.plotly").outerHeight());
+#//		});
+#	});'
+#	),
+#	tags$div(id="coucou_maman2",
 		fluidPage(
 			DT::dataTableOutput("runIPTable"),
 			tabBox(
