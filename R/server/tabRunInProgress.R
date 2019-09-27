@@ -66,7 +66,7 @@ plotRunIPYield <- function(x) {
 	facet_grid(rows=vars(FLOWCELL)) +
 
 	theme_bw() +
-	scale_fill_gradientn(colors=rainbow(5),values=c(0,.5,.6,.7,1) ,limits=c(0,15)) +
+	scale_fill_gradientn(colors=myColorGrandient,values=myColorStep ,limits=c(0,15)) +
 	xlab("Duration(mn)") +
 	ylab("Yield (bases)") +
 	labs(fill='Quality')
@@ -76,9 +76,8 @@ plotRunIPYield <- function(x) {
 # ______________________________________________________________________________________
 # RENDER
 
-output$runIPTable = renderTable(
-	{runInfoStatReader()[ENDED=="NO"]},
-	bordered = TRUE
+output$runIPTable = DT::renderDataTable(
+	runInfoStatReader()[ENDED=="NO"]
 )
 
 output$plot_globalRunIPYield = renderPlotly({

@@ -20,10 +20,22 @@ currentStatReader <- reactive ({
 })
 
 qualityOverTimeReader <- reactive ({
-	reactiveFileReader(
+	dt = reactiveFileReader(
 		intervalMillis = 60000,
 		session	       = NULL,
 		filePath       = paste(reportingFolder,"/",input$runList,"_quality_stat.txt",sep=""),
+		readFunc       = readCsvSpace2
+	)()
+
+	dt[,LENGTHCUMUL:=LENGTH*`#READS`]
+	return(dt)
+})
+
+readLengthReader <- reactive ({
+	reactiveFileReader(
+		intervalMillis = 60000,
+		session	       = NULL,
+		filePath       = paste(reportingFolder,"/",input$runList,"_readsLength.txt",sep=""),
 		readFunc       = readCsvSpace2
 	)()
 })
@@ -52,7 +64,7 @@ plotRunNbBase <- function(x) {
 	
 	theme_bw() +
 #	theme(text = element_text(size=20)) +
-	scale_fill_gradientn(colors=rainbow(5),values=c(0,.5,.6,.7,1) ,limits=c(0,15)) +
+	scale_fill_gradientn(colors=myColorGrandient,values=myColorStep ,limits=c(0,15)) +
 	xlab("Duration(mn)") +
 	ylab("Yield (bases)") +
 	labs(fill='Quality')
@@ -76,7 +88,7 @@ plotRunNbRead <- function(x) {
 	geom_col(position="dodge", width = 10) +
 	
 	theme_bw() +
-	scale_fill_gradientn(colors=rainbow(5),values=c(0,.5,.6,.7,1) ,limits=c(0,15)) +
+	scale_fill_gradientn(colors=myColorGrandient,values=myColorStep ,limits=c(0,15)) +
 	xlab("Duration(mn)") +
 	ylab("Number of reads") +
 	labs(fill='Quality')
@@ -98,7 +110,7 @@ plotRunSpeed <- function(x) {
 	geom_col(position="dodge", width = 10) +
 	
 	theme_bw() +
-	scale_fill_gradientn(colors=rainbow(5),values=c(0,.5,.6,.7,1) ,limits=c(0,15)) +
+	scale_fill_gradientn(colors=myColorGrandient,values=myColorStep ,limits=c(0,15)) +
 	xlab("Duration(mn)") +
 	ylab("Speed (bases/min)") +
 	labs(fill='Quality')
@@ -107,31 +119,98 @@ plotRunSpeed <- function(x) {
 
 plotQualityOverTime <- function(x) {
 
-	ggplot( x(),
-		aes(x=get("STARTTIME"),
+	g <- ggplot( x(),
+		aes(x=get("TEMPLATESTART"),
 		    y=get("QUALITY"),
 		    fill=get(input$qualityOverTime_col),
-		    text=paste('Duration (mn): ',get("DURATION(mn)"),
+		    text=paste('Duration (mn): ',TEMPLATESTART,
 			       '<br>Quality: ',QUALITY,
 			       '<br>',input$qualityOverTime_col,': ',get(input$qualityOverTime_col),
 			       sep=""
 			      )
 		)
 	) +
-	geom_tile() +
-	scale_fill_gradientn(colors=rainbow(5),values=c(0,.5,.6,.7,1) ,limits=c(0,NA), na.value="#E1E1E1") +
+	geom_tile(width=10,height=0.1) +
+
+	theme_bw() +
+	scale_x_continuous(expand=c(0,0)) +
+	scale_y_continuous(expand=c(0,0)) +
+
+	xlab("Duration(mn)") +
+	ylab("Quality") +
+	labs(fill=input$qualityOverTime_col)
+
+	if(input$qualityOverTime_logCheckBox) {
+		g <- g + scale_fill_gradientn(colors=myColorGrandient,values=myColorStep, na.value="#E1E1E1", trans="log10")
+	} else {
+		g <- g + scale_fill_gradientn(colors=myColorGrandient,values=myColorStep, na.value="#E1E1E1")
+	}
+	return(g)
+}
+
+plotReadLength <- function(x) {
+
+	ggplot( x(),
+		aes(x=LENGTH,
+		    weight=COUNT
+		)
+	) +
+	geom_histogram(fill="white",color="black",binwidth=1000) +
 
 	theme_bw() +
 	scale_x_continuous(expand=c(0,0)) +
 	scale_y_continuous(expand=c(0,0)) +
 	
-	xlab("Duration(mn)") +
-	ylab("Quality") +
-	labs(fill=input$qualityOverTime_col)
+	xlab("Length(b)") +
+	ylab("Read count")
 }
 
 # ______________________________________________________________________________________
-# RENDER
+# RENDER PLOT
+
+output$plot_globalRunNbBase <- renderPlotly({
+	req(nrow(globalStatReader())>0)
+	ggplotly(plotRunNbBase(globalStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+})
+
+output$plot_globalRunNbRead <- renderPlotly({
+	req(nrow(globalStatReader())>0)
+	ggplotly(plotRunNbRead(globalStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+})
+
+output$plot_globalRunSpeed <- renderPlotly({
+	req(nrow(globalStatReader())>0)
+	ggplotly(plotRunSpeed(globalStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+})
+
+output$plot_currentRunNbBase <- renderPlotly({
+	req(nrow(currentStatReader())>0)
+	ggplotly(plotRunNbBase(currentStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+})
+
+output$plot_currentRunNbRead <- renderPlotly({
+	req(nrow(currentStatReader())>0)
+	ggplotly(plotRunNbRead(currentStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+})
+
+output$plot_currentRunSpeed <- renderPlotly({
+	req(nrow(currentStatReader())>0)
+	ggplotly(plotRunSpeed(currentStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+})
+
+output$plot_qualityOverTime <- renderPlotly({
+	req(input$qualityOverTime_col != "")
+	req(nrow(qualityOverTimeReader())>0)
+	ggplotly(plotQualityOverTime(qualityOverTimeReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+})
+
+output$plot_globalReadLength <- renderPlotly({
+	req(nrow(readLengthReader())>0)
+	ggplotly(plotReadLength(readLengthReader)) %>% plotlyConfig() 
+})
+
+# ______________________________________________________________________________________
+# RENDER OTHER
 
 output$runTitle <- renderText({
 	req(input$runList != "")
@@ -146,59 +225,15 @@ output$runTitle <- renderText({
 	paste(input$runList," - ",state,sep="")
 })
 
-output$plot_globalRunNbBase <- renderPlotly({
-#output$plot_globalRunNbBase <- renderPlot({
-	if(nrow(globalStatReader())) {
-		ggplotly(plotRunNbBase(globalStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
-	}
-})
-
-output$plot_globalRunNbRead <- renderPlotly({
-	if(nrow(globalStatReader())) {
-		ggplotly(plotRunNbRead(globalStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
-	}
-})
-
-output$plot_globalRunSpeed <- renderPlotly({
-	if(nrow(globalStatReader())) {
-		ggplotly(plotRunSpeed(globalStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
-	}
-})
-
-output$plot_currentRunNbBase <- renderPlotly({
-	if(nrow(currentStatReader())) {
-		ggplotly(plotRunNbBase(currentStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
-	}
-})
-
-output$plot_currentRunNbRead <- renderPlotly({
-	if(nrow(currentStatReader())) {
-		ggplotly(plotRunNbRead(currentStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
-	}
-})
-
-output$plot_currentRunSpeed <- renderPlotly({
-	if(nrow(currentStatReader())) {
-		ggplotly(plotRunSpeed(currentStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
-	}
-})
-
-output$runTable = renderTable(
-	{runInfoStatReader()[FLOWCELL==input$runList]},
-	bordered = TRUE
+output$runTable = DT::renderDataTable(
+	runInfoStatReader()[FLOWCELL==input$runList],
+	options = list(searching = FALSE, paging = FALSE)
 )
-
-output$plot_qualityOverTime <- renderPlotly({
-	req(input$qualityOverTime_col != "")
-	req(nrow(qualityOverTimeReader())>0)
-	ggplotly(plotQualityOverTime(qualityOverTimeReader), tooltip = "text") %>% plotlyConfig() # take only data of the selected run !!!!!!!!!!!!!!!!!!!change condition value to input$runList!!!!!!!!!!!!!!!!!!!
-})
-
 
 output$qualityOverTime_colorMetricChoice <- renderUI({
         req(nrow(qualityOverTimeReader())>0)
-	colnames(qualityOverTimeReader()) -> cn
-        #cn = cn[ !cn %in% c("flowcell","channel","count") ]
+	cn <- colnames(qualityOverTimeReader())
+        cn = cn[ !cn %in% c("QUALITY","STARTTIME") ]
 	selectInput(
 		"qualityOverTime_col",
 		"Select metric",
@@ -208,12 +243,12 @@ output$qualityOverTime_colorMetricChoice <- renderUI({
 })
 
 # ______________________________________________________________________________________
-# 
+# UPDATE
 
 # update drop-down list of run
 observe({
 
-	runSelected = isolate(input$runList) # save the selected before the update of the list
+	runSelected = isolate(input$runList) # save the run selected before the update of the list
 	listRun = list()
 	
 	if(is.null(runInfoStatReader()) | nrow(runInfoStatReader())==0) {
@@ -227,7 +262,7 @@ observe({
 		)
 
 		if (runSelected == "") {
-			runSelected = runInfoStatReader()[STARTTIME==max(STARTTIME),FLOWCELL] # if there isn't a run selected, take the most recent
+			runSelected = runInfoStatReader()[STARTTIME==max(na.omit(STARTTIME)),FLOWCELL] # if there isn't a run selected, take the most recent in the finished one (in progress run have NA in STARTTIME)
 		}
 	}
 	

@@ -1,9 +1,13 @@
 # ______________________________________________________________________________________
 # CONFIGURATIONS
 
-reportingFolder = "/home/abruno/dashboard_stats"
+reportingFolder = "/test_data"
+#reportingFolder = "/home/abruno/dashboard_stats"
 #reportingFolder = "/env/ig/atelier/nanopore/cns/PCT0004/promethion_dashboard/report_stats/"
 #reportingFolder = "/env/cns/home/abruno/promethion/PCT0004/reporting/"
+
+myColorGrandient = c("#CC3D3D","#FFDD32","#B3D84B","#50B7C4")
+myColorStep      = c(0,        0.3,      0.7,      1        )
 
 # ______________________________________________________________________________________
 # FUNCTIONS
@@ -39,13 +43,15 @@ plotlyConfig <- function(p) {
 	)
 }
 
-
+#renderPlotly <- function(p,dynamicTicks=TRUE, tooltip="text") {
+#	ggplotly(p, dynamicTicks = dynamicTicks, tooltip = tooltip) %>% plotlyConfig()
+#}
 
 # ______________________________________________________________________________________
 # MAIN SERVER
 
 server <- function(input, output, session) {
-	source("server/sideBar.R",local=TRUE)   # local=TRUE allow source file to use 
+	source("server/sideBar.R",local=TRUE)   # local=TRUE allow source file to use
 	source("server/tabGlobal.R",local=TRUE) # input, output and session arguments
 	source("server/tabRun.R",local=TRUE)
 	source("server/tabComparison.R",local=TRUE)

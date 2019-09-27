@@ -31,10 +31,10 @@ plotChannelStat <- function(x) {
 			      )
 		)
 	) +
-	geom_raster() +
+	geom_tile() +
 	facet_grid(~n,scales="free_x") +
 	
-	scale_fill_gradientn(colors=rainbow(5),values=c(0,.5,.6,.7,1) ,limits=c(0,NA), na.value="#E1E1E1") +
+	scale_fill_gradientn(colors=myColorGrandient,values=myColorStep ,limits=c(0,NA), na.value="#E1E1E1") +
 	scale_x_continuous(expand=c(0,0)) +
 	scale_y_continuous(expand=c(0,0)) +
 
@@ -59,8 +59,8 @@ output$plot_channelStatCumul <- renderPlotly({
 
 output$channelStatCumul_colorMetricChoice <- renderUI({
         req(nrow(channelStatReader())>0)
-	colnames(channelStatReader()) -> cn
-        #cn = cn[ !cn %in% c("flowcell","channel","count") ]
+	cn <- colnames(channelStatReader())
+        cn = cn[ !cn %in% c("channel") ]
 	selectInput(
 		"channelStatCumul_col",
 		"Select metric",
