@@ -38,7 +38,7 @@ Test:
     script:
  #   - docker pull $TEST_IMAGE .
  #   - docker run -d -p 3434:80 --name rundeck_$CI_PIPELINE_ID $TEST_IMAGE
- #   - sleep 5
+    - sleep 5
  #   - docker exec -t rundeck_$CI_PIPELINE_ID systemctl --quiet is-active shiny-server.service || exit 1
  #   - docker stop rundeck_$CI_PIPELINE_ID
     after_script:
