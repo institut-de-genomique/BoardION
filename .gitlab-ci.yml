@@ -1,0 +1,71 @@
+image: docker:latest
+
+stages:
+- build
+#- test
+- release
+- clean
+
+variables:
+    VERSION:       '1.0'
+    REPOSERVER:    'registry.cnrgh.fr'
+    TEST_IMAGE:    '${REPONAME}/rundeck:$CI_PIPELINE_ID'
+    RELEASE_IMAGE: '${REPONAME}/rundeck:${VERSION}'
+    PROD_IMAGE:    '${REPONAME}/rundeck:prodready'
+
+.docker_jobs:
+    image: docker
+
+
+Build:
+    stage: build
+    extends: .docker_jobs
+    when: always
+    before_script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN ${REPOSERVER}
+    script:
+    - docker build --pull -t $TEST_IMAGE .
+    - docker push $TEST_IMAGE
+    after_script:
+    - docker logout ${REPOSERVER}
+
+Test:
+    stage: test
+    extends: .docker_jobs
+    when: always
+    before_script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN ${REPOSERVER}
+    script:
+    - docker pull $TEST_IMAGE .
+    - docker run -d -p 3434:80 --name rundeck_$CI_PIPELINE_ID $TEST_IMAGE
+    - sleep 5
+    - docker exec -t rundeck_$CI_PIPELINE_ID systemctl --quiet is-active shiny-server.service || exit 1
+    - docker stop rundeck_$CI_PIPELINE_ID
+    after_script:
+    - docker logout ${REPOSERVER}
+
+Release:
+    stage: release
+    before_script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN ${REPOSERVER}
+    script:
+    - docker pull $TEST_IMAGE
+    - docker tag $TEST_IMAGE $RELEASE_IMAGE
+    - docker tag $TEST_IMAGE $PROD_IMAGE
+    - docker push $RELEASE_IMAGE
+    - docker push $PROD_IMAGE
+    after_script:
+    - docker logout ${REPOSERVER}
+    when: manual
+    allow_failure: false
+    only:
+    - master
+
+Purge:
+    stage: clean
+    extends: .docker_jobs
+    when: always
+    script:
+    - docker images
+    - docker rm -f rundeck_$CI_PIPELINE_ID || true
+    - docker rmi -f "${TEST_IMAGE}" || true
