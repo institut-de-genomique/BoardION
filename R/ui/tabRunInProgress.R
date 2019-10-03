@@ -1,5 +1,6 @@
 tabRunInProgress <- tabItem(
 	"runInProgress",
+	width=12,
 #	tags$script(
 #	'$(function(){
 #//		$("#coucou_maman2").on("DOMSubtreeModified", ".tab-content:first-of-type", function() {
@@ -27,6 +28,5 @@ tabRunInProgress <- tabItem(
 				)
 			)
 		)
-	),
-	width=12
+#	),
 )

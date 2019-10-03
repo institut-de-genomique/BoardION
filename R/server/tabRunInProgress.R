@@ -1,7 +1,8 @@
 # ______________________________________________________________________________________
 # VAR
 reactiveVal <- reactiveValues(nbRunIP=0)
-plotPixelHeight = 110
+plotPixelHeight = 400
+#110
 # ______________________________________________________________________________________
 # FILES READERS
 
@@ -113,6 +114,7 @@ output$runIPTable = DT::renderDataTable(
 output$plot_globalRunIPYield = renderPlotly({
 	req(nrow(runIPGlobalStatReader()))
 	req(reactiveVal$nbRunIP>0)
+#	ggplotly(ggplot()) %>% plotlyConfig()
 	ggplotly(plotRunIPYield(runIPGlobalStatReader), dynamicTicks = TRUE, tooltip = "text",height=reactiveVal$nbRunIP*plotPixelHeight) %>% plotlyConfig()
 })
 
