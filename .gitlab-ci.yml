@@ -9,9 +9,9 @@ stages:
 variables:
     VERSION:       '1.0'
     REPOSERVER:    'registry.cnrgh.fr'
-    TEST_IMAGE:    '${REPONAME}/rundeck:$CI_PIPELINE_ID'
-    RELEASE_IMAGE: '${REPONAME}/rundeck:${VERSION}'
-    PROD_IMAGE:    '${REPONAME}/rundeck:prodready'
+    TEST_IMAGE:    '${REPONAME}/rdbioseq/promethiondashboard:$CI_PIPELINE_ID'
+    RELEASE_IMAGE: '${REPONAME}/rdbioseq/promethiondashboard:${VERSION}'
+    PROD_IMAGE:    '${REPONAME}/rdbioseq/promethiondashboard:prod'
 
 .docker_jobs:
     image: docker
