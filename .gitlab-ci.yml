@@ -19,7 +19,8 @@ variables:
 
 Build:
     stage: build
-    tags: docker_build
+    tags: 
+    - docker_build
     extends: .docker_jobs
     when: always
     before_script:
