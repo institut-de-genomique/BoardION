@@ -6,7 +6,7 @@ globalStatReader <- reactive ({
 		intervalMillis = 60000,
 		session	       = NULL,
 		filePath       = paste(reportingFolder,"/",input$runList,"_globalstat.txt",sep=""),
-		readFunc       = readCsvSpace2
+		readFunc       = readCsvSpace
 	)()
 })
 
@@ -15,7 +15,7 @@ currentStatReader <- reactive ({
 		intervalMillis = 60000,
 		session	       = NULL,
 		filePath       = paste(reportingFolder,"/",input$runList,"_currentstat.txt",sep=""),
-		readFunc       = readCsvSpace2
+		readFunc       = readCsvSpace
 	)()
 })
 
@@ -24,7 +24,7 @@ qualityOverTimeReader <- reactive ({
 		intervalMillis = 60000,
 		session	       = NULL,
 		filePath       = paste(reportingFolder,"/",input$runList,"_quality_stat.txt",sep=""),
-		readFunc       = readCsvSpace2
+		readFunc       = readCsvSpace
 	)()
 
 	dt[,LENGTHCUMUL:=LENGTH*`#READS`]
@@ -36,7 +36,7 @@ readLengthReader <- reactive ({
 		intervalMillis = 60000,
 		session	       = NULL,
 		filePath       = paste(reportingFolder,"/",input$runList,"_readsLength.txt",sep=""),
-		readFunc       = readCsvSpace2
+		readFunc       = readCsvSpace
 	)()
 })
 
@@ -155,12 +155,11 @@ plotReadLength <- function(x) {
 		    weight=COUNT
 		)
 	) +
-	geom_histogram(fill=bluePlotly, binwidth=1000) +
-	coord_cartesian(xlim = c(0, 10000)) +
+	geom_histogram(fill="white",color="black",binwidth=1000) +
 
 	theme_bw() +
 	scale_x_continuous(expand=c(0,0)) +
-	scale_y_continuous(expand=c(0,0)) +
+#	scale_y_continuous(expand=c(0,0), breaks = scales::pretty_breaks(n = as.integer(max(x()$LENGTH)))) +
 	
 	xlab("Length(b)") +
 	ylab("Read count")
@@ -207,7 +206,7 @@ output$plot_qualityOverTime <- renderPlotly({
 
 output$plot_globalReadLength <- renderPlotly({
 	req(nrow(readLengthReader())>0)
-	ggplotly(plotReadLength(readLengthReader), dynamicTicks = TRUE) %>% plotlyConfig() 
+	ggplotly(plotReadLength(readLengthReader)) %>% plotlyConfig() 
 })
 
 # ______________________________________________________________________________________

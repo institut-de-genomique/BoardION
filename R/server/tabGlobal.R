@@ -1,16 +1,31 @@
 # ______________________________________________________________________________________
 # FILES READERS
 
-runInfoStatReader <- reactive ({
-	data <- reactiveFileReader(
-		intervalMillis = 60000,
-		session	       = NULL,
-		filePath       = paste(reportingFolder,"/run_infostat.txt",sep=""),
-		readFunc       = readCsvSpace2
-	)()
-	data[,STARTTIME := as.POSIXct(STARTTIME,format="%Y-%m-%dT%H:%M:%S")]
-	return(data)
+#runInfoStatReader <- reactive ({
+#	data <- reactiveFileReader(
+#		intervalMillis = 60000,
+#		session	       = NULL,
+#		filePath       = paste(reportingFolder,"/run_infostat.txt",sep=""),
+#		readFunc       = readCsvSpace
+#	)()
+#	data[,STARTTIME := as.POSIXct(STARTTIME,format="%Y-%m-%dT%H:%M:%S")]
+#	return(data)
+#})
+
+
+runInfoStatReader<-reactiveFileReader(
+       	intervalMillis = 6000,
+       	session        = NULL,
+       	filePath       = paste(reportingFolder,"/run_infostat.txt",sep=""),
+       	readFunc       = fread
+)
+
+
+rip <- reactive({ # run in progress
+	runInfoStatReader()[ENDED=="NO",FLOWCELL]
 })
+
+
 
 # ______________________________________________________________________________________
 # PLOTS
@@ -83,8 +98,11 @@ plotGlobalAxeChoice <- function(x) {
 output$nbReadRun <- renderPlotly({
 	req(nrow(runInfoStatReader())>0)
 	#plotGlobalNbRead(runInfoStatReader())
-	plot_ly(runInfoStatReader(), x= ~get("FLOWCELL"), y=~get("YIELD(b)"), type= "bar", source = "globalBar") %>% 
-	layout(xaxis = list(title="Flowcell"), yaxis = list(title="Yield (bases)")) %>% 
+
+	ggplotly ( ggplot(runInfoStatReader(),aes(x=get("FLOWCELL"), y=get("YIELD(b)"))) + geom_col() ) %>%
+
+#	plot_ly(runInfoStatReader(), x= ~get("FLOWCELL"), y=~get("YIELD(b)")) %>% #, type= "bar")  , source = "globalBar") %>% 
+#	layout(xaxis = list(title="Flowcell"), yaxis = list(title="Yield (bases)")) %>% 
 	plotlyConfig()
 })
 
@@ -189,28 +207,20 @@ output$ib_nbBases <- renderInfoBox({
 
 # ______________________________________________________________________________________
 # Click on a run of the graph to display the page of this run
-observeEvent(
-	event_data("plotly_click", source = "globalBar"),
-	{
-		d <- event_data("plotly_click", source = "globalBar")
-		updateSelectInput(
-			session,
-			"runList",
-			selected = d
-		)
-		updateTabItems(
-			session,
-			"menu",
-			selected = "run"
-		)
-	}
-)
+#observeEvent(
+#	event_data("plotly_click", source = "globalBar"),
+#	{
+#		d <- event_data("plotly_click", source = "globalBar")
+#		updateSelectInput(
+#			session,
+#			"runList",
+#			selected = d
+#		)
+#		updateTabItems(
+#			session,
+#			"menu",
+#			selected = "run"
+#		)
+#	}
+#)
 
-# ______________________________________________________________________________________
-# Functions
-vect2bin <- function(x, lower = 0, upper, by = 10) {
-	seq(lower, upper, by = by)
-	df = data.frame(lower = seq(lower, upper, by = by), upper = seq(lower + by - 1, upper+by, by = by))
-	labs = apply(df,FUN=mean,MARGIN=1)
-	cut(floor(x), breaks = c(seq(lower, upper, by = by), Inf), right = FALSE, labels = labs)
-}	

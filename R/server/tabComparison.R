@@ -3,7 +3,7 @@ dataSet <- reactive ({
 	data<-data.frame()
 
 	for(f in files) {
-		data = rbind(data,readCsvSpace2(f))
+		data = rbind(data,readCsvSpace(f))
 	}
 	return(data)
 })
