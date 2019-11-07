@@ -1,10 +1,13 @@
 library(ggplot2)
 library(plotly)
+
 library(shiny)
 library(shinydashboard)
+library(shinycssloaders)
+library(shinyWidgets)
+
 library(data.table)
 library(readr)
-library(shinycssloaders)
 library(DT)
 
 require(bit64)

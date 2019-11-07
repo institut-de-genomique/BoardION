@@ -153,13 +153,16 @@ plotReadLength <- function(x) {
 	ggplot( x(),
 		aes(x=LENGTH,
 		    weight=COUNT
+#			text=paste('Length (b): ',LENGTH,
+#				   '<br>Count: ',COUNT,
+#				   sep=''
+#			)
 		)
 	) +
 	geom_histogram(fill="white",color="black",binwidth=1000) +
 
 	theme_bw() +
 	scale_x_continuous(expand=c(0,0)) +
-#	scale_y_continuous(expand=c(0,0), breaks = scales::pretty_breaks(n = as.integer(max(x()$LENGTH)))) +
 	
 	xlab("Length(b)") +
 	ylab("Read count")
