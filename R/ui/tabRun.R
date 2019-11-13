@@ -1,17 +1,19 @@
-tabRunGlobal_boxAxeChoice <-box(
-	title = "",
-	status = "primary",
-	solidHeader = TRUE,
-	collapsible = TRUE,
-	width=12,
-	fluidRow(
-		column(width=2, uiOutput("tabRunGlobal_xAxeChoice") ),
-		column(width=2, uiOutput("tabRunGlobal_yAxeChoice") ),
-		column(width=2, uiOutput("tabRunGlobal_colorChoice") )
-	),
-	plotlyOutput("tabRunGlobal_plotAxeChoice", height = "350px")
-)
+makeRunCustomablePlot <- function(name,w=12) {
+	box(
+		title = "",
+		status = "primary",
+		solidHeader = TRUE,
+		collapsible = TRUE,
+		width=w,
+		fluidRow(
+			column(width=2, uiOutput(paste(name,"_xAxeChoice",sep="")) ),
+			column(width=2, uiOutput(paste(name,"_yAxeChoice",sep="")) ),
+			column(width=2, uiOutput(paste(name,"_colorChoice",sep="")) )
+		),
+		plotlyOutput(paste(name,"_plotAxeChoice",sep=""), height = "350px")
+	)
 
+}
 
 
 
@@ -26,7 +28,7 @@ tabRunGlobal <- tabPanel(
 				fluidRow (
 					makeGraphBox("Nombre de bases","globalRunNbBase", width=6),
 					makeGraphBox("Read length", "globalReadLength"),
-					tabRunGlobal_boxAxeChoice	
+					makeRunCustomablePlot("tabRunGlobal")
 				)
 			),
 		
@@ -49,9 +51,8 @@ tabRunCurrent <- tabPanel(
 			tabPanel(
 				"Global",
 				fluidRow(
-					makeGraphBox("Nombre de bases","currentRunNbBase"),
-					makeGraphBox("Nombre de read", "currentRunNbRead"),
-					makeGraphBox("Speed", "currentRunSpeed")
+					makeGraphBox("Nombre de bases","currentRunNbBase", width=12),
+					makeRunCustomablePlot("tabRunCurrent")
 				)
 			),
 			tabPanel(

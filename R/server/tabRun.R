@@ -152,11 +152,11 @@ plotReadLength <- function(x) {
 
 	ggplot( x(),
 		aes(x=LENGTH,
-		    weight=COUNT
-			text=paste('Length (b): ',LENGTH,
-				   '<br>Count: ',COUNT,
-				   sep=''
-			)
+		    weight=COUNT,
+#		    text=paste('Length (b): ',LENGTH,
+#			       '<br>Count: ',COUNT,
+#			       sep=''
+#		    )
 		)
 	) +
 	geom_histogram(fill="#4f5dff",binwidth=1000) +
@@ -168,20 +168,20 @@ plotReadLength <- function(x) {
 	ylab("Read count")
 }
 
-plotMulti <- function(x) {
+plotMulti <- function(data, x_col, y_col, color_col) {
 
-	ggplot( x(),
-		aes(x = get(input$trg_xc),
-		    y = get(input$trg_yc),
-		    fill = get(input$trg_cc)
+	ggplot( data(),
+		aes(x = get(x_col),
+		    y = get(y_col),
+		    fill = get(color_col)
 		)
 	) +
 	geom_col(position="dodge", width = 10) +
 
 	theme_bw() +
-	scale_fill_gradientn(colors=myColorGrandient,values=myColorStep) +
-	xlab(input$trg_xc) + 
-	ylab(input$trg_yc)
+	scale_fill_gradientn( colors=myColorGrandient, values=myColorStep, name=color_col) +
+	xlab(x_col) + 
+	ylab(y_col)
 }
 
 # ______________________________________________________________________________________
@@ -194,9 +194,14 @@ output$plot_globalRunNbBase <- renderPlotly({
 
 output$plot_globalReadLength <- renderPlotly({
 	req(nrow(readLengthReader())>0)
-	ggplotly(plotReadLength(readLengthReader), tooltip = "text") %>% 
-	layout(xaxis = list(range = c(-1000, 100000))) %>% # initial zoom
+	ggplotly(plotReadLength(readLengthReader))%>%#, tooltip = "text") %>% 
+	layout(xaxis = list(range = c(-1000, 105000))) %>% # initial zoom
 	plotlyConfig()
+})
+
+output$tabRunGlobal_plotAxeChoice <- renderPlotly({
+	req(nrow(globalStatReader())>0)
+	ggplotly(plotMulti(globalStatReader, input$trg_xc, input$trg_yc, input$trg_cc), dynamicTicks = TRUE)  %>% plotlyConfig()
 })
 
 output$plot_currentRunNbBase <- renderPlotly({
@@ -204,25 +209,15 @@ output$plot_currentRunNbBase <- renderPlotly({
 	ggplotly(plotRunNbBase(currentStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
 })
 
-output$plot_currentRunNbRead <- renderPlotly({
+output$tabRunCurrent_plotAxeChoice <- renderPlotly({
 	req(nrow(currentStatReader())>0)
-	ggplotly(plotRunNbRead(currentStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
-})
-
-output$plot_currentRunSpeed <- renderPlotly({
-	req(nrow(currentStatReader())>0)
-	ggplotly(plotRunSpeed(currentStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+	ggplotly(plotMulti(currentStatReader, input$trc_xc, input$trc_yc, input$trc_cc), dynamicTicks = TRUE)  %>% plotlyConfig()
 })
 
 output$plot_qualityOverTime <- renderPlotly({
 	req(input$qualityOverTime_col != "")
 	req(nrow(qualityOverTimeReader())>0)
 	ggplotly(plotQualityOverTime(qualityOverTimeReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
-})
-
-output$tabRunGlobal_plotAxeChoice <- renderPlotly({
-	req(nrow(globalStatReader())>0)
-	ggplotly(plotMulti(globalStatReader), dynamicTicks = TRUE)  %>% plotlyConfig()
 })
 
 # ______________________________________________________________________________________
@@ -287,6 +282,37 @@ output$tabRunGlobal_colorChoice <- renderUI({
 		selected="QUALITY"
 	)
 })
+
+output$tabRunCurrent_xAxeChoice <- renderUI({
+	req(nrow(isolate(currentStatReader())) > 0)
+	selectInput(
+		"trc_xc",
+		"X axe",
+		colnames(isolate(currentStatReader())),
+		selected="DURATION(mn)"
+	)
+})
+
+output$tabRunCurrent_yAxeChoice <- renderUI({
+	req(nrow(isolate(currentStatReader())) > 0)
+	selectInput(
+		"trc_yc",
+		"Y axe",
+		colnames(isolate(currentStatReader())),
+		selected="SPEED(b/mn)"
+	)
+})
+
+output$tabRunCurrent_colorChoice <- renderUI({
+	req(nrow(isolate(currentStatReader())) > 0)
+	selectInput(
+		"trc_cc",
+		"Color by",
+		colnames(isolate(currentStatReader())),
+		selected="QUALITY"
+	)
+})
+
 
 # ______________________________________________________________________________________
 # UPDATE
