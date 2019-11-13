@@ -1,3 +1,20 @@
+tabRunGlobal_boxAxeChoice <-box(
+	title = "",
+	status = "primary",
+	solidHeader = TRUE,
+	collapsible = TRUE,
+	width=12,
+	fluidRow(
+		column(width=2, uiOutput("tabRunGlobal_xAxeChoice") ),
+		column(width=2, uiOutput("tabRunGlobal_yAxeChoice") ),
+		column(width=2, uiOutput("tabRunGlobal_colorChoice") )
+	),
+	plotlyOutput("tabRunGlobal_plotAxeChoice", height = "350px")
+)
+
+
+
+
 tabRunGlobal <- tabPanel(
 
 	"Cumlative stat",
@@ -7,10 +24,9 @@ tabRunGlobal <- tabPanel(
 			tabPanel(
 				"Global",
 				fluidRow (
-					makeGraphBox("Nombre de bases","globalRunNbBase"),
-					makeGraphBox("Nombre de read", "globalRunNbRead"),
-					makeGraphBox("Speed", "globalRunSpeed"),
-					makeGraphBox("Read length", "globalReadLength")
+					makeGraphBox("Nombre de bases","globalRunNbBase", width=6),
+					makeGraphBox("Read length", "globalReadLength"),
+					tabRunGlobal_boxAxeChoice	
 				)
 			),
 		

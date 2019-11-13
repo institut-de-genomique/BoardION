@@ -128,7 +128,7 @@ observeEvent( rip(), {
 					selector = '#placeholder',
 					where = "afterEnd",
 					ui = tags$div( id = containerID,
-						box( title = fc, width = NULL, status = "primary", solidHeader = TRUE, collapsible = TRUE,
+						box( title = fc, width = NULL, status = "primary", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE,
 							fluidRow(
 								column(5, plotlyOutput(plotYieldID, height = 300) %>% withSpinner(type=6) ),
 								column(5, plotlyOutput(plotLengthID, height = 300) %>% withSpinner(type=6) ),
