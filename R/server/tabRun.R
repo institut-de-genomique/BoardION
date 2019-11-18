@@ -46,7 +46,6 @@ readLengthReader <- reactive ({
 plotRunNbBase <- function(x) {
 	#plot_ly(x(), x = ~DURATION.mn., y = ~YIELD.b., type="bar") %>% plotlyConfig()
 	#plot_ly(x, x = ~DURATION.mn., y = ~YIELD.b., type="scatter") %>% plotlyConfig()
-
 	
 	ggplot( x(),
 		aes(x=get("DURATION(mn)"),
@@ -117,15 +116,15 @@ plotRunSpeed <- function(x) {
 }
 
 
-plotQualityOverTime <- function(x) {
+plotQualityOverTime <- function(x, colorColumn, doLogColor) {
 
 	g <- ggplot( x(),
 		aes(x=get("TEMPLATESTART"),
 		    y=get("QUALITY"),
-		    fill=get(input$qualityOverTime_col),
+		    fill=get(colorColumn),
 		    text=paste('Duration (mn): ',TEMPLATESTART,
 			       '<br>Quality: ',QUALITY,
-			       '<br>',input$qualityOverTime_col,': ',get(input$qualityOverTime_col),
+			       '<br>',colorColumn,': ',get(colorColumn),
 			       sep=""
 			      )
 		)
@@ -138,9 +137,9 @@ plotQualityOverTime <- function(x) {
 
 	xlab("Duration(mn)") +
 	ylab("Quality") +
-	labs(fill=input$qualityOverTime_col)
+	labs(fill=colorColumn)
 
-	if(input$qualityOverTime_logCheckBox) {
+	if(doLogColor) {
 		g <- g + scale_fill_gradientn(colors=myColorGrandient,values=myColorStep, na.value="#E1E1E1", trans="log10")
 	} else {
 		g <- g + scale_fill_gradientn(colors=myColorGrandient,values=myColorStep, na.value="#E1E1E1")
@@ -214,10 +213,11 @@ output$tabRunCurrent_plotAxeChoice <- renderPlotly({
 	ggplotly(plotMulti(currentStatReader, input$trc_xc, input$trc_yc, input$trc_cc), dynamicTicks = TRUE)  %>% plotlyConfig()
 })
 
-output$plot_qualityOverTime <- renderPlotly({
-	req(input$qualityOverTime_col != "")
+output$qot_plot <- renderPlotly({
 	req(nrow(qualityOverTimeReader())>0)
-	ggplotly(plotQualityOverTime(qualityOverTimeReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+	req(input$qot_color)
+	req(!is.null(input$qot_logCheckBox))
+	ggplotly(plotQualityOverTime(qualityOverTimeReader, input$qot_color, input$qot_logCheckBox), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
 })
 
 # ______________________________________________________________________________________
@@ -241,12 +241,12 @@ output$runTable = DT::renderDataTable(
 	options = list(searching = FALSE, paging = FALSE)
 )
 
-output$qualityOverTime_colorMetricChoice <- renderUI({
+output$qot_colorMetricChoice <- renderUI({
         req(nrow(qualityOverTimeReader())>0)
 	cn <- colnames(qualityOverTimeReader())
         cn = cn[ !cn %in% c("QUALITY","STARTTIME") ]
 	selectInput(
-		"qualityOverTime_col",
+		"qot_color",
 		"Select metric",
 		cn,
 		selected="#READS"

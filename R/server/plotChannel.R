@@ -39,7 +39,8 @@ plotChannelStat <- function(x) {
 	scale_y_continuous(expand=c(0,0)) +
 
 	theme_bw() +	
-	theme(	axis.line=element_blank(),
+	theme( # remove axis
+		axis.line=element_blank(),
 		axis.text=element_blank(),
 		axis.title=element_blank(),
 		axis.ticks=element_blank()
@@ -50,14 +51,14 @@ plotChannelStat <- function(x) {
 
 # ______________________________________________________________________________________
 # RENDERS
-output$plot_channelStatCumul <- renderPlotly({
+output$channelCumul_plot <- renderPlotly({
 	req(input$channelStatCumul_col != "")
 	req(nrow(channelStatReader())>0)
-	ggplotly(plotChannelStat(formatData(channelStatReader())), tooltip = "text") %>% plotlyConfig() # take only data of the selected run !!!!!!!!!!!!!!!!!!!change condition value to input$runList!!!!!!!!!!!!!!!!!!!
+	ggplotly(plotChannelStat(formatData(channelStatReader())), tooltip = "text") %>% plotlyConfig()
 })
 
 
-output$channelStatCumul_colorMetricChoice <- renderUI({
+output$channelCumul_colorMetricChoice <- renderUI({
         req(nrow(channelStatReader())>0)
 	cn <- colnames(channelStatReader())
         cn = cn[ !cn %in% c("channel") ]
