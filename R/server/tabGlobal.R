@@ -99,10 +99,11 @@ output$nbReadRun <- renderPlotly({
 	req(nrow(runInfoStatReader())>0)
 	#plotGlobalNbRead(runInfoStatReader())
 
-	ggplotly ( ggplot(runInfoStatReader(),aes(x=get("FLOWCELL"), y=get("YIELD(b)"))) + geom_col() ) %>%
+	ggplotly ( ggplot(runInfoStatReader(),aes(x=get("FLOWCELL"), y=get("YIELD(b)"))) + geom_col() ) + theme_bw() + theme(axis.text.x = element_text(angle = 90)) %>%
 
 #	plot_ly(runInfoStatReader(), x= ~get("FLOWCELL"), y=~get("YIELD(b)")) %>% #, type= "bar")  , source = "globalBar") %>% 
 #	layout(xaxis = list(title="Flowcell"), yaxis = list(title="Yield (bases)")) %>% 
+
 	plotlyConfig()
 })
 

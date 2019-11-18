@@ -15,5 +15,5 @@ b_testMultiSelect <-box(
 )
 
 tabComparison <- tabItem("comparison",
-	fixedRow(testMultiSelect,b_testMultiSelect)
+	fluidRow(testMultiSelect,b_testMultiSelect)
 )

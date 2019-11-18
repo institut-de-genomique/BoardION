@@ -24,6 +24,8 @@ output$testMulti <- renderPlotly({
 				)
 			) +
 			geom_line() +
+			xlab("DURATION(mn)") +
+			ylab("YIELD(b)") +
 			theme_bw(),
 			
 			dynamicTicks=T,

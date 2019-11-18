@@ -172,7 +172,6 @@ observeEvent( rip(), {
 	for(flowcell in names(rip_runDisplayed)) {
 
 		if(!flowcell %in% rip()) { # id a displayed run insn't a run in progress anymore (it's ended) remove it
-			print("         DELETING")
 			containerID <- paste("rip_container_",flowcell,sep="")
 			rip_runDisplayed$flowcell <- NULL
 			selector = paste0("#", containerID)

@@ -172,7 +172,12 @@ plotMulti <- function(data, x_col, y_col, color_col) {
 	ggplot( data(),
 		aes(x = get(x_col),
 		    y = get(y_col),
-		    fill = get(color_col)
+		    fill = get(color_col),
+		    text = paste(x_col,": ",get(x_col),
+		                 "<br>",y_col,": ",get(y_col),
+		                 "<br>",color_col,": ",get(color_col),
+		                 sep=""
+		   )
 		)
 	) +
 	geom_col(position="dodge", width = 10) +
@@ -200,7 +205,7 @@ output$plot_globalReadLength <- renderPlotly({
 
 output$tabRunGlobal_plotAxeChoice <- renderPlotly({
 	req(nrow(globalStatReader())>0)
-	ggplotly(plotMulti(globalStatReader, input$trg_xc, input$trg_yc, input$trg_cc), dynamicTicks = TRUE)  %>% plotlyConfig()
+	ggplotly(plotMulti(globalStatReader, input$trg_xc, input$trg_yc, input$trg_cc), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
 })
 
 output$plot_currentRunNbBase <- renderPlotly({
@@ -210,7 +215,7 @@ output$plot_currentRunNbBase <- renderPlotly({
 
 output$tabRunCurrent_plotAxeChoice <- renderPlotly({
 	req(nrow(currentStatReader())>0)
-	ggplotly(plotMulti(currentStatReader, input$trc_xc, input$trc_yc, input$trc_cc), dynamicTicks = TRUE)  %>% plotlyConfig()
+	ggplotly(plotMulti(currentStatReader, input$trc_xc, input$trc_yc, input$trc_cc), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
 })
 
 output$qot_plot <- renderPlotly({
