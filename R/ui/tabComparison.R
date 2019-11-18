@@ -6,7 +6,7 @@ testMultiSelect <- selectizeInput(
 )
 
 b_testMultiSelect <-box(
-      title = "Nombre de bases cumulees",
+      title = "Cumulative yield",
       status = "primary",
       solidHeader = TRUE,
       collapsible = TRUE,

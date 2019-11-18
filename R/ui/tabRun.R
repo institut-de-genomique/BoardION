@@ -26,7 +26,7 @@ tabRunGlobal <- tabPanel(
 			tabPanel(
 				"Global",
 				fluidRow (
-					makeGraphBox("Nombre de bases","globalRunNbBase", width=6),
+					makeGraphBox("Yield","globalRunNbBase", width=6),
 					makeGraphBox("Read length", "globalReadLength"),
 					makeRunCustomablePlot("tabRunGlobal")
 				)
@@ -51,7 +51,7 @@ tabRunCurrent <- tabPanel(
 			tabPanel(
 				"Global",
 				fluidRow(
-					makeGraphBox("Nombre de bases","currentRunNbBase", width=12),
+					makeGraphBox("Yield","currentRunNbBase", width=12),
 					makeRunCustomablePlot("tabRunCurrent")
 				)
 			),

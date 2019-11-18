@@ -18,7 +18,7 @@ b_axeChoice <-box(
 )
 
 b_nbReadRun <- box(
-	title = "Nombre de read par run",
+	title = "Yield per run",
 	status = "primary",
 	solidHeader = TRUE,
 	collapsible = TRUE,

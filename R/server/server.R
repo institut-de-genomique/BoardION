@@ -1,6 +1,7 @@
 # ______________________________________________________________________________________
 # CONFIGURATIONS
 
+#reportingFolder = "/data/boardION_stats/"
 reportingFolder = "/test_data"
 #reportingFolder = "/home/abruno/dashboard_stats"
 #reportingFolder = "/env/ig/atelier/nanopore/cns/PCT0004/promethion_dashboard/report_stats/"
@@ -44,7 +45,7 @@ plotlyConfig <- function(p) {
 # MAIN SERVER
 
 server <- function(input, output, session) {
-	source("server/sideBar.R",local=TRUE)   # local=TRUE allow source file to use input, output and session arguments
+	#source("server/sideBar.R",local=TRUE)   # local=TRUE allow source file to use input, output and session arguments
 	source("server/tabGlobal.R",local=TRUE)
 	source("server/tabRun.R",local=TRUE)
 	source("server/tabComparison.R",local=TRUE)
