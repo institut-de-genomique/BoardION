@@ -20,7 +20,7 @@ variables:
 Build:
     stage: build
     tags: 
-    - docker_build
+    - docker
     extends: .docker_jobs
     when: always
     before_script:
@@ -34,7 +34,7 @@ Build:
 Test:
     stage: test
     tags: 
-    - docker_run
+    - docker
     extends: .docker_jobs
     when: always
     before_script:
@@ -52,7 +52,7 @@ Test:
 Release:
     stage: release
     tags: 
-    - docker_run
+    - docker
     before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD ${REPOSERVER}
     script:
@@ -71,7 +71,7 @@ Release:
 Purge:
     stage: clean
     tags: 
-    - docker_run
+    - docker
     extends: .docker_jobs
     when: always
     script:
