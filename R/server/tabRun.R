@@ -52,7 +52,7 @@ plotRunNbBase <- function(x) {
 		    y=get("YIELD(b)"),
 		    fill=QUALITY,
 		    text=paste('DURATION (mn): ',get("DURATION(mn)"),
-			       '<br>NB READS : ',format(get("YIELD(b)"), big.mark=' '),
+			       '<br>YIELD(b) : ',format(get("YIELD(b)"), big.mark=' '),
 			       '<br>QUALITY: ',QUALITY,
 			       sep=""
 			      )

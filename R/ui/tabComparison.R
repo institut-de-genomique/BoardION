@@ -1,19 +1,21 @@
-testMultiSelect <- selectizeInput(
-	"testRunList",
+ms_comp<- selectizeInput(
+	"compRunList",
 	"Choose runs",
 	choices = c(),
 	multiple = TRUE
 )
 
-b_testMultiSelect <-box(
-      title = "Cumulative yield",
-      status = "primary",
-      solidHeader = TRUE,
-      collapsible = TRUE,
-      width = 12,
-      plotlyOutput("testMulti", height = "300px")
+b_compPlot <-box(
+
+	title = "Cumulative",
+	status = "primary",
+	solidHeader = TRUE,
+	collapsible = TRUE,
+	width = 12,
+	fluidRow( column(width=2, uiOutput("tabComp_yAxeChoice"))),
+	plotlyOutput("plot_runCompTime", height = "300px")
 )
 
 tabComparison <- tabItem("comparison",
-	fluidRow(testMultiSelect,b_testMultiSelect)
+	fluidRow(ms_comp, b_compPlot)
 )

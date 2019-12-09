@@ -1,5 +1,5 @@
 dataSet <- reactive ({
-	files <- paste(reportingFolder,"/",input$testRunList,"_globalstat.txt",sep="")
+	files <- paste(reportingFolder,"/", input$compRunList, "_globalstat.txt", sep="")
 	data<-data.frame()
 
 	for(f in files) {
@@ -8,29 +8,35 @@ dataSet <- reactive ({
 	return(data)
 })
 
-output$testMulti <- renderPlotly({
+# ______________________________________________________________________________________
+# PLOTS
+
+plotCompTime <- function() {
+	
+	ggplot( dataSet(),
+		aes(	x = get("DURATION(mn)"),
+			y = get(input$tc_yc),
+			col = FLOWCELL,
+			group=1,
+			text = paste(	FLOWCELL,
+					'<br>DURATION (mn): ',get("DURATION(mn)"),
+					'<br>',input$tc_yc,': ',format(get(input$tc_yc),big.mark=' '),
+					sep=""
+			)
+		)
+	) +
+	geom_line() +
+	xlab("DURATION(mn)") +
+	ylab(input$tc_yc) +
+	theme_bw()
+}
+
+# ______________________________________________________________________________________
+# RENDER PLOT
+
+output$plot_runCompTime <- renderPlotly({
 	if(nrow(dataSet())) {
-		ggplotly(
-			ggplot( dataSet(),
-				aes( 	x = get("DURATION(mn)"),
-					y = get("YIELD(b)"),
-					col = FLOWCELL,
-					group=1,
-					text = paste(	FLOWCELL,
-							'<br>DURATION (mn): ',get("DURATION(mn)"),
-							'<br>YIELD: ',format(get("YIELD(b)"),big.mark=' '),
-							sep=""
-					)
-				)
-			) +
-			geom_line() +
-			xlab("DURATION(mn)") +
-			ylab("YIELD(b)") +
-			theme_bw(),
-			
-			dynamicTicks=T,
-			tooltip = "text"
-		)  %>% plotlyConfig()
+		ggplotly( plotCompTime(), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
 	}
 })
 
@@ -43,8 +49,20 @@ observe({
 	
 	updateSelectizeInput( 
 		session,
-		"testRunList",
+		"compRunList",
 		choice = listRun,
 		server=TRUE
 	)
 })
+
+
+output$tabComp_yAxeChoice <- renderUI({
+        req(nrow(dataSet()) > 0)
+        selectInput(
+                "tc_yc",
+                "Y axe",
+                colnames(isolate(dataSet())),
+                selected="YIELD(b)"
+        )
+})
+
