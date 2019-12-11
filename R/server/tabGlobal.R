@@ -1,31 +1,50 @@
 # ______________________________________________________________________________________
 # FILES READERS
 
-#runInfoStatReader <- reactive ({
-#	data <- reactiveFileReader(
-#		intervalMillis = 60000,
-#		session	       = NULL,
-#		filePath       = paste(reportingFolder,"/run_infostat.txt",sep=""),
-#		readFunc       = readCsvSpace
-#	)()
-#	data[,STARTTIME := as.POSIXct(STARTTIME,format="%Y-%m-%dT%H:%M:%S")]
-#	return(data)
-#})
-
+readRunInfoStat <- function(file) {
+	data = readCsvSpace(file)
+	data[, c("LASTREADPOSITION","LASTSTEPSTARTPOSITION"):=NULL]
+}
 
 runInfoStatReader<-reactiveFileReader(
        	intervalMillis = 6000,
        	session        = NULL,
        	filePath       = paste(reportingFolder,"/run_infostat.txt",sep=""),
-       	readFunc       = fread
+       	readFunc       = readRunInfoStat
 )
 
 
-rip <- reactive({ # run in progress
-	runInfoStatReader()[ENDED=="NO",FLOWCELL]
+# ______________________________________________________________________________________
+# RUN LISTS
+
+rv <- reactiveValues(	updateRunList = FALSE, # flags to update the lists
+			updateRipList = FALSE)
+
+ripList <- reactive({ # run in progress
+	rv$updateRipList
+	isolate(runInfoStatReader()[ENDED=="NO",FLOWCELL])
 })
 
+runList <- reactive({
+	rv$updateRunList
+	isolate(runInfoStatReader()[,FLOWCELL])
+})
 
+observe ({ # update list of run and list of run in progress only if the coresponding list in the input file (runInfoStatReader) change and not if any value of this file change
+	if(length(runInfoStatReader()[,FLOWCELL])==length(isolate(runList())) && all(runInfoStatReader()[,FLOWCELL]==isolate(runList()))) {
+		isolate({
+			rv$updateRunList <- TRUE
+			rv$updateRunList <- FALSE
+		})
+	}
+	
+	if(length(runInfoStatReader()[ENDED=="NO",FLOWCELL])==length(isolate(ripList())) && all(runInfoStatReader()[ENDED=="NO",FLOWCELL]==isolate(ripList()))) {
+		isolate({
+			rv$updateRipList <- TRUE
+			rv$updateRipList <- FALSE
+		})
+	}
+})
 
 # ______________________________________________________________________________________
 # PLOTS

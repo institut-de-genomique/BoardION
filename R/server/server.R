@@ -37,15 +37,10 @@ plotlyConfig <- function(p) {
 	)
 }
 
-#renderPlotly <- function(p,dynamicTicks=TRUE, tooltip="text") {
-#	ggplotly(p, dynamicTicks = dynamicTicks, tooltip = tooltip) %>% plotlyConfig()
-#}
-
 # ______________________________________________________________________________________
 # MAIN SERVER
 
 server <- function(input, output, session) {
-	#source("server/sideBar.R",local=TRUE)   # local=TRUE allow source file to use input, output and session arguments
 	source("server/tabGlobal.R",local=TRUE)
 	source("server/tabRun.R",local=TRUE)
 	source("server/tabComparison.R",local=TRUE)

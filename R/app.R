@@ -14,10 +14,42 @@ require(bit64)
 
 options(shiny.reactlog = TRUE)
 
-## FRONTEND
+# ______________________________________________________________________________________
+# FUNCTIONS
+
+# Delete elemtents from vector
+vectRemove <- function( v, toRemove) {
+	return(v[ !v %in% toRemove ])
+}
+
+# Read space delimited file
+readCsvSpace <- function(file) {
+	data = data.table()
+	if(file.exists(file)) {
+		data = fread(file, header=T, sep=" ", integer64="double", check.names=F)
+	}
+	return(data)
+}
+
+
+# Config of plotly added to each graph
+plotlyConfig <- function(p) {
+	config(p,
+		# increase the resolution of saved images
+		toImageButtonOptions = list(
+			format = "png",
+			width = 1600,
+			height = 900
+		)
+	)
+}
+
+# ______________________________________________________________________________________
+# FRONTEND
 source("ui/ui.R")
 
-## BACKEND
+# ______________________________________________________________________________________
+# BACKEND
 source("server/server.R")
 
 shinyApp(ui, server,options=list(port=80,host="172.17.0.2"))

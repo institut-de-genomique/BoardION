@@ -1,5 +1,15 @@
-dataSet <- reactive ({
+compCumul <- reactive ({
 	files <- paste(reportingFolder,"/", input$compRunList, "_globalstat.txt", sep="")
+	data<-data.frame()
+
+	for(f in files) {
+		data = rbind(data,readCsvSpace(f))
+	}
+	return(data)
+})
+
+compCurrent <- reactive ({
+	files <- paste(reportingFolder,"/", input$compRunList, "_currentstat.txt", sep="")
 	data<-data.frame()
 
 	for(f in files) {
@@ -11,9 +21,9 @@ dataSet <- reactive ({
 # ______________________________________________________________________________________
 # PLOTS
 
-plotCompTime <- function() {
+plotCompTime <- function(x) {
 	
-	ggplot( dataSet(),
+	ggplot( x(),
 		aes(	x = get("DURATION(mn)"),
 			y = get(input$tc_yc),
 			col = FLOWCELL,
@@ -25,7 +35,7 @@ plotCompTime <- function() {
 			)
 		)
 	) +
-	geom_line() +
+	geom_line(size=1) +
 	xlab("DURATION(mn)") +
 	ylab(input$tc_yc) +
 	theme_bw()
@@ -34,35 +44,43 @@ plotCompTime <- function() {
 # ______________________________________________________________________________________
 # RENDER PLOT
 
-output$plot_runCompTime <- renderPlotly({
-	if(nrow(dataSet())) {
-		ggplotly( plotCompTime(), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
+output$plot_runCompTimeCumul <- renderPlotly({
+	if(nrow(compCumul())) {
+		ggplotly( plotCompTime(compCumul), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
 	}
 })
 
-# update drop-down list of run
-observe({
-	listRun = runInfoStatReader()$FLOWCELL
-	if(is.null(listRun)) {
-		listRun <- character(0)
+output$plot_runCompTimeCurrent <- renderPlotly({
+	if(nrow(compCurrent())) {
+		ggplotly( plotCompTime(compCurrent), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
 	}
-	
+})
+
+# ______________________________________________________________________________________
+# RENDER OTHERS
+
+observe({ # update drop-down list of run
+
 	updateSelectizeInput( 
 		session,
 		"compRunList",
-		choice = listRun,
+		choice = runList(),
+		selected = isolate(input$compRunList),
 		server=TRUE
 	)
 })
 
 
 output$tabComp_yAxeChoice <- renderUI({
-        req(nrow(dataSet()) > 0)
+        req(nrow(compCumul()) > 0)
+
+	columnNames = vectRemove( colnames(compCumul()), c("FLOWCELL","DURATION(mn)") )
+
         selectInput(
-                "tc_yc",
-                "Y axe",
-                colnames(isolate(dataSet())),
-                selected="YIELD(b)"
+		"tc_yc",
+		"Y axe",
+		columnNames,
+		selected="YIELD(b)"
         )
 })
 

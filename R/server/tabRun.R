@@ -169,23 +169,28 @@ plotReadLength <- function(x) {
 
 plotMulti <- function(data, x_col, y_col, color_col) {
 
-	ggplot( data(),
+	g <- ggplot( data(),
 		aes(x = get(x_col),
 		    y = get(y_col),
-		    fill = get(color_col),
 		    text = paste(x_col,": ",get(x_col),
 		                 "<br>",y_col,": ",get(y_col),
 		                 "<br>",color_col,": ",get(color_col),
 		                 sep=""
 		   )
 		)
-	) +
-	geom_col(position="dodge", width = 10) +
+	) 
+	if(x_col == "DURATION(mn)") { # if abcisse is duration -> barplot
+		g <- g + geom_col(aes(fill = get(color_col)), position="dodge", width = 10) +
+		scale_fill_gradientn( colors=myColorGrandient, values=myColorStep, name=color_col)
+	} else {
+		g <- g + geom_point(aes(col = get(color_col))) +
+		scale_color_gradientn( colors=myColorGrandient, values=myColorStep, name=color_col)
+	}
 
-	theme_bw() +
-	scale_fill_gradientn( colors=myColorGrandient, values=myColorStep, name=color_col) +
+	g <- g + theme_bw() +
 	xlab(x_col) + 
 	ylab(y_col)
+	return(g)
 }
 
 # ______________________________________________________________________________________
@@ -248,22 +253,22 @@ output$runTable = DT::renderDataTable(
 
 output$qot_colorMetricChoice <- renderUI({
         req(nrow(qualityOverTimeReader())>0)
-	cn <- colnames(qualityOverTimeReader())
-        cn = cn[ !cn %in% c("QUALITY","STARTTIME") ]
+	
 	selectInput(
 		"qot_color",
 		"Select metric",
-		cn,
+		vectRemove( colnames(qualityOverTimeReader()), c("QUALITY","STARTTIME","TEMPLATESTART")),
 		selected="#READS"
 	)
 })
 
 output$tabRunGlobal_xAxeChoice <- renderUI({
 	req(nrow(isolate(globalStatReader())) > 0)
+
 	selectInput(
 		"trg_xc",
 		"X axe",
-		colnames(isolate(globalStatReader())),
+		vectRemove( colnames(globalStatReader()), c("FLOWCELL")),
 		selected="DURATION(mn)"
 	)
 })
@@ -273,7 +278,7 @@ output$tabRunGlobal_yAxeChoice <- renderUI({
 	selectInput(
 		"trg_yc",
 		"Y axe",
-		colnames(isolate(globalStatReader())),
+		vectRemove( colnames(globalStatReader()), c("FLOWCELL","DURATION(mn)")),
 		selected="SPEED(b/mn)"
 	)
 })
@@ -283,7 +288,7 @@ output$tabRunGlobal_colorChoice <- renderUI({
 	selectInput(
 		"trg_cc",
 		"Color by",
-		colnames(isolate(globalStatReader())),
+		vectRemove( colnames(globalStatReader()), c("FLOWCELL")),
 		selected="QUALITY"
 	)
 })
@@ -293,7 +298,7 @@ output$tabRunCurrent_xAxeChoice <- renderUI({
 	selectInput(
 		"trc_xc",
 		"X axe",
-		colnames(isolate(currentStatReader())),
+		vectRemove( colnames(currentStatReader()), c("FLOWCELL")),
 		selected="DURATION(mn)"
 	)
 })
@@ -303,7 +308,7 @@ output$tabRunCurrent_yAxeChoice <- renderUI({
 	selectInput(
 		"trc_yc",
 		"Y axe",
-		colnames(isolate(currentStatReader())),
+		vectRemove( colnames(currentStatReader()), c("FLOWCELL","DURATION(mn)")),
 		selected="SPEED(b/mn)"
 	)
 })
@@ -313,7 +318,7 @@ output$tabRunCurrent_colorChoice <- renderUI({
 	selectInput(
 		"trc_cc",
 		"Color by",
-		colnames(isolate(currentStatReader())),
+		vectRemove( colnames(currentStatReader()), c("FLOWCELL")),
 		selected="QUALITY"
 	)
 })
@@ -328,18 +333,18 @@ observe({
 	runSelected = isolate(input$runList) # save the run selected before the update of the list
 	listRun = list()
 	
-	if(is.null(runInfoStatReader()) | nrow(runInfoStatReader())==0) {
+	if(is.null(runInfoStatReader()) || nrow(runInfoStatReader())==0) {
 		listRun <- character(0)
 		runSelected = NULL
 		
 	} else {
 		listRun = list(
-			"In progress" = c("",runInfoStatReader()[ENDED=="NO",FLOWCELL]), # add an empty slot, else the list doen not display correctly
-			"Completed" = c(runInfoStatReader()[ENDED=="YES",FLOWCELL])
+			"In progress" = c("",ripList()), # add an empty slot, else the list doen not display correctly
+			"Completed" = c(runList())
 		)
 
-		if (runSelected == "") {
-			runSelected = runInfoStatReader()[STARTTIME==max(na.omit(STARTTIME)),FLOWCELL] # if there isn't a run selected, take the most recent in the finished one (in progress run have NA in STARTTIME)
+		if (runSelected == "" || is.null(runSelected)) {
+			runSelected = runInfoStatReader()[STARTTIME==max(na.omit(STARTTIME)),FLOWCELL] # if there isn't a run selected, take the most recent one
 		}
 	}
 	

@@ -5,7 +5,7 @@ ms_comp<- selectizeInput(
 	multiple = TRUE
 )
 
-b_compPlot <-box(
+b_compPlotCumul <- box(
 
 	title = "Cumulative",
 	status = "primary",
@@ -13,9 +13,23 @@ b_compPlot <-box(
 	collapsible = TRUE,
 	width = 12,
 	fluidRow( column(width=2, uiOutput("tabComp_yAxeChoice"))),
-	plotlyOutput("plot_runCompTime", height = "300px")
+	plotlyOutput("plot_runCompTimeCumul", height = "300px")
+)
+
+b_compPlotCurrent <- box(
+
+	title = "non-cumualtive",
+	status = "primary",
+	solidHeader = TRUE,
+	collapsible = TRUE,
+	width = 12,
+#	fluidRow( column(width=2, uiOutput("tabComp_yAxeChoice"))),
+	plotlyOutput("plot_runCompTimeCurrent", height = "300px")
 )
 
 tabComparison <- tabItem("comparison",
-	fluidRow(ms_comp, b_compPlot)
+	fluidRow( ms_comp,
+		  b_compPlotCumul,
+		  b_compPlotCurrent
+	)
 )

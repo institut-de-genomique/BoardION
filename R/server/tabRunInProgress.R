@@ -95,9 +95,9 @@ observeEvent( input$rip_cumulative_toggle, {
 	}
 })
 
-observeEvent( rip(), {
+observeEvent( ripList(), {
 
-	for(flowcell in rip()) {
+	for(flowcell in ripList()) {
 
 		if( !flowcell %in% names(rip_runDisplayed) ) { # if the run insn't displayed yet
 		
