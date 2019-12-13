@@ -7,36 +7,6 @@ reportingFolder = "/test_data"
 #reportingFolder = "/env/ig/atelier/nanopore/cns/PCT0004/promethion_dashboard/report_stats/"
 #reportingFolder = "/env/cns/home/abruno/promethion/PCT0004/reporting/"
 
-# unregular color gradient 
-myColorGrandient = c("#CC3D3D","#FFDD32","#B3D84B","#50B7C4")
-myColorStep      = c(0,        0.3,      0.7,      1        )
-
-# ______________________________________________________________________________________
-# FUNCTIONS
-
-# Read space delimited file
-readCsvSpace <- function(file) {
-	data = data.table()
-	if(file.exists(file)) {
-		data = fread(file, header=T, sep=" ", integer64="double", check.names=F)
-	}
-	return(data)
-}
-
-
-# Config of plotly added to each graph
-plotlyConfig <- function(p) {
-	config(p,
-	
-		# increase the resolution of saved images
-		toImageButtonOptions = list(
-			format = "png",
-			width = 1600,
-			height = 900
-		)
-	)
-}
-
 # ______________________________________________________________________________________
 # MAIN SERVER
 
