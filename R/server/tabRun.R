@@ -162,6 +162,10 @@ plotReadLength <- function(x) {
 
 	theme_bw() +
 	scale_x_continuous(expand=c(0,0)) +
+<<<<<<< R/server/tabRun.R
+=======
+#	scale_y_continuous(expand=c(0,0), breaks = scales::pretty_breaks(n = as.integer(max(x()$LENGTH)))) +
+>>>>>>> R/server/tabRun.R
 	
 	xlab("Length(b)") +
 	ylab("Read count")
