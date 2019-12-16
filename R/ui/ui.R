@@ -30,7 +30,7 @@ source("ui/sideBar.R")
 # ______________________________________________________________________________________
 # BODY    
 
-source("ui/tabGlobal.R")
+#source("ui/tabGlobal.R")
 source("ui/tabRun.R")
 source("ui/tabComparison.R")
 source("ui/tabRunInProgress.R")

@@ -11,7 +11,7 @@ reportingFolder = "/test_data"
 # MAIN SERVER
 
 server <- function(input, output, session) {
-	source("server/tabGlobal.R",local=TRUE)
+#	source("server/tabGlobal.R",local=TRUE)
 	source("server/tabRun.R",local=TRUE)
 	source("server/tabComparison.R",local=TRUE)
 	source("server/plotChannel.R",local=TRUE)
