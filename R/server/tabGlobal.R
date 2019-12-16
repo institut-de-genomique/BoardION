@@ -1,15 +1,30 @@
 # ______________________________________________________________________________________
 # FILES READERS
 
+<<<<<<< R/server/tabGlobal.R
 readRunInfoStat <- function(file) {
 	data = readCsvSpace(file)
 	data[, c("LASTREADPOSITION","LASTSTEPSTARTPOSITION"):=NULL]
 }
+=======
+#runInfoStatReader <- reactive ({
+#	data <- reactiveFileReader(
+#		intervalMillis = 60000,
+#		session	       = NULL,
+#		filePath       = paste(reportingFolder,"/run_infostat.txt",sep=""),
+#		readFunc       = readCsvSpace
+#	)()
+#	data[,STARTTIME := as.POSIXct(STARTTIME,format="%Y-%m-%dT%H:%M:%S")]
+#	return(data)
+#})
+
+>>>>>>> R/server/tabGlobal.R
 
 runInfoStatReader<-reactiveFileReader(
        	intervalMillis = 6000,
        	session        = NULL,
        	filePath       = paste(reportingFolder,"/run_infostat.txt",sep=""),
+<<<<<<< R/server/tabGlobal.R
        	readFunc       = readRunInfoStat
 )
 
@@ -44,7 +59,17 @@ observe ({ # update list of run and list of run in progress only if the corespon
 			rv$updateRipList <- FALSE
 		})
 	}
+=======
+       	readFunc       = fread
+)
+
+
+rip <- reactive({ # run in progress
+	runInfoStatReader()[ENDED=="NO",FLOWCELL]
+>>>>>>> R/server/tabGlobal.R
 })
+
+
 
 # ______________________________________________________________________________________
 # PLOTS
@@ -118,11 +143,18 @@ output$nbReadRun <- renderPlotly({
 	req(nrow(runInfoStatReader())>0)
 	#plotGlobalNbRead(runInfoStatReader())
 
+<<<<<<< R/server/tabGlobal.R
 	ggplotly ( ggplot(runInfoStatReader(),aes(x=get("FLOWCELL"), y=get("YIELD(b)"))) + geom_col() ) + theme_bw() + theme(axis.text.x = element_text(angle = 90)) %>%
 
 #	plot_ly(runInfoStatReader(), x= ~get("FLOWCELL"), y=~get("YIELD(b)")) %>% #, type= "bar")  , source = "globalBar") %>% 
 #	layout(xaxis = list(title="Flowcell"), yaxis = list(title="Yield (bases)")) %>% 
 
+=======
+	ggplotly ( ggplot(runInfoStatReader(),aes(x=get("FLOWCELL"), y=get("YIELD(b)"))) + geom_col() ) %>%
+
+#	plot_ly(runInfoStatReader(), x= ~get("FLOWCELL"), y=~get("YIELD(b)")) %>% #, type= "bar")  , source = "globalBar") %>% 
+#	layout(xaxis = list(title="Flowcell"), yaxis = list(title="Yield (bases)")) %>% 
+>>>>>>> R/server/tabGlobal.R
 	plotlyConfig()
 })
 

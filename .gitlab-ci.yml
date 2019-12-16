@@ -1,0 +1,80 @@
+image: docker:latest
+
+stages:
+- build
+- test
+- release
+- clean
+
+variables:
+    VERSION:       '1.0'
+    REPOSERVER:    'registry.cnrgh.fr'
+    TEST_IMAGE:    '${REPOSERVER}/rdbioseq/promethiondashboard:$CI_PIPELINE_ID'
+    RELEASE_IMAGE: '${REPOSERVER}/rdbioseq/promethiondashboard:${VERSION}'
+    PROD_IMAGE:    '${REPOSERVER}/rdbioseq/promethiondashboard:prod'
+
+.docker_jobs:
+    image: docker
+
+
+Build:
+    stage: build
+    tags: 
+    - docker
+    extends: .docker_jobs
+    when: always
+    before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD ${REPOSERVER}
+    script:
+    - docker build --pull -t $TEST_IMAGE .
+    - docker push $TEST_IMAGE
+    after_script:
+    - docker logout ${REPOSERVER}
+
+Test:
+    stage: test
+    tags: 
+    - docker
+    extends: .docker_jobs
+    when: always
+    before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD ${REPOSERVER}
+    script:
+    - docker pull $TEST_IMAGE
+    - docker run -d -p 3434:80 --name rundeck_$CI_PIPELINE_ID $TEST_IMAGE
+    - sleep 5
+    - docker exec rundeck_$CI_PIPELINE_ID ls
+ #   - docker exec -t rundeck_$CI_PIPELINE_ID systemctl --quiet is-active shiny-server.service || exit 1
+    - docker stop rundeck_$CI_PIPELINE_ID
+    after_script:
+    - docker logout ${REPOSERVER}
+
+Release:
+    stage: release
+    tags: 
+    - docker
+    before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD ${REPOSERVER}
+    script:
+    - docker pull $TEST_IMAGE
+    - docker tag $TEST_IMAGE $RELEASE_IMAGE
+    - docker tag $TEST_IMAGE $PROD_IMAGE
+    - docker push $RELEASE_IMAGE
+    - docker push $PROD_IMAGE
+    after_script:
+    - docker logout ${REPOSERVER}
+    when: manual
+    allow_failure: false
+    only:
+    - master
+
+Purge:
+    stage: clean
+    tags: 
+    - docker
+    extends: .docker_jobs
+    when: always
+    script:
+    - docker images
+    - docker rm -f rundeck_$CI_PIPELINE_ID || true
+    - docker rmi -f "${TEST_IMAGE}" || true

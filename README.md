@@ -97,25 +97,7 @@ Une liste déroulant de run à choix multiple. L'ensemble des runs sélectionné
 
 ---
 
-## __A faire__
 
-- Page Run
-    - Abscisse des graphiques: En heures/jours sans dynamic tick ou en minutes avec dynamic tick?
-    - graphique channel
-        - avoir le fichier sequencing_summary.txt ( voir avec stefan )
-        - générer un fichier réduit contenant la moyenne par pore des différents métriques du fichier
-        - possible en non cumulé ??
-    - graphique qualité en fonction du temps ( en grille car trop de points)
-        - par le fichier sequencing_summary.txt
-        - générer un fichier réduit contenant pour une plage de qualité et de temps le nombre de read
-        - on peut aussi l'avoir avec les longueurs ou d'autres métriques
-    - le fichier sequencing_summary.txt est trop gros pour être chargé à chaque fois (2~3Go)
-        - genérer des fichiers intermédiaires seulement s'il ils n'existent pas ou si ils ne sont plus à jour.
----
-
-## __Idées__
-- Page global
-    - Tableau contenant les runs en cours
 
 
 
