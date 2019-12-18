@@ -1,62 +1,68 @@
+makeRunCustomablePlot <- function(name,w=12) {
+	box(
+		title = "Customable plot",
+		status = "primary",
+		solidHeader = TRUE,
+		collapsible = TRUE,
+		collapsed = TRUE,
+		width=w,
+		fluidRow(
+			column(width=2, uiOutput(paste(name,"_xAxeChoice",sep="")) ),
+			column(width=2, uiOutput(paste(name,"_yAxeChoice",sep="")) ),
+			column(width=2, uiOutput(paste(name,"_colorChoice",sep="")) )
+		),
+		plotlyOutput(paste(name,"_plotAxeChoice",sep=""), height = "350px") %>% withSpinner(type=6)
+	)
+
+}
+
+makeRunChannelPlot <- function(name, w=12) {
+	box(
+		title = "Channels",
+		status = "primary",
+		solidHeader = TRUE,
+		collapsible = TRUE,
+		collapsed = TRUE,
+		width=w,
+		fluidRow(
+			column(width=2, uiOutput(paste(name,"_colorMetricChoice",sep="")) )
+		),
+		plotlyOutput(paste(name,"_plot",sep=""), height = "350px") %>% withSpinner(type=6)
+	)
+}
+
+makeRunQotPlot <- function(name, w=12) {
+	box(
+		title = "Quality over time",
+		status = "primary",
+		solidHeader = TRUE,
+		collapsible = TRUE,
+		collapsed = TRUE,
+		width=w,
+		fluidRow(
+			column(width=2, uiOutput( paste(name, "_colorMetricChoice", sep="" ))),
+			column(width=2, checkboxInput( paste( name, "_logCheckBox", sep=""), "Log10_color", value = FALSE ))
+		),
+		plotlyOutput(paste(name,"_plot",sep=""), height = "500px") %>% withSpinner(type=6)
+	)
+}
 tabRunGlobal <- tabPanel(
 
 	"Cumlative stat",
 	fluidRow(
-		tabBox(
-			width=12,
-			tabPanel(
-				"Global",
-				fluidRow (
-					makeGraphBox("Nombre de bases","globalRunNbBase"),
-					makeGraphBox("Nombre de read", "globalRunNbRead"),
-					makeGraphBox("Speed", "globalRunSpeed"),
-					makeGraphBox("Read length", "globalReadLength")
-				)
-			),
-		
-			tabPanel(
-				"Channel",
-				fluidRow(
-					column(width=3, uiOutput("channelStatCumul_colorMetricChoice")),
-					makeGraphBox("Stat per channel","channelStatCumul",width=12,height="500")
-				)
-			)
-		)
+		makeGraphBox("Yield","globalRunNbBase", width=6),
+		makeGraphBox("Read length", "globalReadLength"),
+		makeRunChannelPlot("channelCumul"),
+		makeRunCustomablePlot("tabRunGlobal")
 	)
 )
 
 tabRunCurrent <- tabPanel(
 	"Real time stat",
 	fluidRow(
-		tabBox(
-			width=12,
-			tabPanel(
-				"Global",
-				fluidRow(
-					makeGraphBox("Nombre de bases","currentRunNbBase"),
-					makeGraphBox("Nombre de read", "currentRunNbRead"),
-					makeGraphBox("Speed", "currentRunSpeed")
-				)
-			),
-			tabPanel(
-				"Channel",
-				fluidRow(
-					makeGraphBox("Stat per channel","channelStatCurrent",12),
-					column(width=3, uiOutput("channelStatCurrent_colorMetricChoice"))
-				)
-			),
-			tabPanel(
-				"QualityOverTime",
-				fluidRow(
-					column(width=2,uiOutput("qualityOverTime_colorMetricChoice")),
-					column(width=2,checkboxInput("qualityOverTime_logCheckBox", "Log10_color", value = FALSE))
-				),
-				fluidRow(
-					makeGraphBox("Quality over time","qualityOverTime",width=12,height="700px"),
-					width=12
-				)
-			)
-		)
+		makeGraphBox("Yield","currentRunNbBase", width=12),
+		makeRunQotPlot("qot"),
+		makeRunCustomablePlot("tabRunCurrent")
 	)
 )
 

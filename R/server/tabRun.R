@@ -46,14 +46,13 @@ readLengthReader <- reactive ({
 plotRunNbBase <- function(x) {
 	#plot_ly(x(), x = ~DURATION.mn., y = ~YIELD.b., type="bar") %>% plotlyConfig()
 	#plot_ly(x, x = ~DURATION.mn., y = ~YIELD.b., type="scatter") %>% plotlyConfig()
-
 	
 	ggplot( x(),
 		aes(x=get("DURATION(mn)"),
 		    y=get("YIELD(b)"),
 		    fill=QUALITY,
 		    text=paste('DURATION (mn): ',get("DURATION(mn)"),
-			       '<br>NB READS : ',format(get("YIELD(b)"), big.mark=' '),
+			       '<br>YIELD(b) : ',format(get("YIELD(b)"), big.mark=' '),
 			       '<br>QUALITY: ',QUALITY,
 			       sep=""
 			      )
@@ -117,15 +116,15 @@ plotRunSpeed <- function(x) {
 }
 
 
-plotQualityOverTime <- function(x) {
+plotQualityOverTime <- function(x, colorColumn, doLogColor) {
 
 	g <- ggplot( x(),
 		aes(x=get("TEMPLATESTART"),
 		    y=get("QUALITY"),
-		    fill=get(input$qualityOverTime_col),
+		    fill=get(colorColumn),
 		    text=paste('Duration (mn): ',TEMPLATESTART,
 			       '<br>Quality: ',QUALITY,
-			       '<br>',input$qualityOverTime_col,': ',get(input$qualityOverTime_col),
+			       '<br>',colorColumn,': ',get(colorColumn),
 			       sep=""
 			      )
 		)
@@ -138,9 +137,9 @@ plotQualityOverTime <- function(x) {
 
 	xlab("Duration(mn)") +
 	ylab("Quality") +
-	labs(fill=input$qualityOverTime_col)
+	labs(fill=colorColumn)
 
-	if(input$qualityOverTime_logCheckBox) {
+	if(doLogColor) {
 		g <- g + scale_fill_gradientn(colors=myColorGrandient,values=myColorStep, na.value="#E1E1E1", trans="log10")
 	} else {
 		g <- g + scale_fill_gradientn(colors=myColorGrandient,values=myColorStep, na.value="#E1E1E1")
@@ -152,17 +151,50 @@ plotReadLength <- function(x) {
 
 	ggplot( x(),
 		aes(x=LENGTH,
-		    weight=COUNT
+		    weight=COUNT,
+#		    text=paste('Length (b): ',LENGTH,
+#			       '<br>Count: ',COUNT,
+#			       sep=''
+#		    )
 		)
 	) +
-	geom_histogram(fill="white",color="black",binwidth=1000) +
+	geom_histogram(fill="#4f5dff",binwidth=1000) +
 
 	theme_bw() +
 	scale_x_continuous(expand=c(0,0)) +
+<<<<<<< R/server/tabRun.R
+=======
 #	scale_y_continuous(expand=c(0,0), breaks = scales::pretty_breaks(n = as.integer(max(x()$LENGTH)))) +
+>>>>>>> R/server/tabRun.R
 	
 	xlab("Length(b)") +
 	ylab("Read count")
+}
+
+plotMulti <- function(data, x_col, y_col, color_col) {
+
+	g <- ggplot( data(),
+		aes(x = get(x_col),
+		    y = get(y_col),
+		    text = paste(x_col,": ",get(x_col),
+		                 "<br>",y_col,": ",get(y_col),
+		                 "<br>",color_col,": ",get(color_col),
+		                 sep=""
+		   )
+		)
+	) 
+	if(x_col == "DURATION(mn)") { # if abcisse is duration -> barplot
+		g <- g + geom_col(aes(fill = get(color_col)), position="dodge", width = 10) +
+		scale_fill_gradientn( colors=myColorGrandient, values=myColorStep, name=color_col)
+	} else {
+		g <- g + geom_point(aes(col = get(color_col))) +
+		scale_color_gradientn( colors=myColorGrandient, values=myColorStep, name=color_col)
+	}
+
+	g <- g + theme_bw() +
+	xlab(x_col) + 
+	ylab(y_col)
+	return(g)
 }
 
 # ______________________________________________________________________________________
@@ -173,14 +205,16 @@ output$plot_globalRunNbBase <- renderPlotly({
 	ggplotly(plotRunNbBase(globalStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
 })
 
-output$plot_globalRunNbRead <- renderPlotly({
-	req(nrow(globalStatReader())>0)
-	ggplotly(plotRunNbRead(globalStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+output$plot_globalReadLength <- renderPlotly({
+	req(nrow(readLengthReader())>0)
+	ggplotly(plotReadLength(readLengthReader))%>%#, tooltip = "text") %>% 
+	layout(xaxis = list(range = c(-1000, 105000))) %>% # initial zoom
+	plotlyConfig()
 })
 
-output$plot_globalRunSpeed <- renderPlotly({
+output$tabRunGlobal_plotAxeChoice <- renderPlotly({
 	req(nrow(globalStatReader())>0)
-	ggplotly(plotRunSpeed(globalStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+	ggplotly(plotMulti(globalStatReader, input$trg_xc, input$trg_yc, input$trg_cc), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
 })
 
 output$plot_currentRunNbBase <- renderPlotly({
@@ -188,25 +222,16 @@ output$plot_currentRunNbBase <- renderPlotly({
 	ggplotly(plotRunNbBase(currentStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
 })
 
-output$plot_currentRunNbRead <- renderPlotly({
+output$tabRunCurrent_plotAxeChoice <- renderPlotly({
 	req(nrow(currentStatReader())>0)
-	ggplotly(plotRunNbRead(currentStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+	ggplotly(plotMulti(currentStatReader, input$trc_xc, input$trc_yc, input$trc_cc), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
 })
 
-output$plot_currentRunSpeed <- renderPlotly({
-	req(nrow(currentStatReader())>0)
-	ggplotly(plotRunSpeed(currentStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
-})
-
-output$plot_qualityOverTime <- renderPlotly({
-	req(input$qualityOverTime_col != "")
+output$qot_plot <- renderPlotly({
 	req(nrow(qualityOverTimeReader())>0)
-	ggplotly(plotQualityOverTime(qualityOverTimeReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
-})
-
-output$plot_globalReadLength <- renderPlotly({
-	req(nrow(readLengthReader())>0)
-	ggplotly(plotReadLength(readLengthReader)) %>% plotlyConfig() 
+	req(input$qot_color)
+	req(!is.null(input$qot_logCheckBox))
+	ggplotly(plotQualityOverTime(qualityOverTimeReader, input$qot_color, input$qot_logCheckBox), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
 })
 
 # ______________________________________________________________________________________
@@ -230,17 +255,78 @@ output$runTable = DT::renderDataTable(
 	options = list(searching = FALSE, paging = FALSE)
 )
 
-output$qualityOverTime_colorMetricChoice <- renderUI({
+output$qot_colorMetricChoice <- renderUI({
         req(nrow(qualityOverTimeReader())>0)
-	cn <- colnames(qualityOverTimeReader())
-        cn = cn[ !cn %in% c("QUALITY","STARTTIME") ]
+	
 	selectInput(
-		"qualityOverTime_col",
+		"qot_color",
 		"Select metric",
-		cn,
+		vectRemove( colnames(qualityOverTimeReader()), c("QUALITY","STARTTIME","TEMPLATESTART")),
 		selected="#READS"
 	)
 })
+
+output$tabRunGlobal_xAxeChoice <- renderUI({
+	req(nrow(isolate(globalStatReader())) > 0)
+
+	selectInput(
+		"trg_xc",
+		"X axe",
+		vectRemove( colnames(globalStatReader()), c("FLOWCELL")),
+		selected="DURATION(mn)"
+	)
+})
+
+output$tabRunGlobal_yAxeChoice <- renderUI({
+	req(nrow(isolate(globalStatReader())) > 0)
+	selectInput(
+		"trg_yc",
+		"Y axe",
+		vectRemove( colnames(globalStatReader()), c("FLOWCELL","DURATION(mn)")),
+		selected="SPEED(b/mn)"
+	)
+})
+
+output$tabRunGlobal_colorChoice <- renderUI({
+	req(nrow(isolate(globalStatReader())) > 0)
+	selectInput(
+		"trg_cc",
+		"Color by",
+		vectRemove( colnames(globalStatReader()), c("FLOWCELL")),
+		selected="QUALITY"
+	)
+})
+
+output$tabRunCurrent_xAxeChoice <- renderUI({
+	req(nrow(isolate(currentStatReader())) > 0)
+	selectInput(
+		"trc_xc",
+		"X axe",
+		vectRemove( colnames(currentStatReader()), c("FLOWCELL")),
+		selected="DURATION(mn)"
+	)
+})
+
+output$tabRunCurrent_yAxeChoice <- renderUI({
+	req(nrow(isolate(currentStatReader())) > 0)
+	selectInput(
+		"trc_yc",
+		"Y axe",
+		vectRemove( colnames(currentStatReader()), c("FLOWCELL","DURATION(mn)")),
+		selected="SPEED(b/mn)"
+	)
+})
+
+output$tabRunCurrent_colorChoice <- renderUI({
+	req(nrow(isolate(currentStatReader())) > 0)
+	selectInput(
+		"trc_cc",
+		"Color by",
+		vectRemove( colnames(currentStatReader()), c("FLOWCELL")),
+		selected="QUALITY"
+	)
+})
+
 
 # ______________________________________________________________________________________
 # UPDATE
@@ -251,18 +337,18 @@ observe({
 	runSelected = isolate(input$runList) # save the run selected before the update of the list
 	listRun = list()
 	
-	if(is.null(runInfoStatReader()) | nrow(runInfoStatReader())==0) {
+	if(is.null(runInfoStatReader()) || nrow(runInfoStatReader())==0) {
 		listRun <- character(0)
 		runSelected = NULL
 		
 	} else {
 		listRun = list(
-			"In progress" = c("",runInfoStatReader()[ENDED=="NO",FLOWCELL]), # add an empty slot, else the list doen not display correctly
-			"Completed" = c(runInfoStatReader()[ENDED=="YES",FLOWCELL])
+			"In progress" = c("",ripList()), # add an empty slot, else the list doen not display correctly
+			"Completed" = c(runList())
 		)
 
-		if (runSelected == "") {
-			runSelected = runInfoStatReader()[STARTTIME==max(na.omit(STARTTIME)),FLOWCELL] # if there isn't a run selected, take the most recent in the finished one (in progress run have NA in STARTTIME)
+		if (runSelected == "" || is.null(runSelected)) {
+			runSelected = runInfoStatReader()[STARTTIME==max(na.omit(STARTTIME)),FLOWCELL] # if there isn't a run selected, take the most recent one
 		}
 	}
 	

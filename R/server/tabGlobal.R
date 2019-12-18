@@ -1,6 +1,12 @@
 # ______________________________________________________________________________________
 # FILES READERS
 
+<<<<<<< R/server/tabGlobal.R
+readRunInfoStat <- function(file) {
+	data = readCsvSpace(file)
+	data[, c("LASTREADPOSITION","LASTSTEPSTARTPOSITION"):=NULL]
+}
+=======
 #runInfoStatReader <- reactive ({
 #	data <- reactiveFileReader(
 #		intervalMillis = 60000,
@@ -12,17 +18,55 @@
 #	return(data)
 #})
 
+>>>>>>> R/server/tabGlobal.R
 
 runInfoStatReader<-reactiveFileReader(
        	intervalMillis = 6000,
        	session        = NULL,
        	filePath       = paste(reportingFolder,"/run_infostat.txt",sep=""),
+<<<<<<< R/server/tabGlobal.R
+       	readFunc       = readRunInfoStat
+)
+
+
+# ______________________________________________________________________________________
+# RUN LISTS
+
+rv <- reactiveValues(	updateRunList = FALSE, # flags to update the lists
+			updateRipList = FALSE)
+
+ripList <- reactive({ # run in progress
+	rv$updateRipList
+	isolate(runInfoStatReader()[ENDED=="NO",FLOWCELL])
+})
+
+runList <- reactive({
+	rv$updateRunList
+	isolate(runInfoStatReader()[,FLOWCELL])
+})
+
+observe ({ # update list of run and list of run in progress only if the coresponding list in the input file (runInfoStatReader) change and not if any value of this file change
+	if(length(runInfoStatReader()[,FLOWCELL])==length(isolate(runList())) && all(runInfoStatReader()[,FLOWCELL]==isolate(runList()))) {
+		isolate({
+			rv$updateRunList <- TRUE
+			rv$updateRunList <- FALSE
+		})
+	}
+	
+	if(length(runInfoStatReader()[ENDED=="NO",FLOWCELL])==length(isolate(ripList())) && all(runInfoStatReader()[ENDED=="NO",FLOWCELL]==isolate(ripList()))) {
+		isolate({
+			rv$updateRipList <- TRUE
+			rv$updateRipList <- FALSE
+		})
+	}
+=======
        	readFunc       = fread
 )
 
 
 rip <- reactive({ # run in progress
 	runInfoStatReader()[ENDED=="NO",FLOWCELL]
+>>>>>>> R/server/tabGlobal.R
 })
 
 
@@ -99,10 +143,18 @@ output$nbReadRun <- renderPlotly({
 	req(nrow(runInfoStatReader())>0)
 	#plotGlobalNbRead(runInfoStatReader())
 
+<<<<<<< R/server/tabGlobal.R
+	ggplotly ( ggplot(runInfoStatReader(),aes(x=get("FLOWCELL"), y=get("YIELD(b)"))) + geom_col() ) + theme_bw() + theme(axis.text.x = element_text(angle = 90)) %>%
+
+#	plot_ly(runInfoStatReader(), x= ~get("FLOWCELL"), y=~get("YIELD(b)")) %>% #, type= "bar")  , source = "globalBar") %>% 
+#	layout(xaxis = list(title="Flowcell"), yaxis = list(title="Yield (bases)")) %>% 
+
+=======
 	ggplotly ( ggplot(runInfoStatReader(),aes(x=get("FLOWCELL"), y=get("YIELD(b)"))) + geom_col() ) %>%
 
 #	plot_ly(runInfoStatReader(), x= ~get("FLOWCELL"), y=~get("YIELD(b)")) %>% #, type= "bar")  , source = "globalBar") %>% 
 #	layout(xaxis = list(title="Flowcell"), yaxis = list(title="Yield (bases)")) %>% 
+>>>>>>> R/server/tabGlobal.R
 	plotlyConfig()
 })
 
