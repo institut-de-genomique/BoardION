@@ -11,9 +11,68 @@ reportingFolder = "/test_data"
 # MAIN SERVER
 
 server <- function(input, output, session) {
-#	source("server/tabGlobal.R",local=TRUE)
+  
+  # ______________________________________________________________________________________
+  # run info stat reader
+  
+  readRunInfoStat <- function(file) {
+    data = readCsvSpace(file)
+    data[, c("LASTREADPOSITION","LASTSTEPSTARTPOSITION"):=NULL]
+  }
+  
+  runInfoStatReader<-reactiveFileReader(
+    intervalMillis = 6000,
+    session        = NULL,
+    filePath       = paste(reportingFolder,"/run_infostat.txt",sep=""),
+    readFunc       = readRunInfoStat
+  )
+  
+  # ______________________________________________________________________________________
+  # RUN LISTS
+  
+  # flags to update the lists
+  rv <- reactiveValues(
+    updateRunList = FALSE,
+    updateRipList = FALSE
+  )
+  
+  # run in progress
+  ripList <- reactive({
+    rv$updateRipList
+    isolate(runInfoStatReader()[ENDED=="NO",FLOWCELL])
+  })
+  
+  runList <- reactive({
+    rv$updateRunList
+    isolate(runInfoStatReader()[,FLOWCELL])
+  })
+  
+  # update list of run and list of run in progress only if the corresponding list in the input file (runInfoStatReader) change
+  # and not if any value of this file change (like the numbre of read)
+  observe ({
+    if(length(runInfoStatReader()[,FLOWCELL]) != length(isolate(runList())) || all(runInfoStatReader()[,FLOWCELL] != isolate(runList()))) {
+      isolate({
+        rv$updateRunList <- TRUE
+        rv$updateRunList <- FALSE
+      })
+    }
+    
+    if(length(runInfoStatReader()[ENDED=="NO",FLOWCELL]) != length(isolate(ripList())) || all(runInfoStatReader()[ENDED=="NO",FLOWCELL] != isolate(ripList()))) {
+      isolate({
+        rv$updateRipList <- TRUE
+        rv$updateRipList <- FALSE
+      })
+    }
+  })
+
+  
+  # ______________________________________________________________________________________
+  # SOURCE
+  
+  # source("server/tabGlobal.R",local=TRUE)
 	source("server/tabRun.R",local=TRUE)
 	source("server/tabComparison.R",local=TRUE)
 	source("server/plotChannel.R",local=TRUE)
+	source("server/plotRuns.R",local=TRUE)
 	source("server/tabRunInProgress.R",local=TRUE)
 }

@@ -1,5 +1,5 @@
 compCumul <- reactive ({
-	files <- paste(reportingFolder,"/", input$compRunList, "_globalstat.txt", sep="")
+	files <- paste(reportingFolder,"/", input$tabComp_runList, "_globalstat.txt", sep="")
 	data<-data.frame()
 
 	for(f in files) {
@@ -9,7 +9,7 @@ compCumul <- reactive ({
 })
 
 compCurrent <- reactive ({
-	files <- paste(reportingFolder,"/", input$compRunList, "_currentstat.txt", sep="")
+	files <- paste(reportingFolder,"/", input$tabComp_runList, "_currentstat.txt", sep="")
 	data<-data.frame()
 
 	for(f in files) {
@@ -44,13 +44,13 @@ plotCompTime <- function(x) {
 # ______________________________________________________________________________________
 # RENDER PLOT
 
-output$plot_runCompTimeCumul <- renderPlotly({
+output$tabComp_cumul_plot <- renderPlotly({
 	if(nrow(compCumul())) {
 		ggplotly( plotCompTime(compCumul), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
 	}
 })
 
-output$plot_runCompTimeCurrent <- renderPlotly({
+output$tabComp_current_plot <- renderPlotly({
 	if(nrow(compCurrent())) {
 		ggplotly( plotCompTime(compCurrent), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
 	}
@@ -61,9 +61,11 @@ output$plot_runCompTimeCurrent <- renderPlotly({
 
 observe({ # update drop-down list of run
 
+	#print(runList())
+
 	updateSelectizeInput( 
 		session,
-		"compRunList",
+		"tabComp_runList",
 		choice = runList(),
 		selected = isolate(input$compRunList),
 		server=TRUE
@@ -71,16 +73,14 @@ observe({ # update drop-down list of run
 })
 
 
-output$tabComp_yAxeChoice <- renderUI({
-        req(nrow(compCumul()) > 0)
-
+output$tabComp_cumul_yAxeChoice <- renderUI({
+	req(nrow(compCumul()) > 0)
 	columnNames = vectRemove( colnames(compCumul()), c("FLOWCELL","DURATION(mn)") )
-
-        selectInput(
+  
+	selectInput(
 		"tc_yc",
 		"Y axe",
 		columnNames,
 		selected="YIELD(b)"
-        )
+	)
 })
-
