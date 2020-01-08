@@ -18,6 +18,19 @@ compCurrent <- reactive ({
 	return(data)
 })
 
+compReadLength <- reactive ({
+	datas <- data.frame()
+
+	for(f in input$tabComp_runList) {
+
+		file <- paste(reportingFolder,"/", f, "_readsLength.txt", sep="")
+		data = readCsvSpace(file)
+		data[,FLOWCELL:=f]
+		datas = rbind( datas, data)
+	}
+	return(datas)
+})
+
 # ______________________________________________________________________________________
 # PLOTS
 
@@ -35,9 +48,29 @@ plotCompTime <- function(x) {
 			)
 		)
 	) +
-	geom_line(size=1) +
+	geom_line(size=0.5) +
 	xlab("DURATION(mn)") +
 	ylab(input$tc_yc) +
+	theme_bw()
+}
+
+plotCompReadLength <- function(x) {
+	
+	ggplot( x(),
+	       aes( x = LENGTH,
+		    weight = LENGTH * COUNT,
+		    col = FLOWCELL#,
+#		    text = paste( FLOWCELL,
+#				  '<br>Length: ', LENGTH,
+#				  '<br>Number of reads: ', format(COUNT,big.mark=' '),
+#				  '<br>Number of bases: ', format(LENGTH * COUNT,big.mark=' '),
+#				  sep=""
+#		    )
+	       )
+	) +
+	geom_freqpoly(size=0.5, binwidth=200) +
+	xlab("Length") +
+	ylab("Number of bases") +
 	theme_bw()
 }
 
@@ -53,6 +86,12 @@ output$tabComp_cumul_plot <- renderPlotly({
 output$tabComp_current_plot <- renderPlotly({
 	if(nrow(compCurrent())) {
 		ggplotly( plotCompTime(compCurrent), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
+	}
+})
+
+output$tabComp_length_plot <- renderPlotly({
+	if(nrow(compReadLength())) {
+		ggplotly( plotCompReadLength(compReadLength), dynamicTicks=T )  %>% plotlyConfig()
 	}
 })
 
