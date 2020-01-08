@@ -40,12 +40,22 @@ b_compPlotCurrent <- box(
   plotlyOutput("tabComp_current_plot", height = "300px")
 )
 
+b_compPlotLength <- box(
+	title = "Read length",
+	status = "primary",
+	solidHeader = TRUE,
+	collapsible = TRUE,
+	width = 12,
+	plotlyOutput("tabComp_length_plot", height = "300px")
+)
+
 tabComparison <- tabItem(
   "comparison",
   fluidRow(
     b_compPlotGlobal,
     ms_comp,
     b_compPlotCumul,
-    b_compPlotCurrent
+    b_compPlotCurrent,
+    b_compPlotLength
   )
 )
