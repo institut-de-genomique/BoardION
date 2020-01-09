@@ -78,19 +78,19 @@ plotRunIPYield <- function(x) {
 output$runIPTable = DT::renderDataTable(
 	runInfoStatReader()[ENDED=="NO"]
 )
-
-rip_filesReaders <- reactiveValues() # Contain the reactiveFileReader
-rip_runDisplayed = reactiveValues() # trace for which run an ui output exist
+rip_val = reactiveValues()
+rip_val$filesReaders = list() # Contain the reactiveFileReader of each run displayed in tah tab
+rip_val$runDisplayed = list() # trace for which run an ui output exist
 
 observeEvent( input$rip_cumulative_toggle, {
 
 	if(input$rip_cumulative_toggle) {
-		for(flowcell in names(rip_runDisplayed)) {
-			rip_filesReaders[[ paste("rip_yield_", flowcell, sep="") ]] <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", flowcell, "_globalstat.txt", sep=""), readFunc = readCsvSpace)
+		for(flowcell in names(rip_val$runDisplayed)) {
+			rip_val$filesReaders[[ paste("rip_yield_", flowcell, sep="") ]] <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", flowcell, "_globalstat.txt", sep=""), readFunc = readCsvSpace)
 		}
 	} else {
-		for(flowcell in names(rip_runDisplayed)) {
-			rip_filesReaders[[ paste("rip_yield_", flowcell, sep="") ]] <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", flowcell, "_currentstat.txt", sep=""), readFunc = readCsvSpace)
+		for(flowcell in names(rip_val$runDisplayed)) {
+			rip_val$filesReaders[[ paste("rip_yield_", flowcell, sep="") ]] <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", flowcell, "_currentstat.txt", sep=""), readFunc = readCsvSpace)
 		}
 	}
 })
@@ -99,12 +99,12 @@ observeEvent( ripList(), {
 
 	for(flowcell in ripList()) {
 
-		if( !flowcell %in% names(rip_runDisplayed) ) { # if the run insn't displayed yet
-		
+		if( !flowcell %in% names(rip_val$runDisplayed) ) { # if the run insn't displayed yet
+	
 			local({
 				fc <- flowcell
 
-				rip_runDisplayed[[flowcell]] = TRUE
+				rip_val$runDisplayed[[flowcell]] = TRUE
 	
 				# id of the ui element
 				plotYieldID  <- paste("rip_yield_", fc, sep="")
@@ -115,16 +115,17 @@ observeEvent( ripList(), {
 				containerID  <- paste("rip_container_",fc,sep="")
 
 				# create dynamic reader and save it in reactiveValues
-
 				if(input$rip_cumulative_toggle) {
-					rip_filesReaders[[plotYieldID]]  <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", fc, "_globalstat.txt", sep=""), readFunc = readCsvSpace)
+					rip_val$filesReaders[[plotYieldID]]  <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", fc, "_globalstat.txt", sep=""), readFunc = readCsvSpace)
 				} else {
-					rip_filesReaders[[plotYieldID]]  <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", fc, "_currentstat.txt", sep=""), readFunc = readCsvSpace)
+					rip_val$filesReaders[[plotYieldID]]  <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", fc, "_currentstat.txt", sep=""), readFunc = readCsvSpace)
 				}
 
-				rip_filesReaders[[plotLengthID]] <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", fc, "_readsLength.txt", sep=""), readFunc = readCsvSpace)
+				rip_val$filesReaders[[plotLengthID]] <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", fc, "_readsLength.txt", sep=""), readFunc = readCsvSpace)
 
-				insertUI( # create a box per run with plotoutput
+			
+				# create a box per run with plotoutput
+				insertUI(
 					selector = '#placeholder',
 					where = "afterEnd",
 					ui = tags$div( id = containerID,
@@ -138,30 +139,33 @@ observeEvent( ripList(), {
 					)
 				)
 
+				# bar plot of the yield
 				output[[plotYieldID]] <- renderPlotly({
-					p <- ggplotly( plotRunIPYield(rip_filesReaders[[plotYieldID]]), dynamicTicks = TRUE, tooltip = "text")
-					p %>% style(marker.colorbar.len = 1, traces = length(p$x$data))  %>% # make the height colorbar (legend on the side of the plot) equal to the height of the plot
+					p <- ggplotly( plotRunIPYield(rip_val$filesReaders[[plotYieldID]]), dynamicTicks = TRUE, tooltip = "text")
+					p %>% style(marker.colorbar.len = 1, traces = length(p$x$data))  %>% # make the height of the colorbar (legend on the side of the plot) equal to the height of the plot
 					plotlyConfig()
 				})
 
+				# histogram of read length
 				output[[plotLengthID]] <- renderPlotly({
-					rip_filesReaders[[plotLengthID]] %>%
+					rip_val$filesReaders[[plotLengthID]] %>%
 					plotReadLength() %>%
 					ggplotly(dynamicTicks = FALSE) %>% # can't use dynamicTicks and make an initial zoom with layout
 					layout(xaxis = list(range = c(-1000, 105000))) %>%
 					plotlyConfig()
 				})
 
+				# boxs with number of read with length > 30,50,100 kb
 				output[[valBox30ID]] <- renderValueBox({
-					valueBox( sum(rip_filesReaders[[plotLengthID]]()[LENGTH>=30000, COUNT]), "reads > 30kb")
+					valueBox( sum(rip_val$filesReaders[[plotLengthID]]()[LENGTH>=30000, COUNT]), "reads > 30kb")
 				})
 
 				output[[valBox50ID]] <- renderValueBox({
-					valueBox( sum(rip_filesReaders[[plotLengthID]]()[LENGTH>=50000, COUNT]), "reads > 50kb")
+					valueBox( sum(rip_val$filesReaders[[plotLengthID]]()[LENGTH>=50000, COUNT]), "reads > 50kb")
 				})
 
 				output[[valBox100ID]] <- renderValueBox({
-					valueBox( sum(rip_filesReaders[[plotLengthID]]()[LENGTH>=100000, COUNT]), "reads > 100kb")
+					valueBox( sum(rip_val$filesReaders[[plotLengthID]]()[LENGTH>=100000, COUNT]), "reads > 100kb")
 				})
 			})
 					
@@ -169,11 +173,13 @@ observeEvent( ripList(), {
 
 	}
 
-	for(flowcell in names(rip_runDisplayed)) {
+	for(flowcell in names(rip_val$runDisplayed)) {
 
-		if(!flowcell %in% ripList()) { # id a displayed run insn't a run in progress anymore (it's ended) remove it
+		# if a displayed run insn't a run in progress anymore (it's ended) remove it
+		if(!flowcell %in% ripList()) {
+
 			containerID <- paste("rip_container_",flowcell,sep="")
-			rip_runDisplayed$flowcell <- NULL
+			rip_val$runDisplayed[[flowcell]] <- NULL
 			selector = paste0("#", containerID)
 			removeUI(selector)
 		}
