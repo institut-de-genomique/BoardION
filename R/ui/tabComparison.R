@@ -46,7 +46,11 @@ b_compPlotLength <- box(
 	solidHeader = TRUE,
 	collapsible = TRUE,
 	width = 12,
-	plotlyOutput("tabComp_length_plot", height = "300px")
+	fluidRow(
+		column(width=2, selectInput("tabComp_length_dropdown","y axe",c("Number of read","Number of base"))),
+		column(width=2, checkboxInput( "tabComp_length_checkBox", "Percent", value=FALSE)),
+	),
+	plotlyOutput( "tabComp_length_plot", height="300px")
 )
 
 tabComparison <- tabItem(

@@ -26,6 +26,11 @@ compReadLength <- reactive ({
 		file <- paste(reportingFolder,"/", f, "_readsLength.txt", sep="")
 		data = readCsvSpace(file)
 		data[,FLOWCELL:=f]
+	
+		data[,NB_BASE:=COUNT*LENGTH]
+		data[,PERCENT_READ:=COUNT/sum(COUNT)*100]
+		data[,PERCENT_BASE:=NB_BASE/sum(NB_BASE)*100]
+
 		datas = rbind( datas, data)
 	}
 	return(datas)
@@ -55,22 +60,35 @@ plotCompTime <- function(x) {
 }
 
 plotCompReadLength <- function(x) {
-	
+
+	if(input$tabComp_length_dropdown == "Number of base") {
+		if(input$tabComp_length_checkBox) {
+			mapping = aes(x = LENGTH, weight = PERCENT_BASE, col = FLOWCELL)
+			#y_var = PERCENT_BASE
+			y_name = "Percent of base number"
+		} else {
+			mapping = aes(x = LENGTH, weight = NB_BASE, col = FLOWCELL)
+			#y_var = NB_BASE
+			y_name = "Number of base"
+		}
+	} else {
+		if(input$tabComp_length_checkBox) {
+			mapping = aes(x = LENGTH, weight = PERCENT_READ, col = FLOWCELL)
+			#y_var = PERCENT_READ
+			y_name = "Percent of read number"
+		} else {
+			mapping = aes(x = LENGTH, weight = COUNT, col = FLOWCELL)
+			#y_var = COUNT
+			y_name = "Number of read"
+		}
+	}
+
 	ggplot( x(),
-	       aes( x = LENGTH,
-		    weight = LENGTH * COUNT,
-		    col = FLOWCELL#,
-#		    text = paste( FLOWCELL,
-#				  '<br>Length: ', LENGTH,
-#				  '<br>Number of reads: ', format(COUNT,big.mark=' '),
-#				  '<br>Number of bases: ', format(LENGTH * COUNT,big.mark=' '),
-#				  sep=""
-#		    )
-	       )
+		mapping
 	) +
+	ylab(y_name) +
 	geom_freqpoly(size=0.5, binwidth=200) +
 	xlab("Length") +
-	ylab("Number of bases") +
 	theme_bw()
 }
 
