@@ -18,6 +18,7 @@ server <- function(input, output, session) {
   readRunInfoStat <- function(file) {
     data = readCsvSpace(file)
     data[, c("LASTREADPOSITION","LASTSTEPSTARTPOSITION"):=NULL]
+    data[,DATE:=as.Date(STARTTIME)]
   }
   
   runInfoStatReader<-reactiveFileReader(

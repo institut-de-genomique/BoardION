@@ -6,7 +6,7 @@ ms_comp<- selectizeInput(
 )
 
 b_compPlotGlobal <- box (
-	title = "",
+	title = "Runs overview",
 	status = "primary",
 	solidHeader = TRUE,
 	collapsible = TRUE,
@@ -14,7 +14,6 @@ b_compPlotGlobal <- box (
 	fluidRow(
 		column(width=2, uiOutput("tabComp_runs_xAxeChoice") ),
 		column(width=2, uiOutput("tabComp_runs_yAxeChoice") ),
-		column(width=2, selectInput("tabComp_runs_typePlotChoice", "Plot type", c("scatter plot","bar plot","box plot","line plot")) ),
 		column(width=2, uiOutput("tabComp_runs_groupByChoice"))
 	),
 	plotlyOutput("tabComp_runs_plot", height = "350px")
@@ -57,7 +56,11 @@ tabComparison <- tabItem(
   "comparison",
   fluidRow(
     b_compPlotGlobal,
-    ms_comp,
+    tags$div(
+     style="margin-left: 15px;",
+     
+      ms_comp
+    ),
     b_compPlotCumul,
     b_compPlotCurrent,
     b_compPlotLength

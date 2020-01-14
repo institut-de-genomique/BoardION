@@ -151,7 +151,7 @@ observeEvent( ripList(), {
 					rip_val$filesReaders[[plotLengthID]] %>%
 					plotReadLength() %>%
 					ggplotly(dynamicTicks = FALSE) %>% # can't use dynamicTicks and make an initial zoom with layout
-					layout(xaxis = list(range = c(-1000, 105000))) %>%
+					#layout(xaxis = list(range = c(-1000, 105000))) %>%
 					plotlyConfig()
 				})
 
