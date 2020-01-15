@@ -8,8 +8,8 @@ From: centos:centos7
     yum update -y 
     yum install -y epel-release openssl-devel libcurl libcurl-devel cairo-devel libxml2-devel udunits2-devel
     yum install -y R
-    R -e 'install.packages(c("bit64","ggplot2","plotly","shiny","shinydashboard","data.table","readr","devtools","shinycssloaders","DT"), repos="https://mirror.ibcp.fr/pub/CRAN/");'
+    R -e 'install.packages(c("bit64","ggplot2","plotly","shiny","shinydashboard","shinycssloaders","shinyWidgets","data.table","readr","devtools","DT"), repos="https://mirror.ibcp.fr/pub/CRAN/");'
 
 %runscript
-    cd /usr/local/src/
+    cd /usr/local/src/R/
     exec Rscript app.R
