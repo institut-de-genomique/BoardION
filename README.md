@@ -1,5 +1,23 @@
  ---
-# PromethIonDashboard
+# BoardION
+
+# Installation
+
+The preprocessing script need gcc > 8.3 to compile.
+The web interface depende on several R packages:
+library(ggplot2)
+library(plotly)
+library(shiny)
+library(shinydashboard)
+library(data.table)
+library(readr)
+
+You may have to install some system packages:
+libcurl-devel
+cairo-devel
+libxml2-devel
+udunits2-deve
+
 
 ## __objectif__
 - visualiser des statistiques sur les runs promethIon en cours et terminés
