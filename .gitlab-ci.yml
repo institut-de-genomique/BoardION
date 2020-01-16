@@ -22,7 +22,7 @@ Build:
     tags: 
     - docker
     extends: .docker_jobs
-    when: always
+    when: manual
     before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD ${REPOSERVER}
     script:
@@ -36,7 +36,7 @@ Test:
     tags: 
     - docker
     extends: .docker_jobs
-    when: always
+    when: manual
     before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD ${REPOSERVER}
     script:
@@ -73,7 +73,7 @@ Purge:
     tags: 
     - docker
     extends: .docker_jobs
-    when: always
+    when: manual
     script:
     - docker images
     - docker rm -f rundeck_$CI_PIPELINE_ID || true
