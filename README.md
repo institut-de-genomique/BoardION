@@ -6,7 +6,7 @@
 You will need to have the following prerequisites fulfilled.
 
 - gcc >=8.3
-- R
+- R >= 3.6.0
 - R packages:
 ```
 install.packages(c("bit64","data.table","plotly","shinydashboard","shinycssloaders","shinyWidgets","DT"))
@@ -46,7 +46,7 @@ This script need to be executed regurlarly to update the data displayed in the w
 crontab -e
 ```
 
-add inside:
+add inside the crontab the following line:
 
 ```
 */5 * * * * boardion_preprocess -i input/dir -o output/dir
@@ -56,6 +56,14 @@ Inside the input directory it will detect and parse every sequencing_summary.txt
 Note that the ouput directory need to be visible by the web server.
 
 ### Install the web server
+
+The server require no installation as it is in R. Just execute it (you need to precise the ip adress, the port and the input directory):
+
+```
+Rscript boardion_app.r 0.0.0.0 port input/dir
+```
+
+The input directory of the web server is the output directory of the preprocessing script.
 
 
 
