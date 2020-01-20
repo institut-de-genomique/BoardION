@@ -21,12 +21,18 @@ For the plotly package you may have to install first some system packages:
 
 ## Installation
 
+To install Boardion you first need to get the source code in the git repository:
+
 ```
 git clone https://github.com/institut-de-genomique/BoardION.git
 cd BoardION
 ```
 
-### Build and install preprocessing script
+Boardion is divided in 2 parts:
+- the preprocessing script (in c++)
+- the web application (in R)
+
+### Install and configure the preprocessing script
 
 ```
 cd boardion_preprocess
@@ -34,7 +40,7 @@ cmake ...
 ...
 ```
 
-This script need to be executed regurlarly to update the date display in the web interface. For exemple to execute it every 5 minutes with cron:
+This script need to be executed regurlarly to update the data displayed in the web interface. For exemple, to execute it every 5 minutes with cron:
 
 ```
 crontab -e
@@ -46,4 +52,10 @@ add inside:
 */5 * * * * boardion_preprocess -i input/dir -o output/dir
 ```
 
-The input directory need to contain the sequencing_summary.txt files to monitore in the web interface and the ouput directory need to be visible by the web server.
+Inside the input directory it will detect and parse every sequencing_summary.txt and final_summary.txt. 
+Note that the ouput directory need to be visible by the web server.
+
+### Install the web server
+
+
+
