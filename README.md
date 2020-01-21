@@ -1,6 +1,10 @@
  ---
 # PromethIonDashboard
 
+TODO!!
+ajouter liscence thrid parti
+ajouter liscence cea??
+
 ## __objectif__
 - visualiser des statistiques sur les runs promethIon en cours et terminés
    - Qualité des reads
