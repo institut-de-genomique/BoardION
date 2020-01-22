@@ -3,38 +3,27 @@
 
 BoardION is an interactive web application for real time monitoring of ONT sequencing runs. It provides the possibility for sequencing platforms to remotely monitor their ONT sequencing devices. The interactive interface of BoardION allows users to explore easily sequencing metrics in order to optimize reactively the quantity and the quality of the generated data. It also enables the comparison of multiple flowcells to assess the library preparations or the quality of samples.
 
-## Prerequisites
+A demonstration of the BoardION is available at !!!!!!!!.
 
-You will need to have the following prerequisites fulfilled.
-
-- gcc >=8.3
-- R >= 3.6.0
-- R packages:
-```
-install.packages(c("bit64","data.table","plotly","shinydashboard","shinycssloaders","shinyWidgets","DT"))
-```
-
-For the plotly package you may have to install first some system packages:
-
-| deb (Debian, Ubuntu, etc) | rpm (Fedora, CentOS, RHEL) |
-| ----------- | ----------- |
-| libcurl4-openssl-dev | libcurl-devel |
-| libssl-dev | openssl-devel |
 
 ## Installation
 
-To install Boardion you first need to get the source code in the git repository:
+To install BoardION you first need to get the source code in the git repository:
 
 ```
 git clone https://github.com/institut-de-genomique/BoardION.git
 cd BoardION
 ```
 
-Boardion is divided in 2 parts:
-- the preprocessing script (in c++)
+BoardION is divided in 2 programs:
+- the preprocessing (in c++)
 - the web application (in R)
 
+The preprocessing program will create files containing the data displayed in the web interface. Thus this 2 programs only need to have access to the same folder and can be run on different computer.
+
 ### Install the preprocessing script
+
+The preprocessing script require gcc>=8.3.0 and cmake>2.8 to compile.
 
 ```
 cd preprocess
@@ -44,6 +33,9 @@ cmake ../
 make
 make install
 ```
+
+This will install on your a system a binary named boardion_preprocess.
+
 
 This script need to be executed regurlarly to update the data displayed in the web interface. For exemple, to execute it every 5 minutes with cron:
 
@@ -57,19 +49,34 @@ add inside the crontab the following line:
 */5 * * * * boardion_preprocess -i input/dir -o output/dir
 ```
 
-Inside the input directory it will detect and parse every sequencing_summary.txt and final_summary.txt. 
+Inside the input directory it will detect and parse every sequencing_summary.txt and final_summary.txt.
 Note that the ouput directory need to be visible by the web server.
 
 ### Install the web server
 
-The server require no installation as it is in R. Just execute it (you need to precise the ip adress, the port and the input directory):
+The server require no installation as it is in R but require several R packages. Therefore an installation with docker or singularity is proposed.
 
+To build the docker run in the main folder:
 ```
-cd app
-Rscript boardion_app.r 0.0.0.0 port input/dir
+docker build -t boardion ./
 ```
 
-The input directory of the web server is the output directory of the preprocessing script.
+To build with singularity:
+```
+singularity build boardion_app boardion.sif
+```
 
+If you prefer to run it directly on your system, here is the list of depencies:
 
+- R (tested with R>=3.6.0)
+- R packages:
+```
+install.packages(c("bit64","data.table","plotly","shinydashboard","shinycssloaders","shinyWidgets","DT"))
+```
 
+For the plotly package you may have to install first some system packages:
+
+| deb (Debian, Ubuntu, etc) | rpm (Fedora, CentOS, RHEL) |
+| ----------- | ----------- |
+| libcurl4-openssl-dev | libcurl-devel |
+| libssl-dev | openssl-devel |
