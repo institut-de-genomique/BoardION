@@ -18,7 +18,7 @@ makeGraphBox <- function(name, id, width=6, height="350px", collapsed=FALSE) {
 # ______________________________________________________________________________________
 # HEADER
 
-header <- dashboardHeader(title = "BoardIon")
+header <- dashboardHeader(title = "BoardION")
 
 
 # ______________________________________________________________________________________
@@ -37,21 +37,24 @@ source("ui/tabRunInProgress.R")
 
 body <- dashboardBody (
 	tabItems(
-		tabGlobal,
+		#tabGlobal,
 		tabRun,
 		tabComparison,
 		tabRunInProgress
 	),
-	tags$script(HTML("$(function(){
-		$('body').addClass('fixed');
-	});
-	
-	")) # Lock the header bar and the side bar
-	#shinyDashboardThemes( theme = "grey_light" )
+
+	# Lock the header bar and the side bar       
+	tags$script(
+		HTML("
+			$(function(){
+				$('body').addClass('fixed');
+			});
+		")
+	)
 )
 
 
 # ______________________________________________________________________________________
 # MAIN UI
 
-ui <- dashboardPage(title = 'PROM', header, sidebar, body, skin='blue')
+ui <- dashboardPage(title = 'BoardION', header, sidebar, body, skin='blue')
