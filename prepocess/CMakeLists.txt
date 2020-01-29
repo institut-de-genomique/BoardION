@@ -69,7 +69,7 @@ set( DOCTEST
 
 # Lib
 set( BOARDION_PREPROCESS_LIB boardion_preprocess_lib )
-add_library( ${BOARDION_PREPROCESS_LIB} ${SRCS} ${HEADERS} )
+add_library( ${BOARDION_PREPROCESS_LIB} ${SRCS} ${HEADERS} ${DOCTEST} )
 
 # Executable for test
 #enable_testing()
@@ -78,9 +78,8 @@ add_library( ${BOARDION_PREPROCESS_LIB} ${SRCS} ${HEADERS} )
 #add_test( NAME testBoardionPreprocess COMMAND boardion_preprocess_test )
 
 # Executable
-add_executable( boardion_preprocess ${SRCS} ${HEADERS} ${TCLAP} src/main.cpp )
-target_link_libraries( boardion_preprocess stdc++fs m ${BOARDION_PREPROCESS_LIB} )
+add_executable( boardion_preprocess ${TCLAP} ${DOCTEST} src/main.cpp )
+target_link_libraries( boardion_preprocess stdc++fs ${BOARDION_PREPROCESS_LIB} )
 set_target_properties( boardion_preprocess PROPERTIES COMPILE_FLAGS "-DDOCTEST_CONFIG_DISABLE" )
 
-
-INSTALL( TARGETS reporting DESTINATION bin )
+INSTALL( TARGETS boardion_preprocess DESTINATION bin )
