@@ -53,6 +53,12 @@ vectRemove <- function( v, toRemove) {
 	return(v[ !v %in% toRemove ])
 }
 
+# Delete columns from a data.table
+removeDTCol <- function( dt, columns) {
+	dt[, (columns):=NULL]
+}
+
+
 # Read space delimited file
 readCsvSpace <- function(file) {
 	data = data.table()
