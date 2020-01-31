@@ -81,14 +81,14 @@ rip_runDisplayed     = reactiveValues() # trace for which run an ui output exist
 
 # table listing all in progress runs
 output$runIPTable = DT::renderDataTable({
+
 	data = runInfoStatReader()[ENDED=="NO"]
-
 	removeDTCol( data, c("N50(b)", "SPEED(b/mn)", "QUALITY"))
+	run <- data$FLOWCELL
 
-	lengthFileReader <- paste("rip_length_", data$FLOWCELL,sep="")
-	data$Sup30kb  <- sum(rip_lengthFileReader[[lengthFileReader]]()[LENGTH>=30000,  COUNT])
-	data$Sup50kb  <- sum(rip_lengthFileReader[[lengthFileReader]]()[LENGTH>=50000,  COUNT])
-	data$Sup100kb <- sum(rip_lengthFileReader[[lengthFileReader]]()[LENGTH>=100000, COUNT])
+	data$Sup30kb  <- sum(rip_lengthFileReader[[run]]()[LENGTH>=30000,  COUNT])
+	data$Sup50kb  <- sum(rip_lengthFileReader[[run]]()[LENGTH>=50000,  COUNT])
+	data$Sup100kb <- sum(rip_lengthFileReader[[run]]()[LENGTH>=100000, COUNT])
 	return(data)
 })
 
@@ -106,7 +106,7 @@ observeEvent( input$rip_cumulative_toggle, {
 		}
 	}
 	for(flowcell in names(rip_runDisplayed)) {
-		rip_yieldFileReader[[ paste("rip_yield_", flowcell, sep="") ]] <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste(reportingFolder, "/", flowcell, ext, sep=""), readFunc = readCsvSpace)
+		rip_yieldFileReader[[ flowcell ]] <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste(reportingFolder, "/", flowcell, ext, sep=""), readFunc = readCsvSpace)
 	}
 })
 
@@ -132,12 +132,12 @@ observeEvent( ripList(), {
 
 				# create dynamic reader and save it in reactiveValues
 				if(input$rip_cumulative_toggle) {
-					rip_yieldFileReader[[plotYieldID]]  <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", fc, "_globalstat.txt", sep=""), readFunc = readCsvSpace)
+					rip_yieldFileReader[[ fc ]]  <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", fc, "_globalstat.txt", sep=""), readFunc = readCsvSpace)
 				} else {
-					rip_yieldFileReader[[plotYieldID]]  <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", fc, "_currentstat.txt", sep=""), readFunc = readCsvSpace)
+					rip_yieldFileReader[[ fc ]]  <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", fc, "_currentstat.txt", sep=""), readFunc = readCsvSpace)
 				}
 
-				rip_lengthFileReader[[plotLengthID]] <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", fc, "_readsLength.txt", sep=""), readFunc = readCsvSpace)
+				rip_lengthFileReader[[ fc ]] <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", fc, "_readsLength.txt", sep=""), readFunc = readCsvSpace)
 
 			
 				# create a box per run
@@ -157,21 +157,21 @@ observeEvent( ripList(), {
 
 				# bar plot of the yield
 				output[[plotYieldID]] <- renderPlotly({
-					p <- ggplotly( plotRunIPYield(rip_yieldFileReader[[plotYieldID]]), dynamicTicks = TRUE, tooltip = "text")
+					p <- ggplotly( plotRunIPYield(rip_yieldFileReader[[ fc ]]), dynamicTicks = TRUE, tooltip = "text")
 					p %>% style(marker.colorbar.len = 1, traces = length(p$x$data))  %>% # make the height of the colorbar (legend on the side of the plot) equal to the height of the plot
 					plotlyConfig()
 				})
 
 				# histogram of read length
 				output[[plotLengthID]] <- renderPlotly({
-					rip_lengthFileReader[[plotLengthID]] %>%
+					rip_lengthFileReader[[ fc ]] %>%
 					plotReadLength() %>%
 					ggplotly(dynamicTicks = TRUE) %>% # can't use dynamicTicks and make an initial zoom with layout
 					#layout(xaxis = list(range = c(-1000, 105000))) %>%
 					plotlyConfig()
 				})
 
-				# boxs with number of read with length > 30,50,100 kb
+				# boxs with number some run stats
 				output[[valBox30ID]] <- renderValueBox({
 					valueBox( runInfoStatReader()[FLOWCELL==flowcell,"N50(b)"], "N50")
 				})
