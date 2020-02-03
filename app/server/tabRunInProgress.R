@@ -84,11 +84,16 @@ output$runIPTable = DT::renderDataTable({
 
 	data = runInfoStatReader()[ENDED=="NO"]
 	removeDTCol( data, c("N50(b)", "SPEED(b/mn)", "QUALITY"))
-	run <- data$FLOWCELL
+	runs <- data$FLOWCELL
 
-	data$Sup30kb  <- sum(rip_lengthFileReader[[run]]()[LENGTH>=30000,  COUNT])
-	data$Sup50kb  <- sum(rip_lengthFileReader[[run]]()[LENGTH>=50000,  COUNT])
-	data$Sup100kb <- sum(rip_lengthFileReader[[run]]()[LENGTH>=100000, COUNT])
+	if( nrow( data ) > 0 ) {
+		
+		for( run in data$FLOWCELL ) {
+			data[FLOWCELL == run, Sup30kb  := sum(rip_lengthFileReader[[run]]()[LENGTH>=30000,  COUNT]) ]
+			data[FLOWCELL == run, Sup50kb  := sum(rip_lengthFileReader[[run]]()[LENGTH>=50000,  COUNT]) ]
+			data[FLOWCELL == run, Sup100kb := sum(rip_lengthFileReader[[run]]()[LENGTH>=100000, COUNT]) ]
+		}
+	}
 	return(data)
 })
 
@@ -123,12 +128,13 @@ observeEvent( ripList(), {
 				rip_runDisplayed[[flowcell]] = TRUE
 	
 				# id of the ui element
-				plotYieldID  <- paste("rip_yield_", fc, sep="")
-				plotLengthID <- paste("rip_length_", fc, sep="")
-				valBox30ID   <- paste("rip_length_sup30_",fc,sep="")
-				valBox50ID   <- paste("rip_length_sup50_",fc,sep="")
-				valBox100ID  <- paste("rip_length_sup100_",fc,sep="")
-				containerID  <- paste("rip_container_",fc,sep="")
+				plotYieldID   <- paste("rip_yield_", fc, sep="")
+				plotLengthID  <- paste("rip_length_", fc, sep="")
+				valBoxN50     <- paste("rip_length_sup30_",fc,sep="")
+				valBoxSpeed   <- paste("rip_length_sup50_",fc,sep="")
+				valBoxQuality <- paste("rip_length_sup100_",fc,sep="")
+				buttonGotoRun <- paste("rip_button_",fc,sep="") 
+				containerID   <- paste("rip_container_",fc,sep="")
 
 				# create dynamic reader and save it in reactiveValues
 				if(input$rip_cumulative_toggle) {
@@ -139,17 +145,19 @@ observeEvent( ripList(), {
 
 				rip_lengthFileReader[[ fc ]] <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", fc, "_readsLength.txt", sep=""), readFunc = readCsvSpace)
 
-			
 				# create a box per run
+				
+				title_b = p( paste(fc,"   "),  actionButton(buttonGotoRun , "Go to Run", class = "btn-xs" ) )
+
 				insertUI(
 					selector = '#placeholder',
 					where = "afterEnd",
 					ui = tags$div( id = containerID,
-						box( title = fc, width = NULL, status = "primary", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE,
+						box( title = title_b, width = NULL, status = "primary", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE,
 							fluidRow(
 								column(5, plotlyOutput(plotYieldID, height = 300) %>% withSpinner(type=6) ),
 								column(5, plotlyOutput(plotLengthID, height = 300) %>% withSpinner(type=6) ),
-								column(2, valueBoxOutput(valBox30ID, width=NULL), valueBoxOutput(valBox50ID, width=NULL), valueBoxOutput(valBox100ID, width=NULL))
+								column(2, valueBoxOutput(valBoxN50, width=NULL), valueBoxOutput(valBoxSpeed, width=NULL), valueBoxOutput(valBoxQuality, width=NULL))
 							)
 						)
 					)
@@ -172,16 +180,23 @@ observeEvent( ripList(), {
 				})
 
 				# boxs with number some run stats
-				output[[valBox30ID]] <- renderValueBox({
+				output[[valBoxN50]] <- renderValueBox({
 					valueBox( runInfoStatReader()[FLOWCELL==flowcell,"N50(b)"], "N50")
 				})
 
-				output[[valBox50ID]] <- renderValueBox({
+				output[[valBoxSpeed]] <- renderValueBox({
 					valueBox( runInfoStatReader()[FLOWCELL==flowcell,"SPEED(b/mn)"], "Speed (b/mn)")
 				})
 
-				output[[valBox100ID]] <- renderValueBox({
+				output[[valBoxQuality]] <- renderValueBox({
 					valueBox( runInfoStatReader()[FLOWCELL==flowcell,"QUALITY"], "Quality")
+				})
+
+				# Make the button in the box header display the corresponding run in tabRun
+				observeEvent(input[[buttonGotoRun]], {
+					updateSelectInput( session, "runList", selected = fc )
+					updateTabsetPanel( session, "menu", selected = "run" )
+					
 				})
 			})
 		}
