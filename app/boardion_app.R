@@ -30,14 +30,8 @@ if(length(args) == 2) {
 	port = as.integer(args[2])
 	reportingFolder = args[3]
 } else {
-	stop("[boardion] need 3 arguments: ip adress, port and input directory.\n It can also take only port and input directory. Then it will try to get ip with 'hostname -i'.")
+	stop("[boardion] need 3 arguments: ip adress, port and input directory.\n It can also take only port and input directory, and it will try to get ip with 'hostname -i'.")
 }
-
-ip = system("hostname -i", intern=TRUE)
-port = as.integer(args[2])
-reportingFolder = args[3]
-
-
 
 # ______________________________________________________________________________________
 # Unregular color gradient
