@@ -2,7 +2,7 @@ Bootstrap: docker
 From: centos:centos7
 
 %files
-    ./R /usr/local/src
+    ./app /usr/local/src
 
 %post
     yum update -y 
@@ -12,4 +12,4 @@ From: centos:centos7
 
 %runscript
     cd /usr/local/src/R/
-    exec Rscript app.R
+    exec Rscript boardion_app.R "$@"

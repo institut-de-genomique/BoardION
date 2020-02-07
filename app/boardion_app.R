@@ -20,15 +20,18 @@ options(shiny.reactlog = TRUE)
 # Command line arguments
 args = commandArgs(trailingOnly=TRUE)
 
-if(length(args) != 3) {
-        stop("[boardion] need 3 arguments: ip adress, port and input directory.")
+# if user didn't give ip adress, try get it from system
+if(length(args) == 2) {
+	ip = system("hostname -i", intern=TRUE)
+	port = as.integer(args[1])
+	reportingFolder = args[2]
+} else if(length(args) == 3) {
+	ip = args[1]
+	port = as.integer(args[2])
+	reportingFolder = args[3]
+} else {
+	stop("[boardion] need 3 arguments: ip adress, port and input directory.\n It can also take only port and input directory, and it will try to get ip with 'hostname -i'.")
 }
-
-ip = args[1]
-port = as.integer(args[2])
-reportingFolder = args[3]
-
-
 
 # ______________________________________________________________________________________
 # Unregular color gradient
@@ -43,6 +46,12 @@ myColorStep      = c(0,        0.3,      0.7,      1        )
 vectRemove <- function( v, toRemove) {
 	return(v[ !v %in% toRemove ])
 }
+
+# Delete columns from a data.table
+removeDTCol <- function( dt, columns) {
+	dt[, (columns):=NULL]
+}
+
 
 # Read space delimited file
 readCsvSpace <- function(file) {
@@ -72,6 +81,6 @@ source("ui/ui.R")
 
 # ______________________________________________________________________________________
 # BACKEND
-source("server/server.R")
+source("server/server.R", local=TRUE)
 
 shinyApp(ui, server,options=list(port=port,host=ip))

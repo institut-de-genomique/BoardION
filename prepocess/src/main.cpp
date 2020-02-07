@@ -9,6 +9,7 @@
 #include <thread> // for sleep_for
 #include <iomanip>
 #include <ctime>
+#include <regex>
 
 #include <tclap/CmdLine.h>
 
@@ -85,8 +86,76 @@ fs::path getRunInfoTmpPath(fs::path run_info_path)
 	return(run_info_path);
 }
 
+bool isSequencingSummary ( fs::path &file )
+{
+	std::string name = file.filename().string();
+	if( file.extension().compare(".txt") == 0 )
+	{
+		if( name.find("sequencing_summary") != std::string::npos )
+		{
+			return(true);
+		}
+	}
+	return(false);
+}
+
+bool getRunIdFromFileName ( fs::path &file, std::regex &r, std::string &id )
+{
+	std::string name = file.filename().string();
+	std::smatch m;
+
+	if( std::regex_search( name, m, r) )
+	{
+		if( m.size() == 2 )
+		{
+			id = m.str(1);
+			return(true);
+		}
+		else
+		{
+			std::cerr << "regex match more than once on the file " << name << std::endl;
+			return(false);
+		}
+	}
+	else
+	{
+		std::cerr << "regex doesn't match on file " << name << std::endl;
+		return(false);
+	}
+}
+
+bool getRunIdFromSequencingSummary ( fs::path &file, std::string &id )
+{
+	std::string line, fastq_name, fast5_name, read_id, run_id;
+	std::stringstream s;
+	std::regex r(R"((PA\w\d{5,})_)");
+	std::smatch m;
+
+	std::ifstream f (file);
+	
+	std::getline(f, line);
+	std::getline(f, line);
+
+	s << line;
+	s >> fastq_name >> fast5_name >> read_id >> run_id;
+
+	if( std::regex_search( fastq_name, m, r) )
+	{
+		std::stringstream s2;
+		s2 << m.str(1) << "_" << run_id.substr(0,8);
+		id = s2.str();
+		return(true);
+	}
+	else
+	{
+		std::cerr << "regex to get flowcell id doesn't match on first field of second line in file " << file << std::endl;
+		return(false);
+	}
+}
+
 void parseLine(std::string &line, std::ifstream &sequencing_summary,unsigned int &channel, float &start_time, float &duration, float &template_start, float &template_duration, unsigned long int &read_length, float &mean_q_score, float &read_speed)
 {
+//	std::cout << line << std::endl;
 	std::vector<std::string> line_field = splitString(line, '\t');
 
 	channel           = std::stoi(line_field[4]);
@@ -143,8 +212,11 @@ int main(int argc, char** argv)
 	fs::path program_base_name = fs::path(argv[0]).stem();
 
 	fs::path input_directory = "", output_directory = "";
-	std::string flowcell = "";
+	std::string user_runId = "";
 	unsigned int step_duration = 600;
+	std::regex regex_user_runId;
+	bool getIdFromFileName = false;
+	bool user_give_runId = false;
 
  	try
 	{
@@ -162,20 +234,34 @@ int main(int argc, char** argv)
 
 		TCLAP::ValueArg<std::string> argInputDir ("i", "in", "Directory containing sequencing_summary.txt files to process", true, "", "DIRECTORY");
 		TCLAP::ValueArg<std::string> argOutputDir("o", "out", "Path to the output directory", true, "", "DIRECTORY");
-		TCLAP::ValueArg<std::string> argFlowcell("f", "flowcell", "Flowcell to monitor. If not present, monitor all flowcells", false, "", "FLOWCELL");
+		TCLAP::ValueArg<std::string> argRunId("r", "runId", "Run id to monitor. If not present, monitor all runs", false, "", "RUN ID");
 		TCLAP::ValueArg<int> argDuration("d", "step-duration", "Duration between stats points in seconds", false, 600, "DURATION");
+		TCLAP::ValueArg<std::string> argRegex("R", "regex", "Regular expression to get uniq run id from sequencing summary file name. If not present, run id is the concatenation of the flowcell id and the first 8 characters of the run_id field of the sequencing summary", false, "", "REGEX");
 
 		cmd.add( argInputDir );
 		cmd.add( argOutputDir );
-		cmd.add( argFlowcell );
+		cmd.add( argRunId );
 		cmd.add( argDuration );
+		cmd.add( argRegex );
 
 		cmd.parse( argc, argv );
 
 		input_directory = fs::path(argInputDir.getValue());
 		output_directory = fs::path(argOutputDir.getValue());
-		flowcell = argFlowcell.getValue();
+		user_runId = argRunId.getValue();
 		step_duration = argDuration.getValue();
+		
+		if( !argRunId.getValue().empty() )
+		{
+			user_runId = argRunId.getValue();
+			user_give_runId = true;
+		}
+		
+		if( !argRegex.getValue().empty() )
+		{
+			regex_user_runId.assign(argRegex.getValue());
+			getIdFromFileName = true;
+		}
 
 	} catch (TCLAP::ArgException &e) {// catch any exceptions
 		std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
@@ -194,25 +280,31 @@ int main(int argc, char** argv)
 	const auto run_info_tmp_path = getRunInfoTmpPath(run_info_path);
 	runs_info.createFile(run_info_tmp_path);
 
-    // all input files must finish by this string
-	std::string summary_file_common_part = "_sequencing_summary.txt";
 	std::vector<fs::path> summary_files;
 
+	// TODO
 	// If the user define a flowcell, then only process the corresponding sequencing_summary file
-	if(flowcell.compare("")>0)
+	if( user_give_runId )
 	{
-		fs::path file_path = input_directory;
-		file_path /= flowcell;
-		file_path += summary_file_common_part;
 
-		if(exists(file_path))
+		bool file_found = false;
+		for(auto& it: fs::directory_iterator(input_directory))
 		{
-			summary_files.emplace_back(file_path);
-			runs_info.writeAllBut1(run_info_tmp_path, flowcell);
+			fs::path file_path = it.path();
+			if( file_path.filename().string().find(user_runId) != std::string::npos )
+			{
+				if( file_found )
+				{
+		                        std::cerr << "ERROR at least two files name contain the run id " << user_runId << " in the input directory(" << input_directory << ")" << std::endl;
+					exit(1);
+				}
+				summary_files.emplace_back( file_path );
+				runs_info.writeAllBut1( run_info_tmp_path, user_runId );
+			}
 		}
-		else
+		if( !file_found )
 		{
-			std::cerr<<"ERROR file " << file_path << " for flowcell " << flowcell << " doesn't exist\n";
+			std::cerr << "ERROR run id " << user_runId << " can't be found in " << input_directory << std::endl;
 			exit(1);
 		}
 	}
@@ -222,7 +314,7 @@ int main(int argc, char** argv)
 		for(auto& it: fs::directory_iterator(input_directory))
 		{
 			fs::path file_path = it.path();
-			if(stringHasEnding(file_path.filename().string(),summary_file_common_part))
+			if( isSequencingSummary(file_path) )
 			{
 				summary_files.emplace_back(file_path);
 			}
@@ -230,35 +322,58 @@ int main(int argc, char** argv)
 	}
 
 	for(auto &input_file : summary_files)
-	{
-		// get the flowcell name from the input file name
-        std::string processed_flowcell = input_file.filename().string();
-        processed_flowcell = processed_flowcell.substr(0,processed_flowcell.size()-summary_file_common_part.size());
+	{ 
+		std::string processed_runId;
 
-		// initialize the run object
-		if(runs_info.runs.count(processed_flowcell) == 0)
+		if( user_give_runId )
 		{
-			runs_info.runs[processed_flowcell].flowcell = processed_flowcell;
-			runs_info.runs[processed_flowcell].start_time = "NA";
-			runs_info.runs[processed_flowcell].ended = "NO";
+			processed_runId = user_runId;
+		}
+		else
+		{
+			bool res = false;
+			if( getIdFromFileName )
+			{
+				res = getRunIdFromFileName( input_file, regex_user_runId, processed_runId );
+			}
+			else
+			{
+				res = getRunIdFromSequencingSummary( input_file, processed_runId );
+			}
+
+			if( !res )
+			{
+				continue;
+			}
 		}
 
-		auto run = runs_info.runs[processed_flowcell];
+		// initialize the run object
+		if(runs_info.runs.count(processed_runId) == 0)
+		{
+			runs_info.runs[processed_runId].flowcell = processed_runId;
+			runs_info.runs[processed_runId].start_time = "NA";
+			runs_info.runs[processed_runId].ended = "NO";
+		}
+
+		auto run = runs_info.runs[processed_runId];
 
 		// empty file that show which flowcell is currently processed
-		const auto run_tag_path = getRunTagFile(input_directory,processed_flowcell);
+		const auto run_tag_path = getRunTagFile(input_directory,processed_runId);
 
 		if ( run.ended.compare("NO") == 0 )
 		{
 			if ( createRunTag(run_tag_path) )
 			{
 				// Files path
-				const fs::path prefix_path = output_directory / processed_flowcell;
+				const fs::path prefix_path = output_directory / processed_runId;
 
+
+				// name of final summary is the same as the sequencing summary but 'sequencing' is 'final'
+				std::string sequencing_summary_name = input_file.filename().string();
+				auto pos = sequencing_summary_name.find("sequencing_summary");
 				auto finale_summary_path = input_directory;
 				finale_summary_path += '/';
-				finale_summary_path += processed_flowcell;
-				finale_summary_path += "_final_summary.txt";
+				finale_summary_path += sequencing_summary_name.replace(pos, std::string("sequencing").length(), "final");
 
 				auto global_stat_path = prefix_path;
 				global_stat_path += "_globalstat.txt";
@@ -370,13 +485,13 @@ int main(int argc, char** argv)
 
 							while(max_time > step_duration * step_number) // if true the last line read is in a new step
 							{
-								global_stat  << processed_flowcell << ' ' <<
+								global_stat  << processed_runId << ' ' <<
 										std::fixed << std::setprecision(0) << stepStartTime(step_duration, step_number) << ' ' <<
 										cumulative_step_stat << ' ' <<
 										n50 << ' ' <<
 										std::fixed << std::setprecision(0) << median << '\n';
 
-								current_stat << processed_flowcell << ' ' <<
+								current_stat << processed_runId << ' ' <<
 										std::fixed << std::setprecision(0) << stepStartTime(step_duration, step_number) << ' ' <<
 										current_step_stat << ' ' <<
 										step_n50 << ' ' <<
@@ -415,13 +530,13 @@ int main(int argc, char** argv)
 				float step_median = step_reads_length.median_by_hash(current_step_stat.nb_reads);
 
 
-				global_stat << processed_flowcell << ' ' <<
+				global_stat << processed_runId << ' ' <<
 						std::fixed << std::setprecision(0) << stepStartTime(step_duration, step_number) << ' ' <<
 						cumulative_step_stat << ' ' <<
 						n50 << ' ' <<
 						std::fixed << std::setprecision(0) << median << '\n';
 
-				current_stat << processed_flowcell << ' ' <<
+				current_stat << processed_runId << ' ' <<
 						std::fixed << std::setprecision(0) << stepStartTime(step_duration, step_number) << ' ' <<
 						current_step_stat << ' ' <<
 						step_n50 << ' ' <<
