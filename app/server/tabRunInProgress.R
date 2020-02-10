@@ -125,7 +125,7 @@ observeEvent( ripList(), {
 			local({
 				fc <- flowcell
 
-				rip_runDisplayed[[flowcell]] = TRUE
+				rip_runDisplayed[[fc]] = TRUE
 	
 				# id of the ui element
 				plotYieldID   <- paste("rip_yield_", fc, sep="")
@@ -181,15 +181,15 @@ observeEvent( ripList(), {
 
 				# boxs with number some run stats
 				output[[valBoxN50]] <- renderValueBox({
-					valueBox( runInfoStatReader()[FLOWCELL==flowcell,"N50(b)"], "N50")
+					valueBox( runInfoStatReader()[FLOWCELL==fc, "N50(b)"], "N50")
 				})
 
 				output[[valBoxSpeed]] <- renderValueBox({
-					valueBox( runInfoStatReader()[FLOWCELL==flowcell,"SPEED(b/mn)"], "Speed (b/mn)")
+					valueBox( runInfoStatReader()[FLOWCELL==fc, "SPEED(b/mn)"], "Speed (b/mn)")
 				})
 
 				output[[valBoxQuality]] <- renderValueBox({
-					valueBox( runInfoStatReader()[FLOWCELL==flowcell,"QUALITY"], "Quality")
+					valueBox( runInfoStatReader()[FLOWCELL==fc, "QUALITY"], "Quality")
 				})
 
 				# Make the button in the box header display the corresponding run in tabRun
