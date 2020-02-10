@@ -1,0 +1,2 @@
+*/2 * * * * /usr/home/root/demo/boardion_preprocess -i /usr/home/root/demo/data -o /usr/home/root/demo/stat/ >> /usr/home/root/demo/logs/preprocess.log 2>&1
+
