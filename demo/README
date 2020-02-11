@@ -14,5 +14,5 @@ docker build -t demo-boardion -f ./demo/dockerfile .
 
 # 4) Run docker demo
 # input_data folder must contain only sequencing_summary, they will be slowly copied to simulate the sequecing process
-# finished_run must contain sequencing_summary with their final_summary
+# finished_run folder must contain sequencing_summary with their final_summary
 docker run -itp 80:80 -v input_data:/usr/home/root/demo/raw:z -v finished_run:/usr/home/root/demo/data:z demo-boardion
