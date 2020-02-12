@@ -146,9 +146,7 @@ observeEvent( ripList(), {
 				rip_lengthFileReader[[ fc ]] <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", fc, "_readsLength.txt", sep=""), readFunc = readCsvSpace)
 
 				# create a box per run
-				
 				title_b = p( paste(fc,"   "),  actionButton(buttonGotoRun , "Go to Run", class = "btn-xs" ) )
-
 				insertUI(
 					selector = '#placeholder',
 					where = "afterEnd",
@@ -208,9 +206,13 @@ observeEvent( ripList(), {
 		if(!flowcell %in% ripList()) {
 
 			containerID <- paste("rip_container_",flowcell,sep="")
-			rip_runDisplayed[[flowcell]] <- NULL
 			selector = paste0("#", containerID)
 			removeUI(selector)
+
+			# remove a value from a reactiveValue ( reactiveVal$foo <- NULL don't work ) see https://github.com/rstudio/shiny/issues/2439
+			.subset2(rip_runDisplayed,     "impl")$.values$remove(flowcell)
+			.subset2(rip_yieldFileReader,  "impl")$.values$remove(flowcell)
+			.subset2(rip_lengthFileReader, "impl")$.values$remove(flowcell)
 		}
 	}
 })
