@@ -1,0 +1,6 @@
+preprocess
+docs
+*.md
+app/build
+app/boardion.sif
+app/dockerfile
