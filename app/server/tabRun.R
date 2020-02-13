@@ -340,7 +340,7 @@ observe({
 	} else {
 		listRun = list(
 			"In progress" = c("",ripList()), # add an empty slot, else the list doen not display correctly
-			"Completed" = c(runList())
+			"Completed" = c(runList()[!runList() %in% ripList()])
 		)
 
 		if (runSelected == "" || is.null(runSelected)) {
