@@ -7,7 +7,8 @@ RUN yum update -y && yum install -y \
 	libcurl-devel \
 	cairo-devel \
 	libxml2-devel \
-	udunits2-devel && \
+	udunits2-devel \
+	cronie && \
 	yum install -y R && \
 	R -e 'install.packages(c("bit64","ggplot2","plotly","shiny","shinydashboard","shinyWidgets","data.table","readr","devtools","shinycssloaders","DT"),repos="https://mirror.ibcp.fr/pub/CRAN/");'
 

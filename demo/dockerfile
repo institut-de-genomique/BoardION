@@ -14,11 +14,9 @@ RUN yum update -y && yum install -y \
 
 RUN yum install -y htop
 
-COPY ./app /usr/home/root/app
-COPY ./demo /usr/home/root/demo
+COPY ./ /usr/local/src/
 
-#RUN crontab /usr/home/root/demo/demo-crontab && \
-RUN mkdir /usr/home/root/demo/data /usr/home/root/demo/stat /usr/home/root/demo/logs
+RUN mkdir /usr/local/src/demo/data /usr/local/src/demo/stat /usr/local/src/demo/logs
 
-ENTRYPOINT ["/usr/home/root/demo/demo.sh"]
+ENTRYPOINT ["/usr/local/src/demo/demo.sh"]
 
