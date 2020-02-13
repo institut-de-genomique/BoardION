@@ -11,7 +11,7 @@ set( CMAKE_CXX_STANDARD 17 )
 set( CMAKE_CXX_STANDARD_REQUIRED True )
 
 # add compile options
-set( CMAKE_CXX_FLAGS "-O3 -std=c++17 -Wall" )
+set( CMAKE_CXX_FLAGS "-O3 -std=c++17 -Wall -static-libgcc -static-libstdc++" ) # static compilation
 
 INCLUDE_DIRECTORIES( "${PROJECT_BINARY_DIR}" )
 INCLUDE_DIRECTORIES( ./include )
@@ -78,4 +78,4 @@ add_executable( boardion_preprocess ${TCLAP} ${DOCTEST} ${SRCS} ${HEADERS} src/m
 target_link_libraries( boardion_preprocess stdc++fs ${BOARDION_PREPROCESS_LIB} )
 set_target_properties( boardion_preprocess PROPERTIES COMPILE_FLAGS "-DDOCTEST_CONFIG_DISABLE" )
 
-INSTALL( TARGETS boardion_preprocess DESTINATION bin )
+INSTALL( TARGETS boardion_preprocess DESTINATION .)
