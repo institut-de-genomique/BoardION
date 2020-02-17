@@ -13,8 +13,6 @@ plotGlobalAxeChoice <- function(x) {
     dt[,DATE:=as.Date(STARTTIME)]
   }
 
-  print(dt)
-
   p <- ggplot(
     dt,
     aes(

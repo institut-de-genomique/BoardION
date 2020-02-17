@@ -115,8 +115,6 @@ output$tabComp_length_plot <- renderPlotly({
 
 observe({ # update drop-down list of run
 
-	#print(runList())
-
 	updateSelectizeInput( 
 		session,
 		"tabComp_runList",
