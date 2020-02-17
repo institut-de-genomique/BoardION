@@ -96,21 +96,18 @@ plotCompReadLength <- function(x) {
 # RENDER PLOT
 
 output$tabComp_cumul_plot <- renderPlotly({
-	if(nrow(compCumul())) {
-		ggplotly( plotCompTime(compCumul), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
-	}
+	req(nrow(compCumul()>0))
+	ggplotly( plotCompTime(compCumul), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
 })
 
 output$tabComp_current_plot <- renderPlotly({
-	if(nrow(compCurrent())) {
-		ggplotly( plotCompTime(compCurrent), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
-	}
+	req(nrow(compCurrent()>0))
+	ggplotly( plotCompTime(compCurrent), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
 })
 
 output$tabComp_length_plot <- renderPlotly({
-	if(nrow(compReadLength())) {
-		ggplotly( plotCompReadLength(compReadLength), dynamicTicks=T )  %>% plotlyConfig()
-	}
+	req(nrow(compReadLength()>0))
+	ggplotly( plotCompReadLength(compReadLength), dynamicTicks=T )  %>% plotlyConfig()
 })
 
 # ______________________________________________________________________________________
