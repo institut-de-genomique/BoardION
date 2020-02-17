@@ -76,6 +76,8 @@ foreach my $file_in ( @ARGV )
 	{	
 		unlink $file_out;
 	}
+
+	delete_run_in_runInfo( $run_id, $runInfoFile );
 }
 
 # repeat the file generation infinitely
