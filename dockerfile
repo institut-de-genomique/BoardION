@@ -12,6 +12,8 @@ RUN yum update -y && yum install -y \
 	yum install -y R && \
 	R -e 'install.packages(c("bit64","ggplot2","plotly","shiny","shinydashboard","shinyWidgets","data.table","readr","devtools","shinycssloaders","DT"),repos="https://mirror.ibcp.fr/pub/CRAN/");'
 
+RUN mkdir /usr/local/src/logs
+
 COPY ./ /usr/local/src
 WORKDIR /usr/local/src
 

@@ -30,8 +30,6 @@ done
 
 shift $((OPTIND-1))
 
-mkdir /usr/local/src/logs
-
 # generate stat file before launching the app, because the app crash if input folder empty
 echo "generating intial stat files..."
 /usr/local/src/boardion_preprocess -d ${DURATION} -i /usr/local/src/data -o /usr/local/src/stat/ > /usr/local/src/logs/preprocess.log 2>&1
