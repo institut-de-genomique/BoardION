@@ -223,10 +223,10 @@ int main(int argc, char** argv)
 		auto desc =
 		"This program generates statistics files from sequencing_summary.txt files.\n"
 		"It creates and uses the file run_infostat.txt that contains one line per run processed. This file contains global statistics on each run and also marks completed run that no longer need to be processed.\n"
-		"For each sequencing_summary file it produces 5 files prefixed with the flowcell name:\n"
+		"For each sequencing_summary file it produces 5 files prefixed with the run name:\n"
 		"\t- _channel_stat.txt:   statistics per channel\n"
-		"\t- _A_currentstat.txt:  bins read by --step-duration minutes and makes statistics independently on each bin (bin 20 independent from bin 10)\n"
-		"\t- _A_globalstat.txt:   bins read by --step-duration minutes and makes cumulative statistics on each bin (bin 20 contain bin 10)\n"
+		"\t- _A_currentstat.txt:  statistics on read binned by --step-duration minutes. Bins are independent of each other (the 10th is independent from the 9th).\n"
+		"\t- _A_globalstat.txt:   statistics on read binned by --step-duration minutes. Later bin contains previous one. (the 10th contain the 9th)\n"
 		"\t- _A_quality_stat.txt: statistics binned by quality and time\n"
 		"\t- _A_readsLength.txt:  count of reads per length\n";
 
