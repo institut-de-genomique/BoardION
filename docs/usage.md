@@ -1,4 +1,27 @@
-## Preprocessing program usage
+# Usage
+
+## Docker
+
+When the docker start, it need to havec access to 2 folders, the first one contains the input datas (sequencing summary file and final summary) and the second one is intially empty and will contain the output of the preprocessing program.
+
+```
+docker run -it -p 80:80 -v path/to/input/folder/:/usr/local/src/data:z -v path/to/stat/folder/:/usr/local/src/stat:z boardion:latest 
+```
+
+Here are the options you can set for the entrypoint ( at the end of the previous command ):
+
+```
+Usage: ./docker_entrypoint.sh [-h] [-d <DURATION>] [-f <FREQUENCY>] [-p <PORT>]
+
+-d <INT> duration of a step in secondes ( 600 secondes == 10 minutes == 400 values per graph for run of 4000 minutes) [600]
+-f <INT> frequency of the cron runnig the preprocessing in minute (every <INT> minutes), it's the refresh rate of the data in the app [5]
+-p <INT> port to listen [80]
+```
+
+> The docker start by generating the stat files and then the web app start. This first step can take some time if there is a lot of data in the input folder that were not previously processed (thus the availibilty of the web app can be delayed)
+
+
+## Preprocessing program
 
 ```
 USAGE:
@@ -33,27 +56,26 @@ Where:
    It creates and uses the file run_infostat.txt that contains one line per run processed. This file contains global statistics on each run and also marks completed run that no longer need to be processed.
 
    For each sequencing_summary file it produces 5 files prefixed with the
-   flowcell name:
+   run name:
 
         - _channel_stat.txt:   statistics per channel
 
-        - _A_currentstat.txt:  bins read by --step-duration minutes and makes statistics independently on each bin (bin 20 independent from bin 10)
+        - _A_currentstat.txt:  statistics on read binned by --step-duration minutes. Bins are independent of each other (the 10th is independent from the 9th).
 
-        - _A_globalstat.txt:   bins read by --step-duration minutes and makes cumulative statistics on each bin (bin 20 contain bin 10)
+        - _A_globalstat.txt:   statistics on read binned by --step-duration minutes. Later bin contains previous one. (the 10th contain the 9th)
 
         - _A_quality_stat.txt: statistics binned by quality and time
 
         - _A_readsLength.txt:  count of reads per length
 ```
 
-## Web app usage
+## Web app
 
 ```
-Usage: ./docker_entrypoint.sh [-h] [-d <DURATION>] [-f <FREQUENCIE>] [-p <PORT>]
+Rscript boardion_app.R [<IP>] <PORT> <INPUT_FOLDER>
 
--d <INT> duration of a step in secondes (10 minutes == 400 values per graph for run of 4000 minutes) [600]
--f <INT> frequencie of the cron genrating stat file in minute (every <INT> minutes), it's the refresh rate of the data in the app [5]
--p <INT> port to listen [80]
+<IP>           Ip of the host. By default the script try to get it with 'hostname -i'. 
+<PORT>         Port to listen
+<INPUT_FOLDER> Input folder containing the output of the preprocessing programm.
+
 ```
-
-## Usage with docker
