@@ -2,13 +2,15 @@
 
 ## Docker
 
-When the docker start, it need to havec access to 2 folders, the first one contains the input datas (sequencing summary file and final summary) and the second one is intially empty and will contain the output of the preprocessing program.
+The docker image containing the preprocessing program and the web app is available [here](https://registry.hub.docker.com/u/rdbioseq/BoardION/).
+
+This image need to have access to 2 folders, the first one contains the input datas (sequencing summary file and final summary) and the second one is intially empty and will contain the output of the preprocessing program.
 
 ```
-docker run -it -p 80:80 -v path/to/input/folder/:/usr/local/src/data:z -v path/to/stat/folder/:/usr/local/src/stat:z boardion:latest 
+docker run -it -p 80:80 -v input/folder/:/usr/local/src/data:z -v stat/folder/:/usr/local/src/stat:z boardion:latest -d 600 -f 5 -p 80
 ```
 
-Here are the options you can set for the entrypoint ( at the end of the previous command ):
+Here are the options you can set for the docker entrypoint:
 
 ```
 Usage: ./docker_entrypoint.sh [-h] [-d <DURATION>] [-f <FREQUENCY>] [-p <PORT>]

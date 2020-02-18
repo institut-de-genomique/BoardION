@@ -1,6 +1,7 @@
 # Installation
 
 A docker image containing both the preprocessing program and the web application is available at [dockerhub](https://registry.hub.docker.com/u/rdbioseq/BoardION/).
+See this [page](usage.md#docker) for the usage.
 
 ## Prerequisites
 
@@ -49,8 +50,9 @@ add inside the crontab the following line:
 ```
 */5 * * * * boardion_preprocess -i input/dir -o output/dir
 ```
+See [here](usage.md#preprocessing-program) for the complete list of options.
 
-Inside the input directory it will detect and parse every sequencing_summary.txt and final_summary.txt.
+Inside the input directory it will detect and parse every sequencing_summary.txt and final_summary.txt. 
 
 > Note that the ouput directory need to be visible by the web server.
 
