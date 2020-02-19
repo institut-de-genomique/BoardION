@@ -100,8 +100,8 @@ TEST_CASE("TimeStepStat")
 
 		std::filesystem::path p ("test_tss.txt");
 		std::ofstream os(p);
-		os << "FLOWCELL DURATION(mn) YIELD(b) #READS SPEED(b/mn) QUALITY AVG(b) N50 MED(b)\n";
-		os << "FLOWCELL 60 " << tss << " 50 50"; // n50 and median
+		os << "RunID Duration(mn) Yield(b) #Reads Speed(b/mn) Quality Average(b) N50 Median(b)\n";
+		os << "RunID 60 " << tss << " 50 50"; // n50 and median
 		os.close();
 
 		TimeStepStat tss2;

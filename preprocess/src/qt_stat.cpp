@@ -116,7 +116,7 @@ void QTStat::add(const float& quality, const float& time, const uint_fast32_t& c
 void QTStat::write(const std::filesystem::path& output_path)
 {
 	std::ofstream file(output_path);
-	file << "QUALITY TEMPLATESTART #READS STARTTIME DURATION TEMPLATEDURATION LENGTH SPEED\n";
+	file << "Quality TemplateStart #Reads StartTime Duration TemplateDuration Length Speed\n";
 	
 	int quality_idx = 0;
 	for (auto &iTI : this->data)

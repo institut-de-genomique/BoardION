@@ -61,7 +61,7 @@ void ChannelsStat::add(const uint_fast16_t& channel, const uint_fast32_t& nb_rea
 void ChannelsStat::write(const std::filesystem::path& output_path)
 {
 	std::ofstream file(output_path);
-	file << "CHANNEL #READS STARTTIME DURATION TEMPLATESTART TEMPLATEDURATION LENGTH MEANQSCORE SPEED\n";
+	file << "Channel #Reads StartTime Duration TemplateStart TemplateDuration Length MeanQScore Speed\n";
 	for(std::size_t channel=0; channel<this->data.size(); ++channel)
 	{
 		if(this->data[channel].nb_reads != 0)

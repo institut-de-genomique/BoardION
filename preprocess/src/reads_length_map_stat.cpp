@@ -87,7 +87,7 @@ float ReadsLengthMap::median_by_hash(const uint_fast32_t& nb_reads)
 void ReadsLengthMap::write(const fs::path& output_path)
 {
 	std::ofstream file(output_path);
-	file << "LENGTH COUNT\n";
+	file << "Length Count\n";
 	
 	if(this->data.empty())
 	{
