@@ -80,14 +80,11 @@ rip_runDisplayed     = reactiveValues() # trace for which run an ui output exist
 
 # table listing all in progress runs
 output$runIPTable = DT::renderDataTable({
-	print("TABLE render")
 
 	if( nrow( runInfoStatReader() ) > 0 ) {
 		data = runInfoStatReader()[Ended=="NO"]
 		removeDTCol( data, c("N50(b)", "Speed(b/mn)", "Quality"))
 		runs <- data$RunID
-
-		print("HERE")
 
 		for( run in data$RunID ) {
 			if( !is.null( rip_lengthFileReader[[run]] )) {
@@ -97,13 +94,11 @@ output$runIPTable = DT::renderDataTable({
 			}
 		}
 	}
-	print("end TABLE render")
 	return(data)
 })
 
 
 observeEvent( input$rip_cumulative_toggle, {
-	print("observeEvent")
 	ext = ""
 	if(input$rip_cumulative_toggle) {
 		for(flowcell in names(rip_runDisplayed)) {
@@ -117,12 +112,10 @@ observeEvent( input$rip_cumulative_toggle, {
 	for(flowcell in names(rip_runDisplayed)) {
 		rip_yieldFileReader[[ flowcell ]] <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste(reportingFolder, "/", flowcell, ext, sep=""), readFunc = readCsvSpace)
 	}
-	print("end observeEvent")
 })
 
 # Dynamically create box for each run in progress (RIP). If the number of RIP change, the ui update accordingly
 observeEvent( ripList(), {
-	print("update rip")
 	for(flowcell in ripList()) {
 
 		if( !flowcell %in% names(rip_runDisplayed) ) { # if the run insn't displayed yet
@@ -220,7 +213,6 @@ observeEvent( ripList(), {
 			.subset2(rip_lengthFileReader, "impl")$.values$remove(flowcell)
 		}
 	}
-	print("end update rip")
 })
 
 

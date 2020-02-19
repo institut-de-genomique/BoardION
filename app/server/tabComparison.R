@@ -97,11 +97,13 @@ plotCompReadLength <- function(x) {
 
 output$tabComp_cumul_plot <- renderPlotly({
 	req(nrow(compCumul())>0)
+	req( !is.null(input$tc_yc))
 	ggplotly( plotCompTime(compCumul), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
 })
 
 output$tabComp_current_plot <- renderPlotly({
 	req(nrow(compCurrent())>0)
+	req( !is.null(input$tc_yc))
 	ggplotly( plotCompTime(compCurrent), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
 })
 

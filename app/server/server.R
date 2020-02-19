@@ -16,7 +16,6 @@ server <- function(input, output, session) {
   # run info stat reader
   
   readRunInfoStat <- function(file) {
-    print("readRunInfoStat")
     data = readCsvSpace(file)
 
     if(nrow(data)>0) {
@@ -55,7 +54,6 @@ server <- function(input, output, session) {
   # update list of run and list of run in progress only if the corresponding list in the input file (runInfoStatReader) change
   # and not if any value of this file change (like the numbre of read)
   observe ({
-    print("observe run list")
     if(length(runInfoStatReader()[,RunID]) != length(isolate(runList())) || all(runInfoStatReader()[,RunID] != isolate(runList()))) {
       isolate({
         rv$updateRunList <- TRUE
@@ -76,11 +74,9 @@ server <- function(input, output, session) {
   # SOURCE
   
   # source("server/tabGlobal.R",local=TRUE)
-        print("START SOURCE")
 	source("server/tabRun.R",local=TRUE)
 	source("server/tabComparison.R",local=TRUE)
 	source("server/plotChannel.R",local=TRUE)
 	source("server/plotRuns.R",local=TRUE)
 	source("server/tabRunInProgress.R",local=TRUE)
-	print("END SOURCE")
 }

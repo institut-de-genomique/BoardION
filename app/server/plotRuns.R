@@ -47,7 +47,10 @@ plotGlobalAxeChoice <- function(x) {
 # RENDER
 
 output$tabComp_runs_plot <- renderPlotly ({
-  req(nrow(runInfoStatReader()>0), input$tc_r_xaxe, input$tc_r_yaxe)
+  req( nrow(runInfoStatReader()>0))
+  req( !is.null(input$tc_r_xaxe))
+  req( !is.null(input$tc_r_yaxe))
+  req( !is.null(input$tc_groupBy))
   my_tooltip=''
   if(input$tc_groupBy == 0 || input$tc_groupBy == "None") {
     my_tooltip="text"
