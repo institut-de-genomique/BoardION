@@ -6,11 +6,11 @@ plotGlobalAxeChoice <- function(x) {
   dt = x()
 
   if(input$tc_groupBy == "Month") {
-    dt[,DATE:=format(as.Date(STARTTIME),format="%Y-%m")]
+    dt[,Date:=format(as.Date(StartTime),format="%Y-%m")]
   } else if(input$tc_groupBy == "Year") {
-    dt[,DATE:=format(as.Date(STARTTIME),format="%Y")]
+    dt[,Date:=format(as.Date(StartTime),format="%Y")]
   } else {
-    dt[,DATE:=as.Date(STARTTIME)]
+    dt[,Date:=as.Date(StartTime)]
   }
 
   p <- ggplot(
@@ -25,8 +25,8 @@ plotGlobalAxeChoice <- function(x) {
     if(input$tc_groupBy == "Month" || input$tc_groupBy == "Year") {
       p <- p + geom_boxplot() 
     } else {
-      dt[,GROUP := as.factor(round(get(input$tc_r_xaxe)/input$tc_groupBy)*input$tc_groupBy)] # compute bin for geom_boxplot
-      p <- p + geom_boxplot(aes(x=GROUP,group=GROUP))
+      dt[,Group := as.factor(round(get(input$tc_r_xaxe)/input$tc_groupBy)*input$tc_groupBy)] # compute bin for geom_boxplot
+      p <- p + geom_boxplot(aes(x=Group,group=Group))
     } 
 
   } else {
@@ -58,20 +58,20 @@ output$tabComp_runs_plot <- renderPlotly ({
 
 output$tabComp_runs_xAxeChoice <- renderUI({
   req(nrow(runInfoStatReader())>0)
-  colToDrop = c("STARTTIME","GROUP")
+  colToDrop = c("StartTime","Group")
   colN = colnames(runInfoStatReader())
   colN = colN[! colN %in% colToDrop]
   selectInput(
     "tc_r_xaxe",
     "X axe",
     colN,
-    selected = "#READS"
+    selected = "#Reads"
   )
 })
 
 output$tabComp_runs_yAxeChoice <- renderUI({
   req(nrow(runInfoStatReader())>0)
-  colToDrop = c("FLOWCELL","STARTTIME","DATE","GROUP")
+  colToDrop = c("RunID","StartTime","Date","Group")
   colN = colnames(runInfoStatReader())
   colN = colN[! colN %in% colToDrop]
 
@@ -79,16 +79,16 @@ output$tabComp_runs_yAxeChoice <- renderUI({
     "tc_r_yaxe",
     "Y axe",
     colN,
-    selected = "QUALITY"
+    selected = "Quality"
   )
 })
 
 output$tabComp_runs_groupByChoice <- renderUI({
   req(nrow(runInfoStatReader())>0,input$tc_r_xaxe)
 
-  if(input$tc_r_xaxe %in% c("FLOWCELL","ENDED")) {
+  if(input$tc_r_xaxe %in% c("RunID","Ended")) {
     return()
-  } else if(input$tc_r_xaxe == "DATE") {
+  } else if(input$tc_r_xaxe == "Date") {
     bins = c("Year","Month","None")
     return(selectInput(
       "tc_groupBy",

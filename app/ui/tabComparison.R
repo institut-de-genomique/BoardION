@@ -1,6 +1,10 @@
+ibo_ow_nbRunInProgress <- infoBoxOutput("ib_ow_nbRunInProgress",width=2)
+ibo_ow_nbRuns <- infoBoxOutput("ib_ow_nbRuns",width=2)
+ibo_ow_nbBases <- infoBoxOutput("ib_ow_nbBases",width=2)
+
 ms_comp<- selectizeInput(
 	"tabComp_runList",
-	"Choose runs",
+	"Select runs",
 	choices = c(),
 	multiple = TRUE
 )
@@ -54,6 +58,12 @@ b_compPlotLength <- box(
 
 tabComparison <- tabItem(
   "comparison",
+  fluidRow(
+	   ibo_ow_nbRunInProgress,
+	   ibo_ow_nbRuns,
+	   ibo_ow_nbBases
+  ),
+
   fluidRow(
     b_compPlotGlobal,
     tags$div(

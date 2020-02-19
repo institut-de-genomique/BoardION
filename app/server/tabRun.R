@@ -27,7 +27,7 @@ qualityOverTimeReader <- reactive ({
 		readFunc       = readCsvSpace
 	)()
 
-	dt[,LENGTHCUMUL:=LENGTH*`#READS`]
+	dt[,LengthCUMUL:=Length*`#Reads`]
 	return(dt)
 })
 
@@ -44,16 +44,14 @@ readLengthReader <- reactive ({
 # PLOTS
 
 plotRunNbBase <- function(x) {
-	#plot_ly(x(), x = ~DURATION.mn., y = ~YIELD.b., type="bar") %>% plotlyConfig()
-	#plot_ly(x, x = ~DURATION.mn., y = ~YIELD.b., type="scatter") %>% plotlyConfig()
 	
 	ggplot( x(),
-		aes(x=get("DURATION(mn)"),
-		    y=get("YIELD(b)"),
-		    fill=QUALITY,
-		    text=paste('DURATION (mn): ',get("DURATION(mn)"),
-			       '<br>YIELD(b) : ',format(get("YIELD(b)"), big.mark=' '),
-			       '<br>QUALITY: ',QUALITY,
+		aes(x=get("Duration(mn)"),
+		    y=get("Yield(b)"),
+		    fill=Quality,
+		    text=paste('Duration (mn): ',get("Duration(mn)"),
+			       '<br>Yield(b) : ',format(get("Yield(b)"), big.mark=' '),
+			       '<br>Quality: ',Quality,
 			       sep=""
 			      )
 		)
@@ -62,7 +60,6 @@ plotRunNbBase <- function(x) {
 	geom_col(position="dodge", width = 10) +
 	
 	theme_bw() +
-#	theme(text = element_text(size=20)) +
 	scale_fill_gradientn(colors=myColorGrandient,values=myColorStep ,limits=c(0,15)) +
 	xlab("Duration(mn)") +
 	ylab("Yield (bases)") +
@@ -73,12 +70,12 @@ plotRunNbRead <- function(x) {
 
 
 	ggplot( x(),
-		aes(x=get("DURATION(mn)"),
-		    y=get("#READS"),
-		    fill=QUALITY,
-		    text=paste('DURATION (mn): ',get("DURATION(mn)"),
-			       '<br>NB READS : ',format(get("#READS"), big.mark=' '),
-			       '<br>QUALITY: ',QUALITY,
+		aes(x=get("Duration(mn)"),
+		    y=get("#Reads"),
+		    fill=Quality,
+		    text=paste('Duration (mn): ',get("Duration(mn)"),
+			       '<br>Nb Reads : ',format(get("#Reads"), big.mark=' '),
+			       '<br>Quality: ',Quality,
 			       sep=""
 			      )
 		)
@@ -95,12 +92,12 @@ plotRunNbRead <- function(x) {
 
 plotRunSpeed <- function(x) {
 	ggplot( x(),
-		aes(x=get("DURATION(mn)"),
-		    y=get("SPEED(b/mn)"),
-		    fill=QUALITY,
-		    text=paste('DURATION (mn): ',get("DURATION(mn)"),
-			       '<br>SPEED (b/mn): ',get("SPEED(b/mn)"),
-			       '<br>QUALITY: ',QUALITY,
+		aes(x=get("Duration(mn)"),
+		    y=get("Speed(b/mn)"),
+		    fill=Quality,
+		    text=paste('Duration (mn): ',get("Duration(mn)"),
+			       '<br>Speed (b/mn): ',get("Speed(b/mn)"),
+			       '<br>Quality: ',Quality,
 			       sep=""
 			      )
 		)
@@ -119,11 +116,11 @@ plotRunSpeed <- function(x) {
 plotQualityOverTime <- function(x, colorColumn, doLogColor) {
 
 	g <- ggplot( x(),
-		aes(x=get("TEMPLATESTART"),
-		    y=get("QUALITY"),
+		aes(x=get("TemplateStart"),
+		    y=get("Quality"),
 		    fill=get(colorColumn),
-		    text=paste('Duration (mn): ',TEMPLATESTART,
-			       '<br>Quality: ',QUALITY,
+		    text=paste('Duration (mn): ',TemplateStart,
+			       '<br>Quality: ',Quality,
 			       '<br>',colorColumn,': ',get(colorColumn),
 			       sep=""
 			      )
@@ -150,12 +147,8 @@ plotQualityOverTime <- function(x, colorColumn, doLogColor) {
 plotReadLength <- function(x) {
 
 	ggplot( x(),
-		aes(x=LENGTH,
-		    weight=COUNT,
-#		    text=paste('Length (b): ',LENGTH,
-#			       '<br>Count: ',COUNT,
-#			       sep=''
-#		    )
+		aes(x=Length,
+		    weight=Count
 		)
 	) +
 	geom_histogram(fill="#4f5dff",binwidth=1000) +
@@ -163,7 +156,7 @@ plotReadLength <- function(x) {
 	theme_bw() +
 	scale_x_continuous(expand=c(0,0)) +
 	
-	xlab("Length(b)") +
+	xlab("Read length(b)") +
 	ylab("Read count")
 }
 
@@ -179,7 +172,7 @@ plotMulti <- function(data, x_col, y_col, color_col) {
 		   )
 		)
 	) 
-	if(x_col == "DURATION(mn)") { # if abcisse is duration -> barplot
+	if(x_col == "Duration(mn)") { # if abcisse is duration -> barplot
 		g <- g + geom_col(aes(fill = get(color_col)), position="dodge", width = 10) +
 		scale_fill_gradientn( colors=myColorGrandient, values=myColorStep, name=color_col)
 	} else {
@@ -203,13 +196,16 @@ output$plot_globalRunNbBase <- renderPlotly({
 
 output$plot_globalReadLength <- renderPlotly({
 	req(nrow(readLengthReader())>0)
-	ggplotly(plotReadLength(readLengthReader))%>%#, tooltip = "text") %>% 
-	layout(xaxis = list(range = c(-1000, 105000))) %>% # initial zoom
+	ggplotly(plotReadLength(readLengthReader), dynamicTicks = TRUE ) %>% #, tooltip = "text") %>% 
+#	layout(xaxis = list(range = c(-1000, 105000))) %>% # initial zoom
 	plotlyConfig()
 })
 
 output$tabRunGlobal_plotAxeChoice <- renderPlotly({
 	req(nrow(globalStatReader())>0)
+	req( !is.null(input$trg_xc))
+	req( !is.null(input$trg_yc))
+	req( !is.null(input$trg_cc))
 	ggplotly(plotMulti(globalStatReader, input$trg_xc, input$trg_yc, input$trg_cc), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
 })
 
@@ -220,6 +216,9 @@ output$plot_currentRunNbBase <- renderPlotly({
 
 output$tabRunCurrent_plotAxeChoice <- renderPlotly({
 	req(nrow(currentStatReader())>0)
+	req( !is.null(input$trc_xc))
+	req( !is.null(input$trc_yc))
+	req( !is.null(input$trc_cc))
 	ggplotly(plotMulti(currentStatReader, input$trc_xc, input$trc_yc, input$trc_cc), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
 })
 
@@ -236,7 +235,7 @@ output$qot_plot <- renderPlotly({
 output$runTitle <- renderText({
 	req(input$runList != "")
 	state = ""
-	state = runInfoStatReader()[FLOWCELL==input$runList,ENDED]
+	state = runInfoStatReader()[RunID==input$runList,Ended]
 	
 	if(state == "YES") {
 		state = "COMPLETED"
@@ -247,7 +246,7 @@ output$runTitle <- renderText({
 })
 
 output$runTable = DT::renderDataTable(
-	runInfoStatReader()[FLOWCELL==input$runList],
+	runInfoStatReader()[RunID==input$runList],
 	options = list(searching = FALSE, paging = FALSE)
 )
 
@@ -257,8 +256,8 @@ output$qot_colorMetricChoice <- renderUI({
 	selectInput(
 		"qot_color",
 		"Select metric",
-		vectRemove( colnames(qualityOverTimeReader()), c("QUALITY","STARTTIME","TEMPLATESTART")),
-		selected="#READS"
+		vectRemove( colnames(qualityOverTimeReader()), c("Quality","StartTime","TemplateStart")),
+		selected="#Reads"
 	)
 })
 
@@ -268,8 +267,8 @@ output$tabRunGlobal_xAxeChoice <- renderUI({
 	selectInput(
 		"trg_xc",
 		"X axe",
-		vectRemove( colnames(globalStatReader()), c("FLOWCELL")),
-		selected="DURATION(mn)"
+		vectRemove( colnames(globalStatReader()), c("RunID")),
+		selected="Duration(mn)"
 	)
 })
 
@@ -278,8 +277,8 @@ output$tabRunGlobal_yAxeChoice <- renderUI({
 	selectInput(
 		"trg_yc",
 		"Y axe",
-		vectRemove( colnames(globalStatReader()), c("FLOWCELL","DURATION(mn)")),
-		selected="SPEED(b/mn)"
+		vectRemove( colnames(globalStatReader()), c("RunID","Duration(mn)")),
+		selected="Speed(b/mn)"
 	)
 })
 
@@ -288,8 +287,8 @@ output$tabRunGlobal_colorChoice <- renderUI({
 	selectInput(
 		"trg_cc",
 		"Color by",
-		vectRemove( colnames(globalStatReader()), c("FLOWCELL")),
-		selected="QUALITY"
+		vectRemove( colnames(globalStatReader()), c("RunID")),
+		selected="Quality"
 	)
 })
 
@@ -298,8 +297,8 @@ output$tabRunCurrent_xAxeChoice <- renderUI({
 	selectInput(
 		"trc_xc",
 		"X axe",
-		vectRemove( colnames(currentStatReader()), c("FLOWCELL")),
-		selected="DURATION(mn)"
+		vectRemove( colnames(currentStatReader()), c("RunID")),
+		selected="Duration(mn)"
 	)
 })
 
@@ -308,8 +307,8 @@ output$tabRunCurrent_yAxeChoice <- renderUI({
 	selectInput(
 		"trc_yc",
 		"Y axe",
-		vectRemove( colnames(currentStatReader()), c("FLOWCELL","DURATION(mn)")),
-		selected="SPEED(b/mn)"
+		vectRemove( colnames(currentStatReader()), c("RunID","Duration(mn)")),
+		selected="Speed(b/mn)"
 	)
 })
 
@@ -318,8 +317,8 @@ output$tabRunCurrent_colorChoice <- renderUI({
 	selectInput(
 		"trc_cc",
 		"Color by",
-		vectRemove( colnames(currentStatReader()), c("FLOWCELL")),
-		selected="QUALITY"
+		vectRemove( colnames(currentStatReader()), c("RunID")),
+		selected="Quality"
 	)
 })
 
@@ -344,7 +343,7 @@ observe({
 		)
 
 		if (runSelected == "" || is.null(runSelected)) {
-			runSelected = runInfoStatReader()[STARTTIME==max(na.omit(STARTTIME)),FLOWCELL] # if there isn't a run selected, take the most recent one
+			runSelected = runInfoStatReader()[StartTime==max(na.omit(StartTime)),RunID] # if there isn't a run selected, take the most recent one
 		}
 	}
 	

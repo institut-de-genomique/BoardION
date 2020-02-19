@@ -35,7 +35,7 @@ reactiveMultiFileReader <- function(intervalMillis, session, filesPath, readFunc
 
 runIPGlobalStatReader <- reactive ({
 
-	runsIP = runInfoStatReader()[ENDED=="NO",FLOWCELL]
+	runsIP = runInfoStatReader()[Ended=="NO",RunID]
 
 		reactiveMultiFileReader(
 		intervalMillis  = 60000,
@@ -51,13 +51,12 @@ runIPGlobalStatReader <- reactive ({
 
 plotRunIPYield <- function(x) {
 	ggplot( x(),
-		aes(x=get("DURATION(mn)"),
-		    y=get("YIELD(b)"),
-		    fill=QUALITY,
-		    text=paste('DURATION (mn): ',get("DURATION(mn)"),
-			       '<br>NB READS : ',format(get("YIELD(b)"), big.mark=' '),
-			       '<br>QUALITY: ',QUALITY,
-			       '<br>',FLOWCELL,
+		aes(x=get("Duration(mn)"),
+		    y=get("Yield(b)"),
+		    fill=Quality,
+		    text=paste('Duration (mn): ',get("Duration(mn)"),
+			       '<br>Yield(b) : ',format(get("Yield(b)"), big.mark=' '),
+			       '<br>Quality: ',Quality,
 			       sep=""
 			      )
 		)
@@ -67,7 +66,7 @@ plotRunIPYield <- function(x) {
 	theme_bw() +
 	scale_fill_gradientn(colors=myColorGrandient,values=myColorStep ,limits=c(0,15)) +
 	xlab("Duration(mn)") +
-	ylab("Yield (bases)") +
+	ylab("Yield (b)") +
 	labs(fill='Quality')
 }
 
@@ -81,25 +80,30 @@ rip_runDisplayed     = reactiveValues() # trace for which run an ui output exist
 
 # table listing all in progress runs
 output$runIPTable = DT::renderDataTable({
+	print("TABLE render")
 
-	data = runInfoStatReader()[ENDED=="NO"]
-	removeDTCol( data, c("N50(b)", "SPEED(b/mn)", "QUALITY"))
-	runs <- data$FLOWCELL
+	if( nrow( runInfoStatReader() ) > 0 ) {
+		data = runInfoStatReader()[Ended=="NO"]
+		removeDTCol( data, c("N50(b)", "Speed(b/mn)", "Quality"))
+		runs <- data$RunID
 
-	if( nrow( data ) > 0 ) {
-		
-		for( run in data$FLOWCELL ) {
-			data[FLOWCELL == run, Sup30kb  := sum(rip_lengthFileReader[[run]]()[LENGTH>=30000,  COUNT]) ]
-			data[FLOWCELL == run, Sup50kb  := sum(rip_lengthFileReader[[run]]()[LENGTH>=50000,  COUNT]) ]
-			data[FLOWCELL == run, Sup100kb := sum(rip_lengthFileReader[[run]]()[LENGTH>=100000, COUNT]) ]
+		print("HERE")
+
+		for( run in data$RunID ) {
+			if( !is.null( rip_lengthFileReader[[run]] )) {
+				data[RunID == run, Sup30kb  := sum(rip_lengthFileReader[[run]]()[Length>=30000,  Count]) ]
+				data[RunID == run, Sup50kb  := sum(rip_lengthFileReader[[run]]()[Length>=50000,  Count]) ]
+				data[RunID == run, Sup100kb := sum(rip_lengthFileReader[[run]]()[Length>=100000, Count]) ]
+			}
 		}
 	}
+	print("end TABLE render")
 	return(data)
 })
 
 
 observeEvent( input$rip_cumulative_toggle, {
-
+	print("observeEvent")
 	ext = ""
 	if(input$rip_cumulative_toggle) {
 		for(flowcell in names(rip_runDisplayed)) {
@@ -113,11 +117,12 @@ observeEvent( input$rip_cumulative_toggle, {
 	for(flowcell in names(rip_runDisplayed)) {
 		rip_yieldFileReader[[ flowcell ]] <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste(reportingFolder, "/", flowcell, ext, sep=""), readFunc = readCsvSpace)
 	}
+	print("end observeEvent")
 })
 
 # Dynamically create box for each run in progress (RIP). If the number of RIP change, the ui update accordingly
 observeEvent( ripList(), {
-
+	print("update rip")
 	for(flowcell in ripList()) {
 
 		if( !flowcell %in% names(rip_runDisplayed) ) { # if the run insn't displayed yet
@@ -146,7 +151,7 @@ observeEvent( ripList(), {
 				rip_lengthFileReader[[ fc ]] <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", fc, "_readsLength.txt", sep=""), readFunc = readCsvSpace)
 
 				# create a box per run
-				title_b = p( paste(fc,"   "),  actionButton(buttonGotoRun , "Go to Run", class = "btn-xs" ) )
+				title_b = p( actionButton(buttonGotoRun , fc) )
 				insertUI(
 					selector = '#placeholder',
 					where = "afterEnd",
@@ -179,15 +184,15 @@ observeEvent( ripList(), {
 
 				# boxs with number some run stats
 				output[[valBoxN50]] <- renderValueBox({
-					valueBox( runInfoStatReader()[FLOWCELL==fc, "N50(b)"], "N50")
+					valueBox( runInfoStatReader()[RunID==fc, "N50(b)"], "N50")
 				})
 
 				output[[valBoxSpeed]] <- renderValueBox({
-					valueBox( runInfoStatReader()[FLOWCELL==fc, "SPEED(b/mn)"], "Speed (b/mn)")
+					valueBox( runInfoStatReader()[RunID==fc, "Speed(b/mn)"], "Speed (b/mn)")
 				})
 
 				output[[valBoxQuality]] <- renderValueBox({
-					valueBox( runInfoStatReader()[FLOWCELL==fc, "QUALITY"], "Quality")
+					valueBox( runInfoStatReader()[RunID==fc, "Quality"], "Quality")
 				})
 
 				# Make the button in the box header display the corresponding run in tabRun
@@ -215,6 +220,7 @@ observeEvent( ripList(), {
 			.subset2(rip_lengthFileReader, "impl")$.values$remove(flowcell)
 		}
 	}
+	print("end update rip")
 })
 
 

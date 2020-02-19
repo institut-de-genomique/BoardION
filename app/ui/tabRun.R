@@ -18,7 +18,7 @@ makeRunCustomablePlot <- function(name,w=12) {
 
 makeRunChannelPlot <- function(name, w=12) {
 	box(
-		title = "Channels",
+		title = "Channels view",
 		status = "primary",
 		solidHeader = TRUE,
 		collapsible = TRUE,
@@ -69,7 +69,7 @@ tabRunCurrent <- tabPanel(
 # liste deroulante avec la liste des run provenant du fichier run_infostat.txt
 runListSelect <- selectInput(
 	"runList",
-	"List of run",
+	"Select a run",
 	c(),
 	width="20%"
 )

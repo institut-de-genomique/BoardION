@@ -10,7 +10,7 @@ channelStatReader <- reactive ({
 		readFunc       = readCsvSpace
 	)()
 	
-	dt[,LENGTHCUMUL:=LENGTH*`#READS`]
+	dt[,CumulativeLength:=Length*`#Reads`]
 	return(dt)
 })
 
@@ -23,10 +23,10 @@ plotChannelStat <- function(x) {
 		aes(x=xcoord,
 		    y=ycoord,
 		    fill=get(input$channelStatCumul_col),
-		    text=paste("Channel: ",CHANNEL,
-			       "<br>Reads count: ",get("#READS"),
-			       "<br>Length: ",get("LENGTH"),
-			       "<br>Quality: ",get("MEANQSCORE"),
+		    text=paste("Channel: ",Channel,
+			       "<br>Reads count: ",get("#Reads"),
+			       "<br>Length: ",get("Length"),
+			       "<br>Quality: ",get("MeanQScore"),
 			       sep=""
 			      )
 		)
@@ -66,7 +66,7 @@ output$channelCumul_colorMetricChoice <- renderUI({
 		"channelStatCumul_col",
 		"Select metric",
 		cn,
-		selected="#READS"
+		selected="#Reads"
 	)
 })
 
@@ -81,9 +81,9 @@ formatData <- function(x) {
 
 	# create a new row in x for the missing channel with NA for all columns (except for channel)
 	for (i in 1:3000) {
-		if(nrow(x[CHANNEL==i]) == 0) {
-#			x = rbindlist(list(x,list(CHANNEL=i,count=1)), fill=T)
-			x = rbindlist(list(x,list(CHANNEL=i)), fill=T)
+		if(nrow(x[Channel==i]) == 0) {
+#			x = rbindlist(list(x,list(Channel=i,count=1)), fill=T)
+			x = rbindlist(list(x,list(Channel=i)), fill=T)
 		}
 	}
 	
@@ -91,12 +91,12 @@ formatData <- function(x) {
 	
 	# separate channel in 4 groups
 	x$n = 1
-	x[as.integer(as.character(CHANNEL))<1501 & as.integer(as.character(CHANNEL))>750,n:=2]
-	x[as.integer(as.character(CHANNEL))<2251 & as.integer(as.character(CHANNEL))>1500,n:=3]
-	x[as.integer(as.character(CHANNEL))<3001 & as.integer(as.character(CHANNEL))>2250,n:=4]
+	x[as.integer(as.character(Channel))<1501 & as.integer(as.character(Channel))>750,n:=2]
+	x[as.integer(as.character(Channel))<2251 & as.integer(as.character(Channel))>1500,n:=3]
+	x[as.integer(as.character(Channel))<3001 & as.integer(as.character(Channel))>2250,n:=4]
 	
 	# channel is a factor, convert it to integer to compute coordinate
-	channel = as.integer(as.character(x$CHANNEL))
+	channel = as.integer(as.character(x$Channel))
 
 	bigCol = as.integer( (channel-1) /250)
 	val = (channel-1)%%250+1
