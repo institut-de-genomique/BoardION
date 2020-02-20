@@ -23,30 +23,19 @@ b_compPlotGlobal <- box (
 	plotlyOutput("tabComp_runs_plot", height = "350px")
 )
 
-b_compPlotCumul <- box(
-	title = "Cumulative",
-	status = "primary",
-	solidHeader = TRUE,
+b_owr_time <- box(
+	title = "Run comparison over time",
 	collapsible = TRUE,
 	width = 12,
 	fluidRow( column(width=2, uiOutput("tabComp_cumul_yAxeChoice"))),
-	plotlyOutput("tabComp_cumul_plot", height = "300px")
-)
-
-b_compPlotCurrent <- box(
-  title = "non-cumulative",
-  status = "primary",
-  solidHeader = TRUE,
-  collapsible = TRUE,
-  width = 12,
-  #	fluidRow( column(width=2, uiOutput("tabComp_current_yAxeChoice"))),
-  plotlyOutput("tabComp_current_plot", height = "300px")
+	h4("Cumulative"),
+	plotlyOutput("tabComp_cumul_plot", height = "300px"),
+	h4("Non cumulative"),
+	plotlyOutput("tabComp_current_plot", height = "300px")
 )
 
 b_compPlotLength <- box(
 	title = "Read length",
-	status = "primary",
-	solidHeader = TRUE,
 	collapsible = TRUE,
 	width = 12,
 	fluidRow(
@@ -54,6 +43,17 @@ b_compPlotLength <- box(
 		column(width=2, checkboxInput( "tabComp_length_checkBox", "Percent", value=FALSE)),
 	),
 	plotlyOutput( "tabComp_length_plot", height="300px")
+)
+
+b_owr_comparison <- box(
+	title = "Runs comparison",
+	status = "primary",
+	solidHeader = TRUE,
+	collapsible = TRUE,
+	width = 12,
+	ms_comp,
+	b_owr_time,
+	b_compPlotLength
 )
 
 tabComparison <- tabItem(
@@ -66,13 +66,6 @@ tabComparison <- tabItem(
 
   fluidRow(
     b_compPlotGlobal,
-    tags$div(
-     style="margin-left: 15px;",
-     
-      ms_comp
-    ),
-    b_compPlotCumul,
-    b_compPlotCurrent,
-    b_compPlotLength
+    b_owr_comparison
   )
 )

@@ -47,8 +47,8 @@ plotCompTime <- function(x) {
 			col = RunID,
 			group=1,
 			text = paste(	RunID,
-					'<br>Duration (mn): ',get("Duration(mn)"),
-					'<br>',input$tc_yc,': ',format(get(input$tc_yc),big.mark=' '),
+					'<br>Duration (mn): ',formatNumber(get("Duration(mn)")),
+					'<br>',input$tc_yc,': ',formatNumber(get(input$tc_yc)),
 					sep=""
 			)
 		)

@@ -15,7 +15,6 @@ library(DT)
 
 options(shiny.reactlog = TRUE)
 
-
 # ______________________________________________________________________________________
 # Command line arguments
 args = commandArgs(trailingOnly=TRUE)
@@ -42,6 +41,11 @@ myColorStep      = c(0,        0.3,      0.7,      1        )
 # ______________________________________________________________________________________
 # FUNCTIONS
 
+# format number
+formatNumber <- function(x) {
+	return( format( x, nsmall = 2, digits = 2, scientific = FALSE, big.mark= ' ', drop0trailing = TRUE ))
+}
+
 # Delete elemtents from vector
 vectRemove <- function( v, toRemove) {
 	return(v[ !v %in% toRemove ])
@@ -52,7 +56,6 @@ removeDTCol <- function( dt, columns) {
 	dt[, (columns):=NULL]
 }
 
-
 # Read space delimited file
 readCsvSpace <- function(file) {
 	data = data.table()
@@ -61,7 +64,6 @@ readCsvSpace <- function(file) {
 	}
 	return(data)
 }
-
 
 # Config of plotly added to each graph
 plotlyConfig <- function(p) {

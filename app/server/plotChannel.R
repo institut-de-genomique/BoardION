@@ -23,10 +23,8 @@ plotChannelStat <- function(x) {
 		aes(x=xcoord,
 		    y=ycoord,
 		    fill=get(input$channelStatCumul_col),
-		    text=paste("Channel: ",Channel,
-			       "<br>Reads count: ",get("#Reads"),
-			       "<br>Length: ",get("Length"),
-			       "<br>Quality: ",get("MeanQScore"),
+		    text=paste("Channel: ",formatNumber(Channel),
+			       "<br>", input$channelStatCumul_col,": ",formatNumber(get(input$channelStatCumul_col)),
 			       sep=""
 			      )
 		)

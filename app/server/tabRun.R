@@ -49,9 +49,9 @@ plotRunNbBase <- function(x) {
 		aes(x=get("Duration(mn)"),
 		    y=get("Yield(b)"),
 		    fill=Quality,
-		    text=paste('Duration (mn): ',get("Duration(mn)"),
-			       '<br>Yield(b) : ',format(get("Yield(b)"), big.mark=' '),
-			       '<br>Quality: ',Quality,
+		    text=paste('Duration (mn): ',formatNumber(get("Duration(mn)")),
+			       '<br>Yield(b) : ',formatNumber(get("Yield(b)")),
+			       '<br>Quality: ',formatNumber(Quality),
 			       sep=""
 			      )
 		)
@@ -73,9 +73,9 @@ plotRunNbRead <- function(x) {
 		aes(x=get("Duration(mn)"),
 		    y=get("#Reads"),
 		    fill=Quality,
-		    text=paste('Duration (mn): ',get("Duration(mn)"),
-			       '<br>Nb Reads : ',format(get("#Reads"), big.mark=' '),
-			       '<br>Quality: ',Quality,
+		    text=paste('Duration (mn): ',formatNumber(get("Duration(mn)")),
+			       '<br>Nb Reads : ',formatNumber(get("#Reads")),
+			       '<br>Quality: ',formatNumber(Quality),
 			       sep=""
 			      )
 		)
@@ -95,9 +95,9 @@ plotRunSpeed <- function(x) {
 		aes(x=get("Duration(mn)"),
 		    y=get("Speed(b/mn)"),
 		    fill=Quality,
-		    text=paste('Duration (mn): ',get("Duration(mn)"),
-			       '<br>Speed (b/mn): ',get("Speed(b/mn)"),
-			       '<br>Quality: ',Quality,
+		    text=paste('Duration (mn): ',formatNumber(get("Duration(mn)")),
+			       '<br>Speed (b/mn): ',formatNumber(get("Speed(b/mn)")),
+			       '<br>Quality: ',formatNumber(Quality),
 			       sep=""
 			      )
 		)
@@ -119,9 +119,9 @@ plotQualityOverTime <- function(x, colorColumn, doLogColor) {
 		aes(x=get("TemplateStart"),
 		    y=get("Quality"),
 		    fill=get(colorColumn),
-		    text=paste('Duration (mn): ',TemplateStart,
-			       '<br>Quality: ',Quality,
-			       '<br>',colorColumn,': ',get(colorColumn),
+		    text=paste('Duration (mn): ',formatNumber(TemplateStart),
+			       '<br>Quality: ',formatNumber(Quality),
+			       '<br>',colorColumn,': ',formatNumber(get(colorColumn)),
 			       sep=""
 			      )
 		)
@@ -165,9 +165,9 @@ plotMulti <- function(data, x_col, y_col, color_col) {
 	g <- ggplot( data(),
 		aes(x = get(x_col),
 		    y = get(y_col),
-		    text = paste(x_col,": ",get(x_col),
-		                 "<br>",y_col,": ",get(y_col),
-		                 "<br>",color_col,": ",get(color_col),
+		    text = paste(x_col,": ",formatNumber(get(x_col)),
+		                 "<br>",y_col,": ",formatNumber(get(y_col)),
+		                 "<br>",color_col,": ",formatNumber(get(color_col)),
 		                 sep=""
 		   )
 		)
