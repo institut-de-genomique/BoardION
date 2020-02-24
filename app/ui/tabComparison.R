@@ -25,7 +25,10 @@ b_compPlotGlobal <- box (
 
 b_owr_time <- box(
 	title = "Run comparison over time",
+	status = "primary",
+	solidHeader = TRUE,
 	collapsible = TRUE,
+	collapsed = TRUE,
 	width = 12,
 	fluidRow( column(width=2, uiOutput("tabComp_cumul_yAxeChoice"))),
 	h4("Cumulative"),
@@ -36,7 +39,10 @@ b_owr_time <- box(
 
 b_compPlotLength <- box(
 	title = "Read length",
+	status = "primary",
+	solidHeader = TRUE,
 	collapsible = TRUE,
+	collapsed = TRUE,
 	width = 12,
 	fluidRow(
 		column(width=2, selectInput("tabComp_length_dropdown","y axe",c("Number of read","Number of base"))),

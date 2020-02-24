@@ -80,7 +80,6 @@ formatData <- function(x) {
 	# create a new row in x for the missing channel with NA for all columns (except for channel)
 	for (i in 1:3000) {
 		if(nrow(x[Channel==i]) == 0) {
-#			x = rbindlist(list(x,list(Channel=i,count=1)), fill=T)
 			x = rbindlist(list(x,list(Channel=i)), fill=T)
 		}
 	}

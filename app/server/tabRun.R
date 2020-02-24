@@ -246,7 +246,11 @@ output$runTitle <- renderText({
 })
 
 output$runTable = DT::renderDataTable(
-	runInfoStatReader()[RunID==input$runList],
+	{
+		dt = runInfoStatReader()[RunID==input$runList]
+		removeDTCol( dt, c("Date"))
+		dt
+	},
 	options = list(searching = FALSE, paging = FALSE)
 )
 

@@ -83,14 +83,14 @@ output$runIPTable = DT::renderDataTable({
 
 	if( nrow( runInfoStatReader() ) > 0 ) {
 		data = runInfoStatReader()[Ended=="NO"]
-		removeDTCol( data, c("N50(b)", "Speed(b/mn)", "Quality"))
+		removeDTCol( data, c("Date"))
 		runs <- data$RunID
 
 		for( run in data$RunID ) {
 			if( !is.null( rip_lengthFileReader[[run]] )) {
-				data[RunID == run, Sup30kb  := sum(rip_lengthFileReader[[run]]()[Length>=30000,  Count]) ]
-				data[RunID == run, Sup50kb  := sum(rip_lengthFileReader[[run]]()[Length>=50000,  Count]) ]
-				data[RunID == run, Sup100kb := sum(rip_lengthFileReader[[run]]()[Length>=100000, Count]) ]
+				data[RunID == run, `>30kb`  := sum(rip_lengthFileReader[[run]]()[Length>=30000,  Count]) ]
+				data[RunID == run, `>50kb`  := sum(rip_lengthFileReader[[run]]()[Length>=50000,  Count]) ]
+				data[RunID == run, `>100kb` := sum(rip_lengthFileReader[[run]]()[Length>=100000, Count]) ]
 			}
 		}
 	}

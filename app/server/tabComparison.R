@@ -117,7 +117,7 @@ output$tabComp_length_plot <- renderPlotly({
 
 output$ib_ow_nbRunInProgress <- renderInfoBox({
 	req(nrow(runInfoStatReader())>0)
-	nb_runInProgress = length(ripList)
+	nb_runInProgress = length(ripList())
 	valueBox(
 		nb_runInProgress,
 		"Run in progress",
