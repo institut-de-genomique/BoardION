@@ -52,10 +52,10 @@ output$tabComp_runs_plot <- renderPlotly ({
   req( !is.null(input$tc_r_yaxe))
   req( !is.null(input$tc_groupBy))
   my_tooltip=''
-  my_dynamicTicks=TRUE
+  my_dynamicTicks=FALSE
   if(input$tc_groupBy == 0 || input$tc_groupBy == "None") {
     my_tooltip="text"
-    my_dynamicTicks=FALSE
+    my_dynamicTicks=TRUE
   }
 
   ggplotly (plotGlobalAxeChoice(runInfoStatReader), dynamicTicks = my_dynamicTicks, tooltip=my_tooltip) %>% style(hoverlabel = list(bgcolor = "white")) %>% plotlyConfig() #,tooltip = "text"
