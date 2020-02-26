@@ -3,7 +3,7 @@
 
 globalStatReader <- reactive ({
 	reactiveFileReader(
-		intervalMillis = 60000,
+		intervalMillis = fileRefresh,
 		session	       = NULL,
 		filePath       = paste(reportingFolder,"/",input$runList,"_globalstat.txt",sep=""),
 		readFunc       = readCsvSpace
@@ -12,7 +12,7 @@ globalStatReader <- reactive ({
 
 currentStatReader <- reactive ({
 	reactiveFileReader(
-		intervalMillis = 60000,
+		intervalMillis = fileRefresh,
 		session	       = NULL,
 		filePath       = paste(reportingFolder,"/",input$runList,"_currentstat.txt",sep=""),
 		readFunc       = readCsvSpace
@@ -21,7 +21,7 @@ currentStatReader <- reactive ({
 
 qualityOverTimeReader <- reactive ({
 	dt = reactiveFileReader(
-		intervalMillis = 60000,
+		intervalMillis = fileRefresh,
 		session	       = NULL,
 		filePath       = paste(reportingFolder,"/",input$runList,"_quality_stat.txt",sep=""),
 		readFunc       = readCsvSpace
@@ -33,7 +33,7 @@ qualityOverTimeReader <- reactive ({
 
 readLengthReader <- reactive ({
 	reactiveFileReader(
-		intervalMillis = 60000,
+		intervalMillis = fileRefresh,
 		session	       = NULL,
 		filePath       = paste(reportingFolder,"/",input$runList,"_readsLength.txt",sep=""),
 		readFunc       = readCsvSpace

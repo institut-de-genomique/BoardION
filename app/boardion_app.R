@@ -33,10 +33,14 @@ if(length(args) == 2) {
 }
 
 # ______________________________________________________________________________________
+# VARIABLES
+
 # Unregular color gradient
 myColorGrandient = c("#CC3D3D","#FFDD32","#B3D84B","#50B7C4")
 myColorStep      = c(0,        0.3,      0.7,      1        )
 
+# refresh time of file reader in miliseconds
+fileRefresh = 1000
 
 # ______________________________________________________________________________________
 # FUNCTIONS

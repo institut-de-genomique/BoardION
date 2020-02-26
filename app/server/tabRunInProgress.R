@@ -38,7 +38,7 @@ runIPGlobalStatReader <- reactive ({
 	runsIP = runInfoStatReader()[Ended=="NO",RunID]
 
 		reactiveMultiFileReader(
-		intervalMillis  = 60000,
+		intervalMillis  = fileRefresh,
 		session	        = NULL,
 		filesPath       = paste(reportingFolder,"/",runsIP,"_globalstat.txt",sep=""),
 		readFunc        = readCsvSpace
@@ -110,7 +110,7 @@ observeEvent( input$rip_cumulative_toggle, {
 		}
 	}
 	for(flowcell in names(rip_runDisplayed)) {
-		rip_yieldFileReader[[ flowcell ]] <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste(reportingFolder, "/", flowcell, ext, sep=""), readFunc = readCsvSpace)
+		rip_yieldFileReader[[ flowcell ]] <- reactiveFileReader(intervalMillis = fileRefresh, session = NULL, filePath = paste(reportingFolder, "/", flowcell, ext, sep=""), readFunc = readCsvSpace)
 	}
 })
 
@@ -136,12 +136,12 @@ observeEvent( ripList(), {
 
 				# create dynamic reader and save it in reactiveValues
 				if(input$rip_cumulative_toggle) {
-					rip_yieldFileReader[[ fc ]]  <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", fc, "_globalstat.txt", sep=""), readFunc = readCsvSpace)
+					rip_yieldFileReader[[ fc ]]  <- reactiveFileReader(intervalMillis = fileRefresh, session = NULL, filePath = paste( reportingFolder, "/", fc, "_globalstat.txt", sep=""), readFunc = readCsvSpace)
 				} else {
-					rip_yieldFileReader[[ fc ]]  <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", fc, "_currentstat.txt", sep=""), readFunc = readCsvSpace)
+					rip_yieldFileReader[[ fc ]]  <- reactiveFileReader(intervalMillis = fileRefresh, session = NULL, filePath = paste( reportingFolder, "/", fc, "_currentstat.txt", sep=""), readFunc = readCsvSpace)
 				}
 
-				rip_lengthFileReader[[ fc ]] <- reactiveFileReader(intervalMillis = 60000, session = NULL, filePath = paste( reportingFolder, "/", fc, "_readsLength.txt", sep=""), readFunc = readCsvSpace)
+				rip_lengthFileReader[[ fc ]] <- reactiveFileReader(intervalMillis = fileRefresh, session = NULL, filePath = paste( reportingFolder, "/", fc, "_readsLength.txt", sep=""), readFunc = readCsvSpace)
 
 				# create a box per run
 				title_b = p( actionButton(buttonGotoRun , fc) )
