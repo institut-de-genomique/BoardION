@@ -50,7 +50,7 @@ runIPGlobalStatReader <- reactive ({
 # PLOT
 
 plotRunIPYield <- function(x) {
-	ggplot( x(),
+	ggplot( x,
 		aes(x=get("Duration(mn)"),
 		    y=get("Yield(b)"),
 		    fill=Quality,
@@ -161,14 +161,14 @@ observeEvent( ripList(), {
 
 				# bar plot of the yield
 				output[[plotYieldID]] <- renderPlotly({
-					p <- ggplotly( plotRunIPYield(rip_yieldFileReader[[ fc ]]), dynamicTicks = TRUE, tooltip = "text")
+					p <- ggplotly( plotRunIPYield(rip_yieldFileReader[[ fc ]]()), dynamicTicks = TRUE, tooltip = "text")
 					p %>% style(marker.colorbar.len = 1, traces = length(p$x$data))  %>% # make the height of the colorbar (legend on the side of the plot) equal to the height of the plot
 					plotlyConfig()
 				})
 
 				# histogram of read length
 				output[[plotLengthID]] <- renderPlotly({
-					rip_lengthFileReader[[ fc ]] %>%
+					rip_lengthFileReader[[ fc ]]() %>%
 					plotReadLength() %>%
 					ggplotly(dynamicTicks = TRUE) %>% # can't use dynamicTicks and make an initial zoom with layout
 					#layout(xaxis = list(range = c(-1000, 105000))) %>%

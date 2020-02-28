@@ -1,51 +1,62 @@
 # ______________________________________________________________________________________
+# FILENAMES
+
+getGlobalStatFileName <- function() {
+	return(paste(reportingFolder,"/",input$runList,"_globalstat.txt",sep=""))
+}
+
+getCurrentStatFileName <- function() {
+	return(paste(reportingFolder,"/",input$runList,"_currentstat.txt",sep=""))
+}
+
+getQotFileName <- function() {
+	return(paste(reportingFolder,"/",input$runList,"_quality_stat.txt",sep=""))
+}
+
+getLengthFileName <- function() {
+	return(paste(reportingFolder,"/",input$runList,"_readsLength.txt",sep=""))
+}
+
+# ______________________________________________________________________________________
 # FILES READERS
 
-globalStatReader <- reactive ({
-	reactiveFileReader(
-		intervalMillis = fileRefresh,
-		session	       = NULL,
-		filePath       = paste(reportingFolder,"/",input$runList,"_globalstat.txt",sep=""),
-		readFunc       = readCsvSpace
-	)()
-})
 
-currentStatReader <- reactive ({
-	reactiveFileReader(
-		intervalMillis = fileRefresh,
-		session	       = NULL,
-		filePath       = paste(reportingFolder,"/",input$runList,"_currentstat.txt",sep=""),
-		readFunc       = readCsvSpace
-	)()
-})
+globalStatReader <- reactiveFileReader(
+	intervalMillis = fileRefresh,
+	session	       = NULL,
+	filePath       = getGlobalStatFileName,
+	readFunc       = readCsvSpace
+)
 
-qualityOverTimeReader <- reactive ({
-	dt = reactiveFileReader(
-		intervalMillis = fileRefresh,
-		session	       = NULL,
-		filePath       = paste(reportingFolder,"/",input$runList,"_quality_stat.txt",sep=""),
-		readFunc       = readCsvSpace
-	)()
+currentStatReader <- reactiveFileReader(
+	intervalMillis = fileRefresh,
+	session	       = NULL,
+	filePath       = getCurrentStatFileName,
+	readFunc       = readCsvSpace
+)
 
-	dt[,LengthCUMUL:=Length*`#Reads`]
-	return(dt)
-})
+qualityOverTimeReader <- reactiveFileReader(
+	intervalMillis = fileRefresh,
+	session	       = NULL,
+	filePath       = getQotFileName,
+	readFunc       = readCsvSpace
+#	dt[,LengthCUMUL:=Length*`#Reads`]
+#	return(dt)
+)
 
-readLengthReader <- reactive ({
-	reactiveFileReader(
-		intervalMillis = fileRefresh,
-		session	       = NULL,
-		filePath       = paste(reportingFolder,"/",input$runList,"_readsLength.txt",sep=""),
-		readFunc       = readCsvSpace
-	)()
-})
+readLengthReader <- reactiveFileReader(
+	intervalMillis = fileRefresh,
+	session	       = NULL,
+	filePath       = getLengthFileName,
+	readFunc       = readCsvSpace
+)
 
 # ______________________________________________________________________________________
 # PLOTS
 
 plotRunNbBase <- function(x) {
 	
-	ggplot( x(),
+	ggplot( x,
 		aes(x=get("Duration(mn)"),
 		    y=get("Yield(b)"),
 		    fill=Quality,
@@ -69,7 +80,7 @@ plotRunNbBase <- function(x) {
 plotRunNbRead <- function(x) {
 
 
-	ggplot( x(),
+	ggplot( x,
 		aes(x=get("Duration(mn)"),
 		    y=get("#Reads"),
 		    fill=Quality,
@@ -115,7 +126,7 @@ plotRunSpeed <- function(x) {
 
 plotQualityOverTime <- function(x, colorColumn, doLogColor) {
 
-	g <- ggplot( x(),
+	g <- ggplot( x,
 		aes(x=get("TemplateStart"),
 		    y=get("Quality"),
 		    fill=get(colorColumn),
@@ -146,7 +157,7 @@ plotQualityOverTime <- function(x, colorColumn, doLogColor) {
 
 plotReadLength <- function(x) {
 
-	ggplot( x(),
+	ggplot( x,
 		aes(x=Length,
 		    weight=Count
 		)
@@ -162,7 +173,7 @@ plotReadLength <- function(x) {
 
 plotMulti <- function(data, x_col, y_col, color_col) {
 
-	g <- ggplot( data(),
+	g <- ggplot( data,
 		aes(x = get(x_col),
 		    y = get(y_col),
 		    text = paste(x_col,": ",formatNumber(get(x_col)),
@@ -191,14 +202,14 @@ plotMulti <- function(data, x_col, y_col, color_col) {
 
 output$plot_globalRunNbBase <- renderPlotly({
 	req(nrow(globalStatReader())>0)
-	ggplotly(plotRunNbBase(globalStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+	ggplotly(plotRunNbBase(globalStatReader()), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
 })
 
 output$plot_globalReadLength <- renderPlotly({
 	req(nrow(readLengthReader())>0)
-	ggplotly(plotReadLength(readLengthReader), dynamicTicks = TRUE ) %>% #, tooltip = "text") %>% 
-#	layout(xaxis = list(range = c(-1000, 105000))) %>% # initial zoom
-	plotlyConfig()
+	ggplotly(plotReadLength(readLengthReader()), dynamicTicks = TRUE ) %>% plotlyConfig()
+	#, tooltip = "text") %>% 
+	# layout(xaxis = list(range = c(-1000, 105000))) %>% # initial zoom
 })
 
 output$tabRunGlobal_plotAxeChoice <- renderPlotly({
@@ -206,12 +217,12 @@ output$tabRunGlobal_plotAxeChoice <- renderPlotly({
 	req( !is.null(input$trg_xc))
 	req( !is.null(input$trg_yc))
 	req( !is.null(input$trg_cc))
-	ggplotly(plotMulti(globalStatReader, input$trg_xc, input$trg_yc, input$trg_cc), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
+	ggplotly(plotMulti(globalStatReader(), input$trg_xc, input$trg_yc, input$trg_cc), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
 })
 
 output$plot_currentRunNbBase <- renderPlotly({
 	req(nrow(currentStatReader())>0)
-	ggplotly(plotRunNbBase(currentStatReader), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+	ggplotly(plotRunNbBase(currentStatReader()), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
 })
 
 output$tabRunCurrent_plotAxeChoice <- renderPlotly({
@@ -219,14 +230,14 @@ output$tabRunCurrent_plotAxeChoice <- renderPlotly({
 	req( !is.null(input$trc_xc))
 	req( !is.null(input$trc_yc))
 	req( !is.null(input$trc_cc))
-	ggplotly(plotMulti(currentStatReader, input$trc_xc, input$trc_yc, input$trc_cc), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
+	ggplotly(plotMulti(currentStatReader(), input$trc_xc, input$trc_yc, input$trc_cc), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
 })
 
 output$qot_plot <- renderPlotly({
 	req(nrow(qualityOverTimeReader())>0)
 	req(input$qot_color)
 	req(!is.null(input$qot_logCheckBox))
-	ggplotly(plotQualityOverTime(qualityOverTimeReader, input$qot_color, input$qot_logCheckBox), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+	ggplotly(plotQualityOverTime(qualityOverTimeReader(), input$qot_color, input$qot_logCheckBox), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
 })
 
 # ______________________________________________________________________________________
@@ -256,73 +267,106 @@ output$runTable = DT::renderDataTable(
 
 output$qot_colorMetricChoice <- renderUI({
         req(nrow(qualityOverTimeReader())>0)
-	
+
+	isolate({
+		selected = if(is.null(input$qot_color)) "#Reads" else input$qot_color
+	})
+
 	selectInput(
 		"qot_color",
 		"Select metric",
 		vectRemove( colnames(qualityOverTimeReader()), c("Quality","StartTime","TemplateStart")),
-		selected="#Reads"
+		selected=selected
 	)
 })
 
 output$tabRunGlobal_xAxeChoice <- renderUI({
 	req(nrow(isolate(globalStatReader())) > 0)
 
+	isolate({
+		selected = if(is.null(input$trg_xc)) "Duration(mn)" else input$trg_xc
+	})
+
 	selectInput(
 		"trg_xc",
 		"X axe",
 		vectRemove( colnames(globalStatReader()), c("RunID")),
-		selected="Duration(mn)"
+		selected=selected
 	)
 })
 
 output$tabRunGlobal_yAxeChoice <- renderUI({
 	req(nrow(isolate(globalStatReader())) > 0)
+
+	isolate({
+		selected = if(is.null(input$trg_yc)) "Speed(b/mn)" else input$trg_yc
+	})
+
 	selectInput(
 		"trg_yc",
 		"Y axe",
 		vectRemove( colnames(globalStatReader()), c("RunID","Duration(mn)")),
-		selected="Speed(b/mn)"
+		selected=selected
 	)
 })
 
 output$tabRunGlobal_colorChoice <- renderUI({
 	req(nrow(isolate(globalStatReader())) > 0)
+
+	isolate({
+		selected = if(is.null(input$trg_cc)) "Quality" else input$trg_cc
+	})
+
 	selectInput(
 		"trg_cc",
 		"Color by",
 		vectRemove( colnames(globalStatReader()), c("RunID")),
-		selected="Quality"
+		selected=selected
 	)
 })
 
 output$tabRunCurrent_xAxeChoice <- renderUI({
 	req(nrow(isolate(currentStatReader())) > 0)
+
+	isolate({
+		selected = if(is.null(input$trc_xc)) "Duration(mn)" else input$trc_xc
+	})
+
 	selectInput(
 		"trc_xc",
 		"X axe",
 		vectRemove( colnames(currentStatReader()), c("RunID")),
-		selected="Duration(mn)"
+		selected=selected
 	)
 })
 
 output$tabRunCurrent_yAxeChoice <- renderUI({
 	req(nrow(isolate(currentStatReader())) > 0)
+
+	isolate({
+		selected = if(is.null(input$trc_yc)) "Speed(b/mn)" else input$trc_yc
+	})
+
 	selectInput(
 		"trc_yc",
 		"Y axe",
 		vectRemove( colnames(currentStatReader()), c("RunID","Duration(mn)")),
-		selected="Speed(b/mn)"
+		selected=selected
 	)
 })
 
 output$tabRunCurrent_colorChoice <- renderUI({
 	req(nrow(isolate(currentStatReader())) > 0)
+
+	isolate({
+		selected = if(is.null(input$trc_cc)) "Quality" else input$trc_cc
+	})
+
 	selectInput(
 		"trc_cc",
 		"Color by",
 		vectRemove( colnames(currentStatReader()), c("RunID")),
-		selected="Quality"
+		selected=selected
 	)
 })
 
