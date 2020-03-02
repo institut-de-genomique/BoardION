@@ -564,6 +564,13 @@ int main(int argc, char** argv)
 
 				fs::remove(run_tag_path);
 			}
+			else
+			{
+				// if can't create tag of a run in progress, write the old stat to the runInfo file
+				std::ofstream out( run_info_tmp_path, std::ofstream::app);
+				out << run;
+				out.close();
+			}
 		}
 	}
 	fs::rename(run_info_tmp_path,run_info_path);
