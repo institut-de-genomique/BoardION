@@ -17,14 +17,14 @@ channelStatReader <- reactive ({
 # ______________________________________________________________________________________
 # PLOTS
 
-plotChannelStat <- function(x) {
+plotChannelStat <- function(x, colVar ) {
 	ggplot(
 		x,
 		aes(x=xcoord,
 		    y=ycoord,
-		    fill=get(input$channelStatCumul_col),
+		    fill=get(colVar),
 		    text=paste("Channel: ",formatNumber(Channel),
-			       "<br>", input$channelStatCumul_col,": ",formatNumber(get(input$channelStatCumul_col)),
+			       "<br>", colVar,": ",formatNumber(get(colVar)),
 			       sep=""
 			      )
 		)
@@ -44,15 +44,19 @@ plotChannelStat <- function(x) {
 		axis.ticks=element_blank()
 	) +
 
-	labs(fill=input$channelStatCumul_col)
+	labs(fill=colVar)
 }
 
 # ______________________________________________________________________________________
 # RENDERS
 output$channelCumul_plot <- renderPlotly({
-	req(input$channelStatCumul_col != "")
-	req(nrow(channelStatReader())>0)
-	ggplotly(plotChannelStat(formatData(channelStatReader())), tooltip = "text") %>% plotlyConfig()
+	input$refreshTabRun
+	input$channelCumul_refresh
+	isolate({
+		req(input$channelStatCumul_col != "")
+		req(nrow(channelStatReader())>0)
+		ggplotly(plotChannelStat(formatData(channelStatReader()), input$channelStatCumul_col), tooltip = "text") %>% plotlyConfig()
+	})
 })
 
 

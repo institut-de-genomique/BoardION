@@ -14,6 +14,9 @@ makeGraphBox <- function(name, id, width=6, height="350px", collapsed=FALSE) {
 	)
 }
 
+makeRefreshButton <- function(id) {
+	actionButton(id, "", icon = icon("redo") )
+}
 
 # ______________________________________________________________________________________
 # HEADER

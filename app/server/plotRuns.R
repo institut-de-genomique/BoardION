@@ -1,13 +1,11 @@
 # ______________________________________________________________________________________
 # PLOTS
 
-plotGlobalAxeChoice <- function(x) {
+plotGlobalAxeChoice <- function(dt, groupBy, xAxe, yAxe) {
 
-  dt = x()
-
-  if(input$tc_groupBy == "Month") {
+  if(groupBy == "Month") {
     dt[,Date:=format(as.Date(StartTime),format="%Y-%m")]
-  } else if(input$tc_groupBy == "Year") {
+  } else if(groupBy == "Year") {
     dt[,Date:=format(as.Date(StartTime),format="%Y")]
   } else {
     dt[,Date:=as.Date(StartTime)]
@@ -16,16 +14,16 @@ plotGlobalAxeChoice <- function(x) {
   p <- ggplot(
     dt,
     aes(
-      x=get(input$tc_r_xaxe),
-      y=get(input$tc_r_yaxe)
+      x=get(xAxe),
+      y=get(yAxe)
     )
-  ) + xlab(input$tc_r_xaxe) + ylab(input$tc_r_yaxe) + theme_bw() #+ theme(axis.text.x = element_text(angle = 60, hjust = 1))
+  ) + xlab(xAxe) + ylab(yAxe) + theme_bw() #+ theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
-  if(input$tc_groupBy != 0 && input$tc_groupBy != "None") {
-    if(input$tc_groupBy == "Month" || input$tc_groupBy == "Year") {
+  if(groupBy != 0 && groupBy != "None") {
+    if(groupBy == "Month" || groupBy == "Year") {
       p <- p + geom_boxplot() 
     } else {
-      dt[,Group := as.factor(round(get(input$tc_r_xaxe)/input$tc_groupBy)*input$tc_groupBy)] # compute bin for geom_boxplot
+      dt[,Group := as.factor(round(get(xAxe)/groupBy)*groupBy)] # compute bin for geom_boxplot
       p <- p + geom_boxplot(aes(x=Group,group=Group))
     } 
 
@@ -33,8 +31,8 @@ plotGlobalAxeChoice <- function(x) {
     p <- p + geom_point(
 			aes(
 			    text=paste(
-                                        input$tc_r_xaxe,': ',get(input$tc_r_xaxe),
-					'<br>',input$tc_r_yaxe,': ',get(input$tc_r_yaxe),
+                                        xAxe,': ',get(xAxe),
+					'<br>',yAxe,': ',get(yAxe),
 				       	sep=''
 				      )
                            )
@@ -46,19 +44,27 @@ plotGlobalAxeChoice <- function(x) {
 # ______________________________________________________________________________________
 # RENDER
 
+# the plot is updated when the groupBy ui object change
 output$tabComp_runs_plot <- renderPlotly ({
-  req( nrow(runInfoStatReader()>0))
-  req( !is.null(input$tc_r_xaxe))
-  req( !is.null(input$tc_r_yaxe))
   req( !is.null(input$tc_groupBy))
-  my_tooltip=''
-  my_dynamicTicks=FALSE
-  if(input$tc_groupBy == 0 || input$tc_groupBy == "None") {
-    my_tooltip="text"
-    my_dynamicTicks=TRUE
-  }
+  isolate({
+    req( nrow(runInfoStatReader()>0))
+    req( !is.null(input$tc_r_xaxe))
+    req( !is.null(input$tc_r_yaxe))
+    req( !is.null(input$tc_groupBy))
+    my_tooltip=''
+    my_dynamicTicks=FALSE
+    if(input$tc_groupBy == 0 || input$tc_groupBy == "None") {
+      my_tooltip="text"
+      my_dynamicTicks=TRUE
+    }
 
-  ggplotly (plotGlobalAxeChoice(runInfoStatReader), dynamicTicks = my_dynamicTicks, tooltip=my_tooltip) %>% style(hoverlabel = list(bgcolor = "white")) %>% plotlyConfig() #,tooltip = "text"
+    g <- ggplotly ( plotGlobalAxeChoice(runInfoStatReader(), input$tc_groupBy, input$tc_r_xaxe, input$tc_r_yaxe), dynamicTicks = my_dynamicTicks, tooltip=my_tooltip) %>%
+         style(hoverlabel = list(bgcolor = "white")) %>%
+         plotlyConfig()
+
+  })
+  return(g)
 })
 
 output$tabComp_runs_xAxeChoice <- renderUI({
@@ -88,35 +94,40 @@ output$tabComp_runs_yAxeChoice <- renderUI({
   )
 })
 
+# updated when the button refresh is clicked
 output$tabComp_runs_groupByChoice <- renderUI({
-  req(nrow(runInfoStatReader())>0,input$tc_r_xaxe)
+  input$ab_owr_refreshRuns
+  isolate({
+    req(nrow(runInfoStatReader())>0)
+    req( !is.null(input$tc_r_xaxe))
 
-  if(input$tc_r_xaxe %in% c("RunID","Ended")) {
-    return()
-  } else if(input$tc_r_xaxe == "Date") {
-    bins = c("Year","Month","None")
-    return(selectInput(
-      "tc_groupBy",
-      "",
-      bins,
-      selected="Month"
-    ))
-  } else {
-    slider.min=0
-    maxVal = max(runInfoStatReader()[,get(input$tc_r_xaxe)])
-    lowestPowOf10 = 10**as.integer(log10(maxVal))
-    slider.step = 0.01*lowestPowOf10
-    slider.max = lowestPowOf10 + slider.step * ceiling( (maxVal - lowestPowOf10) / slider.step )
+    if(input$tc_r_xaxe %in% c("RunID","Ended")) {
+      return()
+    } else if(input$tc_r_xaxe == "Date") {
+      bins = c("Year","Month","None")
+      return(selectInput(
+        "tc_groupBy",
+        "",
+        bins,
+        selected="Month"
+      ))
+    } else {
+      slider.min=0
+      maxVal = max(runInfoStatReader()[,get(input$tc_r_xaxe)])
+      lowestPowOf10 = 10**as.integer(log10(maxVal))
+      slider.step = 0.01*lowestPowOf10
+      slider.max = lowestPowOf10 + slider.step * ceiling( (maxVal - lowestPowOf10) / slider.step )
 
-    return(sliderInput(
-      "tc_groupBy",
-      "Bin size",
-      min = slider.min,
-      max = slider.max,
-      step = slider.step,
-      value = 0
-    ))
-  }
+      return(sliderInput(
+        "tc_groupBy",
+        "Bin size",
+        min = slider.min,
+        max = slider.max,
+        step = slider.step,
+        value = 0
+      ))
+    }
+  })
 })
 
 # ______________________________________________________________________________________

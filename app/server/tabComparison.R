@@ -39,46 +39,42 @@ compReadLength <- reactive ({
 # ______________________________________________________________________________________
 # PLOTS
 
-plotCompTime <- function(x) {
+plotCompTime <- function(x, y_axe) {
 	
 	ggplot( x(),
 		aes(	x = get("Duration(mn)"),
-			y = get(input$tc_yc),
+			y = get(y_axe),
 			col = RunID,
 			group=1,
 			text = paste(	RunID,
 					'<br>Duration (mn): ',formatNumber(get("Duration(mn)")),
-					'<br>',input$tc_yc,': ',formatNumber(get(input$tc_yc)),
+					'<br>',y_axe,': ',formatNumber(get(y_axe)),
 					sep=""
 			)
 		)
 	) +
 	geom_line(size=0.5) +
 	xlab("Duration(mn)") +
-	ylab(input$tc_yc) +
+	ylab(y_axe) +
 	theme_bw()
 }
 
-plotCompReadLength <- function(x) {
+plotCompReadLength <- function(x, mode, doPercent) {
 
-	if(input$tabComp_length_dropdown == "Number of base") {
-		if(input$tabComp_length_checkBox) {
+	if(mode == "Number of base") {
+		if(doPercent) {
 			mapping = aes(x = Length, weight = PercentBase, col = RunID)
-			#y_var = PercentBase
 			y_name = "Percent of base number"
 		} else {
 			mapping = aes(x = Length, weight = NbBase, col = RunID)
-			#y_var = NbBase
 			y_name = "Number of base"
 		}
 	} else {
-		if(input$tabComp_length_checkBox) {
+		if(doPercent) {
 			mapping = aes(x = Length, weight = PercentRead, col = RunID)
-			#y_var = PercentRead
 			y_name = "Percent of read number"
 		} else {
 			mapping = aes(x = Length, weight = Count, col = RunID)
-			#y_var = Count
 			y_name = "Number of read"
 		}
 	}
@@ -96,20 +92,37 @@ plotCompReadLength <- function(x) {
 # RENDER PLOT
 
 output$tabComp_cumul_plot <- renderPlotly({
-	req(nrow(compCumul())>0)
-	req( !is.null(input$tc_yc))
-	ggplotly( plotCompTime(compCumul), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
+	input$ab_owr_refreshComp
+	input$ab_owr_refreshCompTime
+	isolate({
+		req(nrow(compCumul())>0)
+		req( !is.null(input$tc_yc))
+		g <- ggplotly( plotCompTime(compCumul, input$tc_yc), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
+	})
+	return(g)
 })
 
 output$tabComp_current_plot <- renderPlotly({
-	req(nrow(compCurrent())>0)
-	req( !is.null(input$tc_yc))
-	ggplotly( plotCompTime(compCurrent), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
+	input$ab_owr_refreshComp
+	input$ab_owr_refreshCompTime
+	isolate({
+		req(nrow(compCurrent())>0)
+		req( !is.null(input$tc_yc))
+		g <- ggplotly( plotCompTime(compCurrent, input$tc_yc), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
+	})
+	return(g)
 })
 
 output$tabComp_length_plot <- renderPlotly({
-	req(nrow(compReadLength())>0)
-	ggplotly( plotCompReadLength(compReadLength), dynamicTicks=T )  %>% plotlyConfig()
+	input$ab_owr_refreshComp
+	input$ab_owr_refreshCompLength
+	isolate({
+		req(nrow(compReadLength())>0)
+		req( !is.null(input$tabComp_length_dropdown))
+		req( !is.null(input$tabComp_length_checkBox))
+		g <- ggplotly( plotCompReadLength(compReadLength, input$tabComp_length_dropdown, input$tabComp_length_checkBox), dynamicTicks=T )  %>% plotlyConfig()
+	})
+	return(g)
 })
 
 # ______________________________________________________________________________________
@@ -145,13 +158,23 @@ output$ib_ow_nbBases <- renderInfoBox({
 	)
 })
 
+# update drop-down list of run
+observe({
 
-observe({ # update drop-down list of run
+	runSelected = isolate(input$tabComp_runList)
+
+	if (runSelected == "" || is.null(runSelected)) {
+		runSelected = runInfoStatReader()[StartTime==max(na.omit(StartTime)),RunID] # if there isn't a run selected, take the most recent one
+	}
+
+	listRun <- list( "In progress" = c("", ripList()), # add empty slot else the list doesn't display correctly
+		         "Completed" = c(runList()[!runList() %in% ripList()])
+	)
 
 	updateSelectizeInput( 
 		session,
 		"tabComp_runList",
-		choice = runList(),
+		choice = listRun,
 		selected = isolate(input$compRunList),
 		server=TRUE
 	)

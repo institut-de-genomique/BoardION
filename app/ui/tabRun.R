@@ -9,7 +9,8 @@ makeRunCustomablePlot <- function(name,w=12) {
 		fluidRow(
 			column(width=2, uiOutput(paste(name,"_xAxeChoice",sep="")) ),
 			column(width=2, uiOutput(paste(name,"_yAxeChoice",sep="")) ),
-			column(width=2, uiOutput(paste(name,"_colorChoice",sep="")) )
+			column(width=2, uiOutput(paste(name,"_colorChoice",sep=""))),
+			column(width=2, makeRefreshButton(paste(name,"_refreshPlotChoice",sep="")))
 		),
 		plotlyOutput(paste(name,"_plotAxeChoice",sep=""), height = "350px") %>% withSpinner(type=6)
 	)
@@ -25,7 +26,8 @@ makeRunChannelPlot <- function(name, w=12) {
 		collapsed = TRUE,
 		width=w,
 		fluidRow(
-			column(width=2, uiOutput(paste(name,"_colorMetricChoice",sep="")) )
+			column(width=2, uiOutput(paste(name,"_colorMetricChoice",sep=""))),
+			column(width=2, makeRefreshButton(paste(name,"_refresh",sep="")))
 		),
 		plotlyOutput(paste(name,"_plot",sep=""), height = "350px") %>% withSpinner(type=6)
 	)
@@ -41,7 +43,8 @@ makeRunQotPlot <- function(name, w=12) {
 		width=w,
 		fluidRow(
 			column(width=2, uiOutput( paste(name, "_colorMetricChoice", sep="" ))),
-			column(width=2, checkboxInput( paste( name, "_logCheckBox", sep=""), "Log10_color", value = FALSE ))
+			column(width=2, checkboxInput( paste( name, "_logCheckBox", sep=""), "Log10_color", value = FALSE )),
+			column(width=2, makeRefreshButton(paste(name,"_refresh",sep="")))
 		),
 		plotlyOutput(paste(name,"_plot",sep=""), height = "500px") %>% withSpinner(type=6)
 	)
@@ -70,24 +73,25 @@ tabRunCurrent <- tabPanel(
 runListSelect <- selectInput(
 	"runList",
 	"Select a run",
-	c(),
-	width="20%"
+	c()
 )
 
 runTitle <- textOutput("runTitle")
 
 tabRun <- tabItem("run",
 	fluidPage(
-		h1(runTitle),
-		fluidRow(column(
-			runListSelect,
+		column( width=12,
+			h1(runTitle),
+			fluidRow(
+				column( width=2, runListSelect),
+				makeRefreshButton("refreshTabRun")
+			),
 			DT::dataTableOutput("runTable"),
 			tabBox( 
 				width=12,
 				tabRunGlobal,
 				tabRunCurrent
-			),
-			width=12
-		))
+			)
+		)
 	)
 )

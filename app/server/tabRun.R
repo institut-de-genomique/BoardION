@@ -79,7 +79,6 @@ plotRunNbBase <- function(x) {
 
 plotRunNbRead <- function(x) {
 
-
 	ggplot( x,
 		aes(x=get("Duration(mn)"),
 		    y=get("#Reads"),
@@ -100,29 +99,6 @@ plotRunNbRead <- function(x) {
 	ylab("Number of reads") +
 	labs(fill='Quality')
 }
-
-plotRunSpeed <- function(x) {
-	ggplot( x(),
-		aes(x=get("Duration(mn)"),
-		    y=get("Speed(b/mn)"),
-		    fill=Quality,
-		    text=paste('Duration (mn): ',formatNumber(get("Duration(mn)")),
-			       '<br>Speed (b/mn): ',formatNumber(get("Speed(b/mn)")),
-			       '<br>Quality: ',formatNumber(Quality),
-			       sep=""
-			      )
-		)
-	) +
-	
-	geom_col(position="dodge", width = 10) +
-	
-	theme_bw() +
-	scale_fill_gradientn(colors=myColorGrandient,values=myColorStep ,limits=c(0,15)) +
-	xlab("Duration(mn)") +
-	ylab("Speed (bases/min)") +
-	labs(fill='Quality')
-}
-
 
 plotQualityOverTime <- function(x, colorColumn, doLogColor) {
 
@@ -201,43 +177,62 @@ plotMulti <- function(data, x_col, y_col, color_col) {
 # RENDER PLOT
 
 output$plot_globalRunNbBase <- renderPlotly({
-	req(nrow(globalStatReader())>0)
-	ggplotly(plotRunNbBase(globalStatReader()), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+	input$refreshTabRun
+	isolate({
+		req(nrow(globalStatReader())>0)
+		ggplotly(plotRunNbBase(globalStatReader()), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+	})
 })
 
 output$plot_globalReadLength <- renderPlotly({
-	req(nrow(readLengthReader())>0)
-	ggplotly(plotReadLength(readLengthReader()), dynamicTicks = TRUE ) %>% plotlyConfig()
-	#, tooltip = "text") %>% 
-	# layout(xaxis = list(range = c(-1000, 105000))) %>% # initial zoom
+	input$refreshTabRun
+	isolate({
+		req(nrow(readLengthReader())>0)
+		ggplotly(plotReadLength(readLengthReader()), dynamicTicks = TRUE ) %>% plotlyConfig()
+	})
 })
 
 output$tabRunGlobal_plotAxeChoice <- renderPlotly({
-	req(nrow(globalStatReader())>0)
-	req( !is.null(input$trg_xc))
-	req( !is.null(input$trg_yc))
-	req( !is.null(input$trg_cc))
-	ggplotly(plotMulti(globalStatReader(), input$trg_xc, input$trg_yc, input$trg_cc), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
+	input$refreshTabRun
+	input$tabRunGlobal_refreshPlotChoice
+	isolate({
+		req(nrow(globalStatReader())>0)
+		req( !is.null(input$trg_xc))
+		req( !is.null(input$trg_yc))
+		req( !is.null(input$trg_cc))
+		ggplotly(plotMulti(globalStatReader(), input$trg_xc, input$trg_yc, input$trg_cc), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
+	})
 })
 
 output$plot_currentRunNbBase <- renderPlotly({
-	req(nrow(currentStatReader())>0)
-	ggplotly(plotRunNbBase(currentStatReader()), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+	input$refreshTabRun
+	isolate({
+		req(nrow(currentStatReader())>0)
+		ggplotly(plotRunNbBase(currentStatReader()), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+	})
 })
 
 output$tabRunCurrent_plotAxeChoice <- renderPlotly({
-	req(nrow(currentStatReader())>0)
-	req( !is.null(input$trc_xc))
-	req( !is.null(input$trc_yc))
-	req( !is.null(input$trc_cc))
-	ggplotly(plotMulti(currentStatReader(), input$trc_xc, input$trc_yc, input$trc_cc), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
+	input$refreshTabRun
+	input$tabRunCurrent_refreshPlotChoice
+	isolate({
+		req(nrow(currentStatReader())>0)
+		req( !is.null(input$trc_xc))
+		req( !is.null(input$trc_yc))
+		req( !is.null(input$trc_cc))
+		ggplotly(plotMulti(currentStatReader(), input$trc_xc, input$trc_yc, input$trc_cc), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
+	})
 })
 
 output$qot_plot <- renderPlotly({
-	req(nrow(qualityOverTimeReader())>0)
-	req(input$qot_color)
-	req(!is.null(input$qot_logCheckBox))
-	ggplotly(plotQualityOverTime(qualityOverTimeReader(), input$qot_color, input$qot_logCheckBox), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+	input$refreshTabRun
+	input$qot_refresh
+	isolate({
+		req(nrow(qualityOverTimeReader())>0)
+		req(input$qot_color)
+		req(!is.null(input$qot_logCheckBox))
+		ggplotly(plotQualityOverTime(qualityOverTimeReader(), input$qot_color, input$qot_logCheckBox), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+	})
 })
 
 # ______________________________________________________________________________________
