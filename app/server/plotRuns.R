@@ -46,12 +46,15 @@ plotGlobalAxeChoice <- function(dt, groupBy, xAxe, yAxe) {
 
 # the plot is updated when the groupBy ui object change
 output$tabComp_runs_plot <- renderPlotly ({
-  req( !is.null(input$tc_groupBy))
+  req( !is.null(input$tc_groupBy) )
+  input$ab_owr_refreshRuns
+
   isolate({
-    req( nrow(runInfoStatReader()>0))
+
+    req( nrow(runInfoStatReader())>0)
     req( !is.null(input$tc_r_xaxe))
     req( !is.null(input$tc_r_yaxe))
-    req( !is.null(input$tc_groupBy))
+
     my_tooltip=''
     my_dynamicTicks=FALSE
     if(input$tc_groupBy == 0 || input$tc_groupBy == "None") {
@@ -62,9 +65,10 @@ output$tabComp_runs_plot <- renderPlotly ({
     g <- ggplotly ( plotGlobalAxeChoice(runInfoStatReader(), input$tc_groupBy, input$tc_r_xaxe, input$tc_r_yaxe), dynamicTicks = my_dynamicTicks, tooltip=my_tooltip) %>%
          style(hoverlabel = list(bgcolor = "white")) %>%
          plotlyConfig()
-
+  
   })
   return(g)
+
 })
 
 output$tabComp_runs_xAxeChoice <- renderUI({
@@ -99,11 +103,20 @@ output$tabComp_runs_groupByChoice <- renderUI({
   input$ab_owr_refreshRuns
   isolate({
     req(nrow(runInfoStatReader())>0)
-    req( !is.null(input$tc_r_xaxe))
+ 
+   # on startup input$tc_r_axe is build after this ui, so with just a basic req this ui element is not displayed on startup
+   if(input$ab_owr_refreshRuns == 0 && is.null(input$tc_r_xaxe)) { 
+   	xCol = "#Reads"
+   } else {
+	req( !is.null(input$tc_r_xaxe))
+	xCol = input$tc_r_xaxe
+   }
 
-    if(input$tc_r_xaxe %in% c("RunID","Ended")) {
+
+
+    if(xCol %in% c("RunID","Ended")) {
       return()
-    } else if(input$tc_r_xaxe == "Date") {
+    } else if(xCol == "Date") {
       bins = c("Year","Month","None")
       return(selectInput(
         "tc_groupBy",
@@ -113,7 +126,7 @@ output$tabComp_runs_groupByChoice <- renderUI({
       ))
     } else {
       slider.min=0
-      maxVal = max(runInfoStatReader()[,get(input$tc_r_xaxe)])
+      maxVal = max(runInfoStatReader()[,get(xCol)])
       lowestPowOf10 = 10**as.integer(log10(maxVal))
       slider.step = 0.01*lowestPowOf10
       slider.max = lowestPowOf10 + slider.step * ceiling( (maxVal - lowestPowOf10) / slider.step )

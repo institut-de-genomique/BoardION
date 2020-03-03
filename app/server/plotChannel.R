@@ -53,9 +53,14 @@ output$channelCumul_plot <- renderPlotly({
 	input$refreshTabRun
 	input$channelCumul_refresh
 	isolate({
-		req(input$channelStatCumul_col != "")
 		req(nrow(channelStatReader())>0)
-		ggplotly(plotChannelStat(formatData(channelStatReader()), input$channelStatCumul_col), tooltip = "text") %>% plotlyConfig()
+		if(input$refreshTabRun == 0 && input$channelCumul_refresh == 0 ){
+			colAxe = "#Reads"
+		} else {
+			req( !is.null(input$channelStatCumul_col) )
+			colAxe = input$channelStatCumul_col
+		}
+		ggplotly(plotChannelStat(formatData(channelStatReader()), colAxe), tooltip = "text") %>% plotlyConfig()
 	})
 })
 

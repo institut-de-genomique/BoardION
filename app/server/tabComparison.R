@@ -96,8 +96,13 @@ output$tabComp_cumul_plot <- renderPlotly({
 	input$ab_owr_refreshCompTime
 	isolate({
 		req(nrow(compCumul())>0)
-		req( !is.null(input$tc_yc))
-		g <- ggplotly( plotCompTime(compCumul, input$tc_yc), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
+		if( input$ab_owr_refreshComp == 0 && input$ab_owr_refreshCompTime == 0 ){
+			yAxe = "Yield(b)"
+		} else {
+			req( !is.null(input$tc_yc))
+			yAxe = input$tc_yc
+		}
+		g <- ggplotly( plotCompTime(compCumul, yAxe), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
 	})
 	return(g)
 })
@@ -107,8 +112,13 @@ output$tabComp_current_plot <- renderPlotly({
 	input$ab_owr_refreshCompTime
 	isolate({
 		req(nrow(compCurrent())>0)
-		req( !is.null(input$tc_yc))
-		g <- ggplotly( plotCompTime(compCurrent, input$tc_yc), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
+		if( input$ab_owr_refreshComp == 0 && input$ab_owr_refreshCompTime == 0 ){
+			yAxe = "Yield(b)"
+		} else {
+			req( !is.null(input$tc_yc))
+			yAxe = input$tc_yc
+		}
+		g <- ggplotly( plotCompTime(compCurrent, yAxe), dynamicTicks=T, tooltip = "text" )  %>% plotlyConfig()
 	})
 	return(g)
 })
@@ -163,8 +173,13 @@ observe({
 
 	runSelected = isolate(input$tabComp_runList)
 
+	# if there isn't a run selected, select run in progress or the most recent one
 	if (runSelected == "" || is.null(runSelected)) {
-		runSelected = runInfoStatReader()[StartTime==max(na.omit(StartTime)),RunID] # if there isn't a run selected, take the most recent one
+		if(length(ripList()) > 0) {
+			runSelected = ripList()
+		} else {
+			runSelected = runInfoStatReader()[StartTime==max(na.omit(StartTime)),RunID]
+		}
 	}
 
 	listRun <- list( "In progress" = c("", ripList()), # add empty slot else the list doesn't display correctly
@@ -175,7 +190,7 @@ observe({
 		session,
 		"tabComp_runList",
 		choice = listRun,
-		selected = isolate(input$compRunList),
+		selected = runSelected,
 		server=TRUE
 	)
 })
@@ -184,7 +199,7 @@ observe({
 output$tabComp_cumul_yAxeChoice <- renderUI({
 	req(nrow(compCumul()) > 0)
 	columnNames = vectRemove( colnames(compCumul()), c("RunID","Duration(mn)") )
-  
+
 	selectInput(
 		"tc_yc",
 		"Y axe",

@@ -80,17 +80,19 @@ runTitle <- textOutput("runTitle")
 
 tabRun <- tabItem("run",
 	fluidPage(
-		column( width=12,
-			h1(runTitle),
-			fluidRow(
-				column( width=2, runListSelect),
-				makeRefreshButton("refreshTabRun")
-			),
-			DT::dataTableOutput("runTable"),
-			tabBox( 
-				width=12,
-				tabRunGlobal,
-				tabRunCurrent
+		fluidRow(
+	  		column( width=12,
+				h1(runTitle),
+				fluidRow(
+					column( width=2, runListSelect),
+					makeRefreshButton("refreshTabRun")
+				),
+				DT::dataTableOutput("runTable"),
+				tabBox( 
+					width=12,
+					tabRunGlobal,
+					tabRunCurrent
+				)
 			)
 		)
 	)

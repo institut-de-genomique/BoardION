@@ -197,10 +197,19 @@ output$tabRunGlobal_plotAxeChoice <- renderPlotly({
 	input$tabRunGlobal_refreshPlotChoice
 	isolate({
 		req(nrow(globalStatReader())>0)
-		req( !is.null(input$trg_xc))
-		req( !is.null(input$trg_yc))
-		req( !is.null(input$trg_cc))
-		ggplotly(plotMulti(globalStatReader(), input$trg_xc, input$trg_yc, input$trg_cc), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
+		if(input$refreshTabRun == 0 && input$tabRunGlobal_refreshPlotChoice == 0) {
+			xAxe = "Duration(mn)"
+			yAxe = "Speed(b/mn)"
+			colAxe = "Quality"
+		} else {
+			req( !is.null(input$trg_xc))
+			req( !is.null(input$trg_yc))
+			req( !is.null(input$trg_cc))
+			xAxe = input$trg_xc
+			yAxe = input$trg_yc
+			colAxe = input$trg_cc
+		}
+		ggplotly(plotMulti(globalStatReader(), xAxe, yAxe, colAxe), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
 	})
 })
 
@@ -217,10 +226,19 @@ output$tabRunCurrent_plotAxeChoice <- renderPlotly({
 	input$tabRunCurrent_refreshPlotChoice
 	isolate({
 		req(nrow(currentStatReader())>0)
-		req( !is.null(input$trc_xc))
-		req( !is.null(input$trc_yc))
-		req( !is.null(input$trc_cc))
-		ggplotly(plotMulti(currentStatReader(), input$trc_xc, input$trc_yc, input$trc_cc), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
+		if(input$refreshTabRun == 0 && input$tabRunCurrent_refreshPlotChoice == 0) {
+			xAxe = "Duration(mn)"
+			yAxe = "Speed(b/mn)"
+			colAxe = "Quality"
+		} else {
+			req( !is.null(input$trc_xc))
+			req( !is.null(input$trc_yc))
+			req( !is.null(input$trc_cc))
+			xAxe = input$trc_xc
+			yAxe = input$trc_yc
+			colAxe = input$trc_cc
+		}
+		ggplotly(plotMulti(currentStatReader(), xAxe, yAxe, colAxe), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
 	})
 })
 
@@ -229,9 +247,17 @@ output$qot_plot <- renderPlotly({
 	input$qot_refresh
 	isolate({
 		req(nrow(qualityOverTimeReader())>0)
-		req(input$qot_color)
-		req(!is.null(input$qot_logCheckBox))
-		ggplotly(plotQualityOverTime(qualityOverTimeReader(), input$qot_color, input$qot_logCheckBox), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
+
+		if(input$refreshTabRun == 0 && input$qot_refresh == 0 ){
+			colAxe = "#Reads"
+			doLog = 0
+		} else {
+			req(input$qot_color)
+			req(!is.null(input$qot_logCheckBox))
+			colAxe = input$qot_color
+			doLog = input$qot_logCheckBox
+		}
+		ggplotly(plotQualityOverTime(qualityOverTimeReader(), colAxe, doLog), dynamicTicks = TRUE, tooltip = "text") %>% plotlyConfig()
 	})
 })
 
@@ -377,8 +403,7 @@ observe({
 	
 	if(is.null(runInfoStatReader()) || nrow(runInfoStatReader())==0) {
 		listRun <- character(0)
-		runSelected = NULL
-		
+		runSelected = NULL	
 	} else {
 		listRun = list(
 			"In progress" = c("",ripList()), # add an empty slot, else the list doen not display correctly
