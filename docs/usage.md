@@ -74,7 +74,7 @@ Where:
 ## Web app
 
 ```
-Rscript boardion_app.R [<IP>] <PORT> <INPUT_FOLDER>
+Rscript BoardION/app/boardion_app.R [<IP>] <PORT> <INPUT_FOLDER>
 
 <IP>           Ip of the host. By default the script try to get it with 'hostname -i'. 
 <PORT>         Port to listen

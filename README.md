@@ -11,5 +11,4 @@ A demo of BoardION is available [here](www.genoscope.cns.fr/boardion/demo).
 
 [Usage](docs/usage.md)
 
-
-
+[Interface description](docs/ui.md)
