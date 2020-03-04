@@ -1,6 +1,17 @@
 # Installation
 
-A docker image containing both the preprocessing program and the web application is available at [dockerhub](https://registry.hub.docker.com/u/rdbioseq/BoardION/).
+BoardION use the sequencing summary file produced by the basecalling to get metrics on each reads. Since this file can be quite large (>10GB), the web application would be slow if it loaded and analyzed it directly. BoardION is therefore divided into two programs :
+- a preprocessing program in C++
+- the web application in R
+
+## Docker
+
+A docker image containing both the preprocessing program and the web application is available on docker hub:
+
+```
+docker pull rdbioseq/boardion
+```
+
 See this [page](usage.md#docker) for the usage.
 
 ## Prerequisites

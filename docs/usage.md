@@ -2,7 +2,11 @@
 
 ## Docker
 
-The docker image containing the preprocessing program and the web app is available [here](https://registry.hub.docker.com/u/rdbioseq/BoardION/).
+The docker image containing the preprocessing program and the web app is available on docker hub:
+
+```
+docker pull rdbioseq/boardion
+```
 
 This image need to have access to 2 folders, the first one contains the input datas (sequencing summary file and final summary) and the second one is intially empty and will contain the output of the preprocessing program.
 
@@ -13,11 +17,12 @@ docker run -it -p 80:80 -v input/folder/:/usr/local/src/data:z -v stat/folder/:/
 Here are the options you can set for the docker entrypoint:
 
 ```
-Usage: ./docker_entrypoint.sh [-h] [-d <DURATION>] [-f <FREQUENCY>] [-p <PORT>]
+Usage: ./docker_entrypoint.sh [-h] [-d <DURATION>] [-f <FREQUENCY>] [-p <PORT>] [-R <REGEX>]
 
 -d <INT> duration of a step in secondes ( 600 secondes == 10 minutes == 400 values per graph for run of 4000 minutes) [600]
 -f <INT> frequency of the cron runnig the preprocessing in minute (every <INT> minutes), it's the refresh rate of the data in the app [5]
 -p <INT> port to listen [80]
+-R <STR> Regular expression to get uniq run id from sequencing summary file name. If not present, run id is the concatenation of the flowcell id and the first 8 characters of the run_id field of the sequencing summary.
 ```
 
 > The docker start by generating the stat files and then the web app start. This first step can take some time if there is a lot of data in the input folder that were not previously processed (thus the availibilty of the web app can be delayed)
