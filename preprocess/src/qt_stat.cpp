@@ -105,7 +105,7 @@ void QTStat::add(const float& quality, const float& time, const uint_fast32_t& c
 		this->resizeStat1stDim(quality_idx+1);
 	}
 
-	if(time_idx>this->data[quality_idx].size())
+	if(time_idx+1>this->data[quality_idx].size())
 	{
 		this->resizeStat2ndDim(quality_idx,time_idx+1);
 	}
