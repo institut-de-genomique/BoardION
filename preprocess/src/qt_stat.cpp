@@ -100,12 +100,12 @@ void QTStat::add(const float& quality, const float& time, const uint_fast32_t& c
 	unsigned int quality_idx = binValue(quality, 10.0); // bin quality every 0.1
 	unsigned int time_idx = binValue(time, 0.1); // bin time every 10 min
 
-	if(quality_idx>this->data.size())
+	if(quality_idx >= this->data.size())
 	{
 		this->resizeStat1stDim(quality_idx+1);
 	}
 
-	if(time_idx+1>this->data[quality_idx].size())
+	if(time_idx >= this->data[quality_idx].size())
 	{
 		this->resizeStat2ndDim(quality_idx,time_idx+1);
 	}
