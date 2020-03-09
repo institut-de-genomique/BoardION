@@ -43,8 +43,8 @@ makeRunQotPlot <- function(name, w=12) {
 		width=w,
 		fluidRow(
 			column(width=2, uiOutput( paste(name, "_colorMetricChoice", sep="" ))),
-			column(width=2, checkboxInput( paste( name, "_logCheckBox", sep=""), "Log10_color", value = FALSE )),
-			column(width=2, makeRefreshButton(paste(name,"_refresh",sep="")))
+			column(width=1, checkboxInput( paste( name, "_logCheckBox", sep=""), "Log10_color", value = FALSE ), style="margin-top: 25px;"),
+			column(width=1, makeRefreshButton(paste(name,"_refresh",sep="")))
 		),
 		plotlyOutput(paste(name,"_plot",sep=""), height = "500px") %>% withSpinner(type=6)
 	)

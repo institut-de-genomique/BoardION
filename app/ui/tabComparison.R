@@ -50,7 +50,7 @@ b_compPlotLength <- box(
 	width = 12,
 	fluidRow(
 		column(width=2, selectInput("tabComp_length_dropdown","Y axe",c("Number of read","Number of base"))),
-		width=2, checkboxInput( "tabComp_length_checkBox", "Percent", value=FALSE),
+		column(width=1, checkboxInput( "tabComp_length_checkBox", "Percent", value=FALSE), style="margin-top: 25px;"),
 		makeRefreshButton("ab_owr_refreshCompLength")
 	),
 	plotlyOutput( "tabComp_length_plot", height="300px")
