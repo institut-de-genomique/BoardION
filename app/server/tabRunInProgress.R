@@ -1,82 +1,21 @@
 # ______________________________________________________________________________________
-# FILES READERS
+# Functions
 
-coerceToFunc <- function(x) {
-  force(x);
-  if (is.function(x))
-    return(x)
-  else
-    return(function() x)
+getCumulativeName <- function(runId) {
+	return(paste(runId,"_globalstat.txt",sep=""))
 }
 
-reactiveMultiFileReader <- function(intervalMillis, session, filesPath, readFunc, ...) {
-	filesPath <- coerceToFunc(filesPath)
-	extraArgs <- list(...)
-
-	reactivePoll(
-		intervalMillis, session,
-		function() {
-			value = ""
-			for(path in filesPath()) {
-				info <- file.info(path)
-				paste(value,path, info$mtime, info$size)
-			}
-			return(value)
-		},
-		function() {
-			dt = data.table()
-			for(path in filesPath()) {
-				dt <- rbind(dt,do.call(readFunc, c(path, extraArgs)))
-			}
-			return(dt)
-		}
-	)
-}
-
-runIPGlobalStatReader <- reactive ({
-
-	runsIP = runInfoStatReader()[Ended=="NO",RunID]
-
-		reactiveMultiFileReader(
-		intervalMillis  = fileRefresh,
-		session	        = NULL,
-		filesPath       = paste(reportingFolder,"/",runsIP,"_globalstat.txt",sep=""),
-		readFunc        = readCsvSpace
-	)()
-
-})
-
-# ______________________________________________________________________________________
-# PLOT
-
-plotRunIPYield <- function(x) {
-	ggplot( x,
-		aes(x=get("Duration(mn)"),
-		    y=get("Yield(b)"),
-		    fill=Quality,
-		    text=paste('Duration (mn): ',get("Duration(mn)"),
-			       '<br>Yield(b) : ',format(get("Yield(b)"), big.mark=' '),
-			       '<br>Quality: ',Quality,
-			       sep=""
-			      )
-		)
-	) +
-	geom_col( position="dodge", width = 10) +
-
-	theme_bw() +
-	scale_fill_gradientn(colors=myColorGrandient,values=myColorStep ,limits=c(0,15)) +
-	xlab("Duration(mn)") +
-	ylab("Yield (b)") +
-	labs(fill='Quality')
+getCurrentName <- function(runId) {
+	return(paste(runId,"_currentstat.txt",sep=""))
 }
 
 
 # ______________________________________________________________________________________
-# RENDER
+# Reactive 
 
-rip_lengthFileReader = reactiveValues() # list reactiveFileReader length file of each run displayed in the tab
-rip_yieldFileReader  = reactiveValues() # list reactiveFileReader yield file of each run displayed in the tab
-rip_runDisplayed     = reactiveValues() # trace for which run an ui output exist
+rip_lengthFileReader  = reactiveValues() # list reactiveFileReader length file of each run displayed in the tab
+rip_yieldFileReader   = reactiveValues() # list reactiveFileReader yield file of each run displayed in the tab
+rip_runDisplayed      = reactiveValues() # trace for which run an ui output exist
 
 # table listing all in progress runs
 output$runIPTable = DT::renderDataTable({
@@ -97,22 +36,9 @@ output$runIPTable = DT::renderDataTable({
 	return(data)
 })
 
+# ______________________________________________________________________________________
+# RENDER
 
-observeEvent( input$rip_cumulative_toggle, {
-	ext = ""
-	if(input$rip_cumulative_toggle) {
-		for(flowcell in names(rip_runDisplayed)) {
-			ext = "_globalstat.txt"
-		}
-	} else {
-		for(flowcell in names(rip_runDisplayed)) {
-			ext = "_currentstat.txt"
-		}
-	}
-	for(flowcell in names(rip_runDisplayed)) {
-		rip_yieldFileReader[[ flowcell ]] <- reactiveFileReader(intervalMillis = fileRefresh, session = NULL, filePath = paste(reportingFolder, "/", flowcell, ext, sep=""), readFunc = readCsvSpace)
-	}
-})
 
 # Dynamically create box for each run in progress (RIP). If the number of RIP change, the ui update accordingly
 observeEvent( ripList(), {
@@ -122,25 +48,27 @@ observeEvent( ripList(), {
 	
 			local({
 				fc <- flowcell
-
 				rip_runDisplayed[[fc]] = TRUE
+
+				yieldReaderName = getCurrentName(fc)
+				if( input$rip_cumulative_toggle) {
+					yieldReaderName = getCumulativeName(fc)
+				}
 	
 				# id of the ui element
-				plotYieldID   <- paste("rip_yield_", fc, sep="")
-				plotLengthID  <- paste("rip_length_", fc, sep="")
-				valBoxN50     <- paste("rip_length_sup30_",fc,sep="")
-				valBoxSpeed   <- paste("rip_length_sup50_",fc,sep="")
-				valBoxQuality <- paste("rip_length_sup100_",fc,sep="")
-				buttonGotoRun <- paste("rip_button_",fc,sep="") 
-				containerID   <- paste("rip_container_",fc,sep="")
+				plotYieldID   <- paste("rip_yield_",       fc, sep="")
+				plotLengthID  <- paste("rip_length_",      fc, sep="")
+				valBoxN50     <- paste("rip_box_n50_",     fc, sep="")
+				valBoxSpeed   <- paste("rip_box_speed_",   fc, sep="")
+				valBoxQuality <- paste("rip_box_quality_", fc, sep="")
+				valBoxNbReads <- paste("rip_box_nbReads_", fc, sep="")
+				valBoxYield   <- paste("rip_box_yield_",   fc, sep="")
+				buttonGotoRun <- paste("rip_button_",      fc, sep="")
+				containerID   <- paste("rip_container_",   fc, sep="")
 
 				# create dynamic reader and save it in reactiveValues
-				if(input$rip_cumulative_toggle) {
-					rip_yieldFileReader[[ fc ]]  <- reactiveFileReader(intervalMillis = fileRefresh, session = NULL, filePath = paste( reportingFolder, "/", fc, "_globalstat.txt", sep=""), readFunc = readCsvSpace)
-				} else {
-					rip_yieldFileReader[[ fc ]]  <- reactiveFileReader(intervalMillis = fileRefresh, session = NULL, filePath = paste( reportingFolder, "/", fc, "_currentstat.txt", sep=""), readFunc = readCsvSpace)
-				}
-
+				rip_yieldFileReader[[ getCumulativeName(fc) ]] <- reactiveFileReader(intervalMillis=fileRefresh, session=NULL, filePath=paste( reportingFolder,"/", getCumulativeName(fc), sep=""), readFunc=readCsvSpace)
+				rip_yieldFileReader[[ getCurrentName(fc) ]]    <- reactiveFileReader(intervalMillis=fileRefresh, session=NULL, filePath=paste( reportingFolder,"/", getCurrentName(fc),    sep=""), readFunc=readCsvSpace)
 				rip_lengthFileReader[[ fc ]] <- reactiveFileReader(intervalMillis = fileRefresh, session = NULL, filePath = paste( reportingFolder, "/", fc, "_readsLength.txt", sep=""), readFunc = readCsvSpace)
 
 				# create a box per run
@@ -149,11 +77,19 @@ observeEvent( ripList(), {
 					selector = '#placeholder',
 					where = "afterEnd",
 					ui = tags$div( id = containerID,
-						box( title = title_b, width = NULL, status = "primary", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE,
+						box( title = title_b, width = NULL, status = "primary", solidHeader = TRUE, collapsible = TRUE, collapsed = FALSE,
 							fluidRow(
-								column(5, plotlyOutput(plotYieldID, height = 300) %>% withSpinner(type=6) ),
-								column(5, plotlyOutput(plotLengthID, height = 300) %>% withSpinner(type=6) ),
-								column(2, valueBoxOutput(valBoxN50, width=NULL), valueBoxOutput(valBoxSpeed, width=NULL), valueBoxOutput(valBoxQuality, width=NULL))
+								column(5, plotlyOutput(plotYieldID, height = 320) %>% withSpinner(type=6) ),
+								column(5, plotlyOutput(plotLengthID, height = 320) %>% withSpinner(type=6) ),
+								column(2, 
+									tags$div(id="rip_box", # div to apply style to the following content (see ui.R)
+									 	valueBoxOutput(valBoxYield,   width=NULL),
+										valueBoxOutput(valBoxN50,     width=NULL),
+										valueBoxOutput(valBoxSpeed,   width=NULL),
+										valueBoxOutput(valBoxQuality, width=NULL),
+										valueBoxOutput(valBoxNbReads, width=NULL)
+									)
+								)
 							)
 						)
 					)
@@ -161,7 +97,7 @@ observeEvent( ripList(), {
 
 				# bar plot of the yield
 				output[[plotYieldID]] <- renderPlotly({
-					p <- ggplotly( plotRunIPYield(rip_yieldFileReader[[ fc ]]()), dynamicTicks = TRUE, tooltip = "text")
+					p <- ggplotly( plotRunNbBase(rip_yieldFileReader[[ yieldReaderName ]]()), dynamicTicks = TRUE, tooltip = "text")
 					p %>% style(marker.colorbar.len = 1, traces = length(p$x$data))  %>% # make the height of the colorbar (legend on the side of the plot) equal to the height of the plot
 					plotlyConfig()
 				})
@@ -177,21 +113,32 @@ observeEvent( ripList(), {
 
 				# boxs with number some run stats
 				output[[valBoxN50]] <- renderValueBox({
-					valueBox( runInfoStatReader()[RunID==fc, "N50(b)"], "N50")
+					valueBox( formatNumber( runInfoStatReader()[RunID==fc, "N50(b)"]) , "N50")
 				})
 
-				output[[valBoxSpeed]] <- renderValueBox({
-					valueBox( runInfoStatReader()[RunID==fc, "Speed(b/mn)"], "Speed (b/mn)")
+				# for speed we display the value of the last non cumulative step
+				output[[valBoxSpeed]] <- renderValueBox({ 
+					valueBox( formatNumber( tail( rip_yieldFileReader[[ getCurrentName(fc) ]](), 1)$`Speed(b/mn)` ) , "Speed (b/mn)")
 				})
 
 				output[[valBoxQuality]] <- renderValueBox({
-					valueBox( runInfoStatReader()[RunID==fc, "Quality"], "Quality")
+					valueBox( formatNumber( runInfoStatReader()[RunID==fc, "Quality"]) , "Quality")
+				})
+
+				output[[valBoxYield]] <- renderValueBox({
+					valueBox( formatNumber( runInfoStatReader()[RunID==fc, "Yield(b)"] / 1e9) , "Yield(Gb)")
+				})
+
+				output[[valBoxNbReads]] <- renderValueBox({
+					valueBox( formatNumber( runInfoStatReader()[RunID==fc, "#Reads"]) , "Reads")
 				})
 
 				# Make the button in the box header display the corresponding run in tabRun
 				observeEvent(input[[buttonGotoRun]], {
-					updateSelectInput( session, "runList", selected = fc )
-					updateTabsetPanel( session, "menu", selected = "run" )
+					if(input[[buttonGotoRun]] > 0) {
+						updateSelectInput( session, "runList", selected = fc )
+						updateTabsetPanel( session, "menu", selected = "run" )
+					}
 					
 				})
 			})
