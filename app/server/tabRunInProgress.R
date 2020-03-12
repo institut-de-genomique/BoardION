@@ -50,11 +50,6 @@ observeEvent( ripList(), {
 				fc <- flowcell
 				rip_runDisplayed[[fc]] = TRUE
 
-				yieldReaderName = getCurrentName(fc)
-				if( input$rip_cumulative_toggle) {
-					yieldReaderName = getCumulativeName(fc)
-				}
-	
 				# id of the ui element
 				plotYieldID   <- paste("rip_yield_",       fc, sep="")
 				plotLengthID  <- paste("rip_length_",      fc, sep="")
@@ -97,6 +92,11 @@ observeEvent( ripList(), {
 
 				# bar plot of the yield
 				output[[plotYieldID]] <- renderPlotly({
+					yieldReaderName = getCurrentName(fc)
+					if( input$rip_cumulative_toggle) {
+						yieldReaderName = getCumulativeName(fc)
+					}
+
 					p <- ggplotly( plotRunNbBase(rip_yieldFileReader[[ yieldReaderName ]]()), dynamicTicks = TRUE, tooltip = "text")
 					p %>% style(marker.colorbar.len = 1, traces = length(p$x$data))  %>% # make the height of the colorbar (legend on the side of the plot) equal to the height of the plot
 					plotlyConfig()
