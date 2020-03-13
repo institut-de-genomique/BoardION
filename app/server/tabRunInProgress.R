@@ -1,21 +1,13 @@
 # ______________________________________________________________________________________
-# Functions
-
-getCumulativeName <- function(runId) {
-	return(paste(runId,"_globalstat.txt",sep=""))
-}
-
-getCurrentName <- function(runId) {
-	return(paste(runId,"_currentstat.txt",sep=""))
-}
-
-
-# ______________________________________________________________________________________
 # Reactive 
 
-rip_lengthFileReader  = reactiveValues() # list reactiveFileReader length file of each run displayed in the tab
-rip_yieldFileReader   = reactiveValues() # list reactiveFileReader yield file of each run displayed in the tab
-rip_runDisplayed      = reactiveValues() # trace for which run an ui output exist
+# File reader of runs displayed in the read in progress tab
+rip_lengthFileReader     = reactiveValues() # list of reactiveFileReader on read length file
+rip_cumulativeFileReader = reactiveValues() # list of reactiveFileReader on cumulative stat file
+rip_currentFileReader    = reactiveValues() # list of reactiveFileReader on not cumulative stat file
+
+# trace for which run an ui output exist
+rip_runDisplayed = reactiveValues()
 
 # table listing all in progress runs
 output$runIPTable = DT::renderDataTable({
@@ -61,10 +53,10 @@ observeEvent( ripList(), {
 				buttonGotoRun <- paste("rip_button_",      fc, sep="")
 				containerID   <- paste("rip_container_",   fc, sep="")
 
-				# create dynamic reader and save it in reactiveValues
-				rip_yieldFileReader[[ getCumulativeName(fc) ]] <- reactiveFileReader(intervalMillis=fileRefresh, session=NULL, filePath=paste( reportingFolder,"/", getCumulativeName(fc), sep=""), readFunc=readCsvSpace)
-				rip_yieldFileReader[[ getCurrentName(fc) ]]    <- reactiveFileReader(intervalMillis=fileRefresh, session=NULL, filePath=paste( reportingFolder,"/", getCurrentName(fc),    sep=""), readFunc=readCsvSpace)
-				rip_lengthFileReader[[ fc ]] <- reactiveFileReader(intervalMillis = fileRefresh, session = NULL, filePath = paste( reportingFolder, "/", fc, "_readsLength.txt", sep=""), readFunc = readCsvSpace)
+				# create dynamic file reader and save it in reactiveValues
+				rip_cumulativeFileReader[[ fc ]] <- makeReactiveFileReader(getRunCumulativeFilePath(fc))
+				rip_currentFileReader[[ fc ]]    <- makeReactiveFileReader(getRunCurrentFilePath(fc))
+				rip_lengthFileReader[[ fc ]]     <- makeReactiveFileReader(getRunLengthFilePath(fc))
 
 				# create a box per run
 				title_b = p( actionButton(buttonGotoRun , fc) )
@@ -92,12 +84,14 @@ observeEvent( ripList(), {
 
 				# bar plot of the yield
 				output[[plotYieldID]] <- renderPlotly({
-					yieldReaderName = getCurrentName(fc)
+					data = data.table()
 					if( input$rip_cumulative_toggle) {
-						yieldReaderName = getCumulativeName(fc)
+						data = rip_cumulativeFileReader[[ fc ]]()
+					} else {
+						data = rip_currentFileReader[[ fc ]]()
 					}
 
-					p <- ggplotly( plotRunNbBase(rip_yieldFileReader[[ yieldReaderName ]]()), dynamicTicks = TRUE, tooltip = "text")
+					p <- ggplotly( plotRunNbBase( data ), dynamicTicks = TRUE, tooltip = "text")
 					p %>% style(marker.colorbar.len = 1, traces = length(p$x$data))  %>% # make the height of the colorbar (legend on the side of the plot) equal to the height of the plot
 					plotlyConfig()
 				})
@@ -111,14 +105,14 @@ observeEvent( ripList(), {
 					plotlyConfig()
 				})
 
-				# boxs with number some run stats
+				# boxs contening some run stat
 				output[[valBoxN50]] <- renderValueBox({
 					valueBox( formatNumber( runInfoStatReader()[RunID==fc, "N50(b)"]) , "N50")
 				})
 
 				# for speed we display the value of the last non cumulative step
 				output[[valBoxSpeed]] <- renderValueBox({ 
-					valueBox( formatNumber( tail( rip_yieldFileReader[[ getCurrentName(fc) ]](), 1)$`Speed(b/mn)` ) , "Speed (b/mn)")
+					valueBox( formatNumber( tail( rip_currentFileReader[[ fc ]](), 1)$`Speed(b/mn)` ) , "Speed (b/mn)")
 				})
 
 				output[[valBoxQuality]] <- renderValueBox({
@@ -155,9 +149,10 @@ observeEvent( ripList(), {
 			removeUI(selector)
 
 			# remove a value from a reactiveValue ( reactiveVal$foo <- NULL don't work ) see https://github.com/rstudio/shiny/issues/2439
-			.subset2(rip_runDisplayed,     "impl")$.values$remove(flowcell)
-			.subset2(rip_yieldFileReader,  "impl")$.values$remove(flowcell)
-			.subset2(rip_lengthFileReader, "impl")$.values$remove(flowcell)
+			.subset2(rip_runDisplayed,         "impl")$.values$remove(flowcell)
+			.subset2(rip_cumulativeFileReader, "impl")$.values$remove(flowcell)
+			.subset2(rip_currentFileReader,    "impl")$.values$remove(flowcell)
+			.subset2(rip_lengthFileReader,     "impl")$.values$remove(flowcell)
 		}
 	}
 })

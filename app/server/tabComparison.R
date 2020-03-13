@@ -1,5 +1,5 @@
 compCumul <- reactive ({
-	files <- paste(reportingFolder,"/", input$tabComp_runList, "_globalstat.txt", sep="")
+	files <- getRunCumulativeFilePath(input$tabComp_runList)
 	data<-data.frame()
 
 	for(f in files) {
@@ -9,7 +9,7 @@ compCumul <- reactive ({
 })
 
 compCurrent <- reactive ({
-	files <- paste(reportingFolder,"/", input$tabComp_runList, "_currentstat.txt", sep="")
+	files <- getRunCurrentFilePath(input$tabComp_runList)
 	data<-data.frame()
 
 	for(f in files) {
@@ -23,7 +23,7 @@ compReadLength <- reactive ({
 
 	for(f in input$tabComp_runList) {
 
-		file <- paste(reportingFolder,"/", f, "_readsLength.txt", sep="")
+		file <- getRunLengthFilePath(f)
 		data = readCsvSpace(file)
 		data[,RunID:=f]
 	

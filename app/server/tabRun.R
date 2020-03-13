@@ -2,54 +2,28 @@
 # FILENAMES
 
 getGlobalStatFileName <- function() {
-	return(paste(reportingFolder,"/",input$runList,"_globalstat.txt",sep=""))
+	return(getRunCumulativeFilePath(input$runList))
 }
 
 getCurrentStatFileName <- function() {
-	return(paste(reportingFolder,"/",input$runList,"_currentstat.txt",sep=""))
+	return(getRunCurrentFilePath(input$runList))
 }
 
 getQotFileName <- function() {
-	return(paste(reportingFolder,"/",input$runList,"_quality_stat.txt",sep=""))
+	return(getRunQotFilePath(input$runList))
 }
 
 getLengthFileName <- function() {
-	return(paste(reportingFolder,"/",input$runList,"_readsLength.txt",sep=""))
+	return(getRunLengthFilePath(input$runList))
 }
 
 # ______________________________________________________________________________________
 # FILES READERS
 
-
-globalStatReader <- reactiveFileReader(
-	intervalMillis = fileRefresh,
-	session	       = NULL,
-	filePath       = getGlobalStatFileName,
-	readFunc       = readCsvSpace
-)
-
-currentStatReader <- reactiveFileReader(
-	intervalMillis = fileRefresh,
-	session	       = NULL,
-	filePath       = getCurrentStatFileName,
-	readFunc       = readCsvSpace
-)
-
-qualityOverTimeReader <- reactiveFileReader(
-	intervalMillis = fileRefresh,
-	session	       = NULL,
-	filePath       = getQotFileName,
-	readFunc       = readCsvSpace
-#	dt[,LengthCUMUL:=Length*`#Reads`]
-#	return(dt)
-)
-
-readLengthReader <- reactiveFileReader(
-	intervalMillis = fileRefresh,
-	session	       = NULL,
-	filePath       = getLengthFileName,
-	readFunc       = readCsvSpace
-)
+globalStatReader      <- makeReactiveFileReader(getGlobalStatFileName)
+currentStatReader     <- makeReactiveFileReader(getCurrentStatFileName)
+qualityOverTimeReader <- makeReactiveFileReader(getQotFileName)        # dt[,LengthCUMUL:=Length*`#Reads`] # return(dt)
+readLengthReader      <- makeReactiveFileReader(getLengthFileName)
 
 # ______________________________________________________________________________________
 # PLOTS

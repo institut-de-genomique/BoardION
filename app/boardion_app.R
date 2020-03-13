@@ -42,6 +42,14 @@ myColorStep      = c(0,        0.3,      0.7,      1        )
 # refresh time of file reader in miliseconds
 fileRefresh = 1000
 
+# files name
+runInfo_name    = "run_infostat.txt"
+cumulative_name = "_globalstat.txt"
+current_name    = "_currentstat.txt"
+length_name     = "_readsLength.txt"
+qot_name        = "_quality_stat.txt"
+channel_name    = "_channel_stat.txt"
+
 # ______________________________________________________________________________________
 # FUNCTIONS
 
@@ -80,6 +88,41 @@ plotlyConfig <- function(p) {
 		)
 	)
 }
+
+
+getRunInfoStatFilePath <- function() {
+	return( paste(reportingFolder,"/",runInfo_name, sep=""))
+}
+
+# get the files name of run with run ID
+getRunCumulativeFilePath <- function(runId) {
+	return( paste(reportingFolder,"/",runId,cumulative_name, sep=""))
+}
+getRunCurrentFilePath <- function(runId) {
+	return( paste(reportingFolder,"/",runId,current_name, sep=""))
+}
+getRunLengthFilePath <- function(runId) {
+	return( paste(reportingFolder,"/",runId,length_name, sep=""))
+}
+getRunQotFilePath <- function(runId) {
+	return( paste(reportingFolder,"/",runId,qot_name, sep=""))
+}
+getRunChannelFilePath <- function(runId) {
+	return( paste(reportingFolder,"/",runId,channel_name, sep=""))
+}
+
+# generete a reactive file reader from a file path
+makeReactiveFileReader <- function(filePath, fun=readCsvSpace) {
+	return(
+		reactiveFileReader(
+			intervalMillis = fileRefresh,
+			session        = NULL,
+			filePath       = filePath,
+			readFunc       = fun 
+		)
+	)
+}
+
 
 # ______________________________________________________________________________________
 # FRONTEND

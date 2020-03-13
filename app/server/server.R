@@ -1,13 +1,4 @@
 # ______________________________________________________________________________________
-# CONFIGURATIONS
-
-#reportingFolder = "/data/boardION_stats/"
-#reportingFolder = "/test_data"
-#reportingFolder = "/home/abruno/dashboard_stats"
-#reportingFolder = "/env/ig/atelier/nanopore/cns/PCT0004/promethion_dashboard/report_stats/"
-#reportingFolder = "/env/cns/home/abruno/promethion/PCT0004/reporting/"
-
-# ______________________________________________________________________________________
 # MAIN SERVER
 
 server <- function(input, output, session) {
@@ -24,12 +15,7 @@ server <- function(input, output, session) {
     }
   }
   
-  runInfoStatReader<-reactiveFileReader(
-    intervalMillis = 6000,
-    session        = NULL,
-    filePath       = paste(reportingFolder,"/run_infostat.txt",sep=""),
-    readFunc       = readRunInfoStat
-  )
+  runInfoStatReader <- makeReactiveFileReader( getRunInfoStatFilePath(), readRunInfoStat)
   
   # ______________________________________________________________________________________
   # RUN LISTS

@@ -3,12 +3,7 @@
 
 
 channelStatReader <- reactive ({
-	dt = reactiveFileReader(
-		intervalMillis = fileRefresh,
-		session	       = NULL,
-		filePath       = paste(reportingFolder,"/",input$runList,"_channel_stat.txt",sep=""),
-		readFunc       = readCsvSpace
-	)()
+	dt = makeReactiveFileReader( getRunChannelFilePath(input$runList) )()
 	
 	dt[,CumulativeLength:=Length*`#Reads`]
 	return(dt)
