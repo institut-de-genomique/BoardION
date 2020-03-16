@@ -31,7 +31,6 @@ output$runIPTable = DT::renderDataTable({
 # ______________________________________________________________________________________
 # RENDER
 
-
 # Dynamically create box for each run in progress (RIP). If the number of RIP change, the ui update accordingly
 observeEvent( ripList(), {
 	for(flowcell in ripList()) {
@@ -59,7 +58,9 @@ observeEvent( ripList(), {
 				rip_lengthFileReader[[ fc ]]     <- makeReactiveFileReader(getRunLengthFilePath(fc))
 
 				# create a box per run
-				title_b = p( actionButton(buttonGotoRun , fc) )
+				duration = runInfoStatReader()[RunID==fc, "Duration(mn)"]
+				duration = paste( as.integer(duration / 1440),"j ", as.integer(duration %% 1440 / 60),"h ", as.integer(duration %% 1440 %% 60),"min", sep="")
+				title_b = p( actionButton(buttonGotoRun , fc),  duration)
 				insertUI(
 					selector = '#placeholder',
 					where = "afterEnd",

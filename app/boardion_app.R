@@ -132,4 +132,6 @@ source("ui/ui.R")
 # BACKEND
 source("server/server.R", local=TRUE)
 
+# ______________________________________________________________________________________
+# LAUNCH APP
 shinyApp(ui, server,options=list(port=port,host=ip))
