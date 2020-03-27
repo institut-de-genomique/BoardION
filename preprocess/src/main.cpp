@@ -18,6 +18,8 @@
 #include "channel_stat.hpp"
 #include "reads_length_map_stat.hpp"
 #include "time_step_stat.hpp"
+#include "read.hpp"
+#include "sequencing_summary.hpp"
 
 namespace fs = std::filesystem;
 
@@ -86,19 +88,6 @@ fs::path getRunInfoTmpPath(fs::path run_info_path)
 	return(run_info_path);
 }
 
-bool isSequencingSummary ( fs::path &file )
-{
-	std::string name = file.filename().string();
-	if( file.extension().compare(".txt") == 0 )
-	{
-		if( name.find("sequencing_summary") != std::string::npos )
-		{
-			return(true);
-		}
-	}
-	return(false);
-}
-
 bool getRunIdFromFileName ( fs::path &file, std::regex &r, std::string &id )
 {
 	std::string name = file.filename().string();
@@ -124,65 +113,18 @@ bool getRunIdFromFileName ( fs::path &file, std::regex &r, std::string &id )
 	}
 }
 
-bool getRunIdFromSequencingSummary ( fs::path &file, std::string &id )
-{
-	std::string line, fastq_name, fast5_name, read_id, run_id;
-	std::stringstream s;
-	std::regex r(R"((PA\w\d{5,})_)");
-	std::smatch m;
-
-	std::ifstream f (file);
-	
-	std::getline(f, line);
-	std::getline(f, line);
-
-	s << line;
-	s >> fastq_name >> fast5_name >> read_id >> run_id;
-
-	if( std::regex_search( fastq_name, m, r) )
-	{
-		std::stringstream s2;
-		s2 << m.str(1) << "_" << run_id.substr(0,8);
-		id = s2.str();
-		return(true);
-	}
-	else
-	{
-		std::cerr << "regex to get flowcell id doesn't match on first field of second line in file " << file << std::endl;
-		return(false);
-	}
-}
-
-void parseLine(std::string &line, std::ifstream &sequencing_summary,unsigned int &channel, float &start_time, float &duration, float &template_start, float &template_duration, unsigned long int &read_length, float &mean_q_score, float &read_speed)
-{
-//	std::cout << line << std::endl;
-	std::vector<std::string> line_field = splitString(line, '\t');
-
-	channel           = std::stoi(line_field[4]);
-	start_time        = std::stof(line_field[6]);
-	duration          = std::stof(line_field[7]);
-	template_start    = std::stof(line_field[10]);
-	template_duration = std::stof(line_field[12]);
-	read_length       = std::stoul(line_field[13]);
-	mean_q_score      = std::stof(line_field[14]);
-	read_speed        = read_length / duration;
-}
-
 float stepStartTime(int const step_duration, int const step_number)
 {
 	return(step_duration * step_number / 60);
 }
 
-void completStepReadLength(std::ifstream &sequencing_summary, ReadsLengthMap &step_reads_length, const std::streampos  last_read_position)
+void completStepReadLength(SequencingSummary &sequencing_summary, ReadsLengthMap &step_reads_length, const std::streampos  last_read_position)
 {
-	std::string line;
-	unsigned long int read_length = 0;
-
-	while(sequencing_summary.tellg() < last_read_position && getline(sequencing_summary, line))
+	Read r;
+	unsigned int l;
+	while(sequencing_summary.ifs.tellg() < last_read_position && sequencing_summary.readLine(r, l))
 	{
-		std::vector<std::string> line_field = splitString(line, '\t');
-		read_length = std::stoul(line_field[13]);
-		step_reads_length.add(read_length);
+		step_reads_length.add(r);
 	}
 }
 
@@ -205,6 +147,15 @@ const std::string getRunStart(float timeSinceStart)
 
     oss << 1900 + gmT->tm_year << '-' << std::setfill('0') << std::setw(2) << gmT->tm_mon + 1 << '-' << std::setfill('0') << std::setw(2) << gmT->tm_mday << 'T' << std::setfill('0') << std::setw(2) << gmT->tm_hour << ':' << std::setfill('0') << std::setw(2) << gmT->tm_min << ':' << std::setfill('0') << std::setw(2) << gmT->tm_sec << "+00:00";
     return oss.str();
+}
+
+void printStep(std::ofstream& out, std::string& runId, unsigned int stepStartTime, TimeStepStat& stat, unsigned int& n50, float& median)
+{	
+	out << runId << ' ' <<
+		std::fixed << std::setprecision(0) << stepStartTime << ' ' <<
+		stat << ' ' <<
+		n50 << ' ' <<
+		std::fixed << std::setprecision(0) << median << '\n';
 }
 
 int main(int argc, char** argv)
@@ -314,7 +265,7 @@ int main(int argc, char** argv)
 		for(auto& it: fs::directory_iterator(input_directory))
 		{
 			fs::path file_path = it.path();
-			if( isSequencingSummary(file_path) )
+			if( SequencingSummary::isSequencingSummary(file_path) )
 			{
 				summary_files.emplace_back(file_path);
 			}
@@ -338,7 +289,7 @@ int main(int argc, char** argv)
 			}
 			else
 			{
-				res = getRunIdFromSequencingSummary( input_file, processed_runId );
+				res = SequencingSummary::getShortRunId( input_file, processed_runId );
 			}
 
 			if( !res )
@@ -410,7 +361,7 @@ int main(int argc, char** argv)
 				std::ofstream current_stat;
 
 				// open input file
-				std::ifstream sequencing_summary(input_file);
+				SequencingSummary sequencing_summary(input_file);
 
 				// if part of the input is already processed during a previous execution, load the result of the previous execution
 				if( run.lastReadPosition > 0 )
@@ -427,19 +378,15 @@ int main(int argc, char** argv)
 					current_stat = std::ofstream(current_stat_path, std::ofstream::app);
 
 					// need to read the whole last step for step_n50 and step_median
-					if( run.lastStepStartPosition == 0 )
+					sequencing_summary.ifs.seekg(run.lastStepStartPosition);
+					
+					if( sequencing_summary.ifs.tellg() == 0)
 					{
-						// read header line
 						std::string header;
-						std::getline(sequencing_summary, header);
+						getline(sequencing_summary.ifs, header);
 					}
-					else
-					{
-						sequencing_summary.seekg(run.lastStepStartPosition);
-					}
-
+					
 					completStepReadLength(sequencing_summary, step_reads_length, run.lastReadPosition);
-
 					cumulative_step_stat.subtract(current_step_stat); // when a step end current_step_stat is added to cumulative_step_stat, but part of current_step_stat was already added in the precedent execution.
 					reads_length.subtract(step_reads_length);
 				}
@@ -449,55 +396,38 @@ int main(int argc, char** argv)
 					current_stat = std::ofstream(current_stat_path);
 
 					// Files headers
-					global_stat << "RunID Duration(mn) Yield(b) #Reads Speed(b/mn) Quality AverageSize(b) N50 MedianSize(b)\n";
-					current_stat << "RunID Duration(mn) Yield(b) #Reads Speed(b/mn) Quality AverageSize(b) N50 MedianSize(b)\n";
-
-					// read header line
-					std::string header;
-					std::getline(sequencing_summary, header);
+					global_stat << "RunID Duration(mn) Yield(b) #Reads Speed(b/mn) Quality Average(b) N50 Median(b)\n";
+					current_stat << "RunID Duration(mn) Yield(b) #Reads Speed(b/mn) Quality Average(b) N50 Median(b)\n";
 				}
 
 				//
 				std::streampos stepStartPosition = run.lastStepStartPosition;
+				Read r;
+				unsigned int l;
 
-				// value searched in the input file
-				unsigned int channel;
-				unsigned long int read_length;
-				float start_time, mean_q_score, duration, template_start, template_duration, read_speed;
-
-				if(sequencing_summary.tellg() != -1)
+				if(sequencing_summary.ifs.tellg() != -1)
 				{
-					std::string line;
-					while(std::getline(sequencing_summary, line))
+					while(sequencing_summary.readLine(r,l))
 					{
-						parseLine(line, sequencing_summary, channel, start_time, duration, template_start, template_duration, read_length, mean_q_score, read_speed);
-
-						max_time = std::max(max_time, start_time+duration);
+						max_time = std::max(max_time, r.start_time+r.duration);
 						if (max_time > step_duration * step_number)
 						{
 							cumulative_step_stat.add(current_step_stat);
 							reads_length.add(step_reads_length);
 
-							int n50 = reads_length.compute_n50(cumulative_step_stat.nb_bases);
-							int step_n50 = step_reads_length.compute_n50(current_step_stat.nb_bases);
+							unsigned int n50 = reads_length.compute_n50(cumulative_step_stat.nb_bases);
+							unsigned int step_n50 = step_reads_length.compute_n50(current_step_stat.nb_bases);
 							float median = reads_length.median_by_hash(cumulative_step_stat.nb_reads);
 							float step_median = step_reads_length.median_by_hash(current_step_stat.nb_reads);
 
 							while(max_time > step_duration * step_number) // if true the last line read is in a new step
 							{
-								global_stat  << processed_runId << ' ' <<
-										std::fixed << std::setprecision(0) << stepStartTime(step_duration, step_number) << ' ' <<
-										cumulative_step_stat << ' ' <<
-										n50 << ' ' <<
-										std::fixed << std::setprecision(0) << median << '\n';
-
-								current_stat << processed_runId << ' ' <<
-										std::fixed << std::setprecision(0) << stepStartTime(step_duration, step_number) << ' ' <<
-										current_step_stat << ' ' <<
-										step_n50 << ' ' <<
-										std::fixed << std::setprecision(0) << step_median << '\n';
+								printStep( global_stat, processed_runId, stepStartTime(step_duration, step_number), cumulative_step_stat, n50, median);
+								printStep( current_stat, processed_runId, stepStartTime(step_duration, step_number), current_step_stat, step_n50, step_median);
 
 								++step_number;
+
+								// clear uncumulative step stat if there is empty step
 								current_step_stat.clear();
 								step_n50 = 0;
 								step_median = 0;
@@ -505,42 +435,33 @@ int main(int argc, char** argv)
 							current_step_stat.clear();
 							step_reads_length.clear();
 
-							stepStartPosition = sequencing_summary.tellg() - std::streamoff(line.length()) - std::streamoff(1); // get the start of the new step, (actual position minus the length of the last line read, -1 for the '\n' )
+							stepStartPosition = sequencing_summary.ifs.tellg() - std::streamoff(l) - std::streamoff(1); // get the start of the new step, (actual position minus the length of the last line read, -1 for the '\n' )
 						}
 
-						channels_stat.add(channel, start_time, duration, template_start, template_duration, read_length, mean_q_score, read_speed);
-						qt_stat.add(mean_q_score, template_start, read_length, start_time, duration, template_duration, read_speed);
-						current_step_stat.add(read_length, read_speed, mean_q_score);
-						step_reads_length.add(read_length);
+						channels_stat.add(r);
+						qt_stat.add(r);
+						current_step_stat.add(r);
+						step_reads_length.add(r);
 					}
 				}
 
 				// set start time the run based on the current date and duration of the run (only if the run isn't finished)
 				if ( run.ended.compare("NO") == 0 )
 				{
-					run.start_time = getRunStart(start_time + duration);
+					run.start_time = getRunStart(r.start_time + r.duration);
 				}
 
 				cumulative_step_stat.add(current_step_stat);
 				reads_length.add(step_reads_length);
 
-				int n50 = reads_length.compute_n50(cumulative_step_stat.nb_bases);
-				int step_n50 = step_reads_length.compute_n50(current_step_stat.nb_bases);
+				unsigned int n50 = reads_length.compute_n50(cumulative_step_stat.nb_bases);
+				unsigned int step_n50 = step_reads_length.compute_n50(current_step_stat.nb_bases);
 				float median = reads_length.median_by_hash(cumulative_step_stat.nb_reads);
 				float step_median = step_reads_length.median_by_hash(current_step_stat.nb_reads);
 
 
-				global_stat << processed_runId << ' ' <<
-						std::fixed << std::setprecision(0) << stepStartTime(step_duration, step_number) << ' ' <<
-						cumulative_step_stat << ' ' <<
-						n50 << ' ' <<
-						std::fixed << std::setprecision(0) << median << '\n';
-
-				current_stat << processed_runId << ' ' <<
-						std::fixed << std::setprecision(0) << stepStartTime(step_duration, step_number) << ' ' <<
-						current_step_stat << ' ' <<
-						step_n50 << ' ' <<
-						std::setprecision(0) << step_median << '\n';
+				printStep( global_stat, processed_runId, stepStartTime(step_duration, step_number), cumulative_step_stat, n50, median);
+				printStep( current_stat, processed_runId, stepStartTime(step_duration, step_number), current_step_stat, step_n50, step_median);
 
 				reads_length.write(reads_length_path);
 				channels_stat.write(channel_stat_path);

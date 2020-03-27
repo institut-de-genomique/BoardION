@@ -70,7 +70,7 @@ TEST_CASE("Join string")
 		auto s = joinString(v," ");
 		CHECK(s == "Hello world !");
 	}
-	SUBCASE("Join on ' foo '") // Doesn't char * with more than 1 character
+	SUBCASE("Join on ' foo '")
 	{
 		auto s = joinString(v," foo ");
 		CHECK(s != "Hello foo world foo !");
@@ -84,9 +84,9 @@ TEST_CASE("binValue")
 	CHECK( binValue(12345, 0.01) == 123 );
 	CHECK( binValue(100,0.01)    == 1 );
 	CHECK( binValue(101,0.01)    == 1 );
-	CHECK( binValue(39,0.02)       == 1 );
-	CHECK( binValue(121,0.02)      == 2 );
-	CHECK( binValue(61,0.02)       == 1 );
+	CHECK( binValue(39,0.02)     == 1 );
+	CHECK( binValue(121,0.02)    == 2 );
+	CHECK( binValue(61,0.02)     == 1 );
 }
 
 #endif

@@ -46,6 +46,18 @@ void ChannelsStat::add(const uint_fast16_t& channel, const float& start_time, co
 	this->data[channel].speed += speed;
 }
 
+void ChannelsStat::add(Read r)
+{
+	this->data[r.channel].nb_reads++;
+	this->data[r.channel].start_time        += r.start_time;
+	this->data[r.channel].duration          += r.duration;
+	this->data[r.channel].template_start    += r.template_start;
+	this->data[r.channel].template_duration += r.template_duration;
+	this->data[r.channel].reads_length      += r.length;
+	this->data[r.channel].mean_q_score      += r.mean_q_score;
+	this->data[r.channel].speed             += r.speed;
+}
+
 void ChannelsStat::add(const uint_fast16_t& channel, const uint_fast32_t& nb_reads, const float& start_time, const float& duration, const float& template_start, const float& template_duration, const uint_fast32_t& reads_length, const float& mean_q_score, const float& speed)
 {
 	this->data[channel].nb_reads += nb_reads;

@@ -9,6 +9,8 @@
 
 #include <doctest/doctest.h>
 
+#include "read.hpp"
+
 namespace fs = std::filesystem;
 
 /*
@@ -22,6 +24,7 @@ private:
 public:
     void add(const ReadsLengthMap& reads_length_map);
     void add(const uint_fast32_t& length);
+    void add(Read &r);
     void add(const uint_fast32_t& length, const uint_fast32_t& count);
     void subtract(const ReadsLengthMap& reads_length_map);
     uint_fast32_t compute_n50(const uint_fast64_t& nb_bases);

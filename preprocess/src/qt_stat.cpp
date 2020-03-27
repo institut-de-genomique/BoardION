@@ -20,6 +20,16 @@ void Bin::add(const uint_fast32_t& read_length, const float& start_time, const f
 	this->speed += speed;
 }
 
+void Bin::add(Read r)
+{
+	this->count++;
+	this->read_length += r.length;
+	this->start_time += r.start_time;
+	this->duration += r.duration;
+	this->template_duration += r.template_duration;
+	this->speed += r.speed;
+}
+
 void Bin::add(const uint_fast32_t& count, const uint_fast32_t& read_length, const float& start_time, const float& duration, const float& template_duration, const float& speed)
 {
 	this->count += count;
@@ -79,37 +89,22 @@ void QTStat::resizeStat2ndDim(const uint_fast16_t& quality_idx, const uint_fast1
 
 void QTStat::add(const float& quality, const float& time, const uint_fast32_t& read_length, const float& start_time, const float& duration, const float& template_duration, const float& speed)
 {
-	unsigned int quality_idx = binValue(quality,10.0); // bin quality every 0.1
-	unsigned int time_idx = binValue(time/60.0,0.1); // convert starttime from seconde to minute and bin it every 10 min
-	
-	if(quality_idx>this->data.size())
-	{
-		this->resizeStat1stDim(quality_idx+1);
-	}
-	
-	if(time_idx>this->data[quality_idx].size())
-	{
-		this->resizeStat2ndDim(quality_idx,time_idx+1);
-	}
-	
+	unsigned int quality_idx, time_idx;
+	this->bin(quality, time, quality_idx, time_idx);
 	this->data[quality_idx][time_idx].add(read_length,start_time,duration,template_duration, speed);
+}
+
+void QTStat::add(Read r)
+{
+	unsigned int quality_idx, time_idx;
+	this->bin(r.mean_q_score, r.template_start, quality_idx, time_idx);
+	this->data[quality_idx][time_idx].add(r);
 }
 
 void QTStat::add(const float& quality, const float& time, const uint_fast32_t& count, const uint_fast32_t& reads_length, const float& start_time, const float& duration, const float& template_duration, const float& speed)
 {
-	unsigned int quality_idx = binValue(quality, 10.0); // bin quality every 0.1
-	unsigned int time_idx = binValue(time, 0.1); // bin time every 10 min
-
-	if(quality_idx >= this->data.size())
-	{
-		this->resizeStat1stDim(quality_idx+1);
-	}
-
-	if(time_idx >= this->data[quality_idx].size())
-	{
-		this->resizeStat2ndDim(quality_idx,time_idx+1);
-	}
-
+	unsigned int quality_idx, time_idx;
+	this->bin(quality, time, quality_idx, time_idx);
 	this->data[quality_idx][time_idx].add(count, reads_length,start_time,duration,template_duration, speed);
 }
 
@@ -133,6 +128,22 @@ void QTStat::write(const std::filesystem::path& output_path)
 			++time_idx;
 		}
 		++quality_idx;
+	}
+}
+
+void QTStat::bin(const float& quality, const float& time, unsigned int& quality_idx, unsigned int& time_idx)
+{
+	quality_idx = binValue(quality,10.0); // bin quality every 0.1
+	time_idx = binValue(time/60.0,0.1); // convert starttime from seconde to minute and bin it every 10 min
+
+	if(quality_idx >= this->data.size())
+	{
+		this->resizeStat1stDim(quality_idx+1);
+	}
+
+	if(time_idx >= this->data[quality_idx].size())
+	{
+		this->resizeStat2ndDim(quality_idx,time_idx+1);
 	}
 }
 

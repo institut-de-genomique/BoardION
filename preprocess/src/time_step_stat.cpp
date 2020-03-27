@@ -10,10 +10,18 @@ TimeStepStat::TimeStepStat()
 
 void TimeStepStat::add(const uint_fast64_t& nb_bases, const float& speed, const float& quality)
 {
-	this->nb_reads ++;
+	this->nb_reads++;
 	this->nb_bases += nb_bases;
 	this->speed += speed;
 	this->quality += quality;
+}
+
+void TimeStepStat::add(Read r)
+{
+	this->nb_reads++;
+	this->nb_bases += r.length;
+	this->speed += r.speed;
+	this->quality += r.mean_q_score;
 }
 
 void TimeStepStat::add(const TimeStepStat& time_step_stat)

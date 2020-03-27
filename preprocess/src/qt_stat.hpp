@@ -9,6 +9,7 @@
 
 #include <doctest/doctest.h>
 
+#include "read.hpp"
 #include "myUtil.hpp"
 
 /*
@@ -26,6 +27,7 @@ public:
 	
 	Bin();
 	void add(const uint_fast32_t& read_length, const float& start_time, const float& duration, const float& template_duration, const float& speed);
+	void add(Read r);
 	void add(const uint_fast32_t& count, const uint_fast32_t& read_length, const float& start_time, const float& duration, const float& template_duration, const float& speed);
 	friend std::ostream& operator<<(std::ostream& os, const Bin& b);
 };
@@ -38,7 +40,9 @@ class QTStat
 public:
 	QTStat();
 	void add(const float& quality, const float& time, const uint_fast32_t& read_length, const float& start_time, const float& duration, const float& template_duration, const float& speed);
+	void add(Read r);
 	void add(const float& quality_idx, const float& time_idx, const uint_fast32_t& count, const uint_fast32_t& reads_length, const float& start_time, const float& duration, const float& template_duration, const float& speed);
+	void bin(const float& quality, const float& time, unsigned int& quality_idx, unsigned int& time_idx);
 	void resizeStat1stDim(const uint_fast16_t& max_quality_idx);
 	void resizeStat2ndDim(const uint_fast16_t& quality_idx, const uint_fast16_t& max_time_idx);
 	void write(const std::filesystem::path& output_path); // write this->stat

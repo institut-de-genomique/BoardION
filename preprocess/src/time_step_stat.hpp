@@ -10,6 +10,7 @@
 
 #include <doctest/doctest.h>
 
+#include "read.hpp"
 #include "myUtil.hpp"
 
 class TimeStepStat
@@ -22,6 +23,7 @@ public:
 
 	TimeStepStat();
 	void add(const uint_fast64_t& nb_bases, const float& speed, const float& quality);
+	void add(Read r);
 	void add(const TimeStepStat& time_step_stat);
 	void subtract(const TimeStepStat& time_step_stat);
 	void clear();

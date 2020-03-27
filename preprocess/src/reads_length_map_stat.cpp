@@ -4,18 +4,23 @@ void ReadsLengthMap::add(const ReadsLengthMap& reads_length_map)
 {
 	for(auto iter : reads_length_map.data)
 	{
-        this->data[iter.first] += iter.second;
+		this->data[iter.first] += iter.second;
 	}
 }
 
 void ReadsLengthMap::add(const uint_fast32_t& length)
 {
-    this->data[length]++;
+	this->data[length]++;
+}
+
+void ReadsLengthMap::add(Read &r)
+{
+	this->data[r.length]++;
 }
 
 void ReadsLengthMap::add(const uint_fast32_t& length, const uint_fast32_t& count)
 {
-    this->data[length]+=count;
+	this->data[length]+=count;
 }
 
 void ReadsLengthMap::subtract(const ReadsLengthMap& reads_length_map)

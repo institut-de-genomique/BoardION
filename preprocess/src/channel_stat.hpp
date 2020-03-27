@@ -9,6 +9,7 @@
 #include <string>
 
 #include <doctest/doctest.h>
+#include "read.hpp"
 
 /*
  * Metric on reads sequenced by  a channel
@@ -46,6 +47,7 @@ class ChannelsStat
 public:
 	ChannelsStat();
 	void add(const uint_fast16_t& channel, const float& start_time, const float& duration, const float& template_start, const float& template_duration, const uint_fast32_t& reads_length, const float& mean_q_score, const float& speed);
+	void add(Read r);
 	void add(const uint_fast16_t& channel, const uint_fast32_t& nb_reads, const float& start_time, const float& duration, const float& template_start, const float& template_duration, const uint_fast32_t& reads_length, const float& mean_q_score, const float& speed);
 	void write(const std::filesystem::path& output_path);
 	void read(const std::filesystem::path& input_path);
