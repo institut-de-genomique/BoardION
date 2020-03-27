@@ -24,6 +24,8 @@ set( SRCS
      src/reads_length_map_stat.cpp
      src/runInfoStat.cpp
      src/time_step_stat.cpp
+     src/sequencing_summary.cpp
+     src/read.cpp
    )
 
 set( HEADERS
@@ -33,6 +35,8 @@ set( HEADERS
      src/reads_length_map_stat.hpp
      src/runInfoStat.hpp
      src/time_step_stat.hpp
+     src/sequencing_summary.hpp
+     src/read.hpp
    )
 
 set( TCLAP
