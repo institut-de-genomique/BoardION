@@ -84,7 +84,7 @@ tabRun <- tabItem("run",
 	  		column( width=12,
 				h1(runTitle),
 				fluidRow(
-					column( width=2, runListSelect),
+					column( width=3, runListSelect),
 					makeRefreshButton("refreshTabRun")
 				),
 				DT::dataTableOutput("runTable"),

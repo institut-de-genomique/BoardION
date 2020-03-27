@@ -35,7 +35,7 @@ plotRunNbBase <- function(x) {
 		    y=get("Yield(b)"),
 		    fill=Quality,
 		    text=paste('Duration (mn): ',formatNumber(get("Duration(mn)")),
-			       '<br>Yield(b) : ',formatNumber(get("Yield(b)")),
+			       '<br>Yield (b) : ',formatNumber(get("Yield(b)")),
 			       '<br>Quality: ',formatNumber(Quality),
 			       sep=""
 			      )
@@ -46,7 +46,7 @@ plotRunNbBase <- function(x) {
 	
 	theme_bw() +
 	scale_fill_gradientn(colors=myColorGrandient,values=myColorStep ,limits=c(0,15)) +
-	xlab("Duration(mn)") +
+	xlab("Duration (mn)") +
 	ylab("Yield (bases)") +
 	labs(fill='Quality')
 }
@@ -69,7 +69,7 @@ plotRunNbRead <- function(x) {
 	
 	theme_bw() +
 	scale_fill_gradientn(colors=myColorGrandient,values=myColorStep ,limits=c(0,15)) +
-	xlab("Duration(mn)") +
+	xlab("Duration (mn)") +
 	ylab("Number of reads") +
 	labs(fill='Quality')
 }
@@ -93,7 +93,7 @@ plotQualityOverTime <- function(x, colorColumn, doLogColor) {
 	scale_x_continuous(expand=c(0,0)) +
 	scale_y_continuous(expand=c(0,0)) +
 
-	xlab("Duration(mn)") +
+	xlab("Duration (mn)") +
 	ylab("Quality") +
 	labs(fill=colorColumn)
 
@@ -117,7 +117,7 @@ plotReadLength <- function(x) {
 	theme_bw() +
 	scale_x_continuous(expand=c(0,0)) +
 	
-	xlab("Read length(b)") +
+	xlab("Read length (b)") +
 	ylab("Read count")
 }
 
@@ -270,7 +270,7 @@ output$qot_colorMetricChoice <- renderUI({
 	selectInput(
 		"qot_color",
 		"Select metric",
-		vectRemove( colnames(qualityOverTimeReader()), c("Quality","StartTime","TemplateStart")),
+		vectRemove( colnames(qualityOverTimeReader()), c("Quality","StartTime","TemplateStart","TemplateDuration")),
 		selected=selected
 	)
 })

@@ -21,7 +21,7 @@ b_compPlotGlobal <- box (
 		column(width=2, uiOutput("tabComp_runs_groupByChoice")),
 		column(width=2, makeRefreshButton("ab_owr_refreshRuns"))
 	),
-	plotlyOutput("tabComp_runs_plot", height = "350px")
+	plotlyOutput("tabComp_runs_plot", height = "350px") %>% withSpinner(type=6)
 )
 
 b_owr_time <- box(
@@ -36,9 +36,9 @@ b_owr_time <- box(
 		makeRefreshButton("ab_owr_refreshCompTime")
 	),
 	h4("Cumulative"),
-	plotlyOutput("tabComp_cumul_plot", height = "300px"),
+	plotlyOutput("tabComp_cumul_plot", height = "300px") %>% withSpinner(type=6),
 	h4("Non cumulative"),
-	plotlyOutput("tabComp_current_plot", height = "300px")
+	plotlyOutput("tabComp_current_plot", height = "300px") %>% withSpinner(type=6)
 )
 
 b_compPlotLength <- box(
@@ -53,7 +53,7 @@ b_compPlotLength <- box(
 		column(width=1, checkboxInput( "tabComp_length_checkBox", "Percent", value=FALSE), style="margin-top: 25px;"),
 		makeRefreshButton("ab_owr_refreshCompLength")
 	),
-	plotlyOutput( "tabComp_length_plot", height="300px")
+	plotlyOutput( "tabComp_length_plot", height="300px") %>% withSpinner(type=6)
 )
 
 b_owr_comparison <- box(
@@ -64,7 +64,7 @@ b_owr_comparison <- box(
 	width = 12,
 	fluidRow(
 		column(width=11, ms_comp),
-		makeRefreshButton("ab_owr_refreshComp")
+		makeRefreshButton("ab_owr_refreshComp") 
 	),
 	b_owr_time,
 	b_compPlotLength

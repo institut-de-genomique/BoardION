@@ -63,7 +63,7 @@ output$channelCumul_plot <- renderPlotly({
 output$channelCumul_colorMetricChoice <- renderUI({
         req(nrow(channelStatReader())>0)
 	cn <- colnames(channelStatReader())
-        cn = cn[ !cn %in% c("channel") ]
+        cn = vectRemove(cn, c("Channel", "TemplateDuration"))
 	selectInput(
 		"channelStatCumul_col",
 		"Select metric",

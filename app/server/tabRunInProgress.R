@@ -59,8 +59,8 @@ observeEvent( ripList(), {
 
 				# create a box per run
 				duration = runInfoStatReader()[RunID==fc, "Duration(mn)"]
-				duration = paste( as.integer(duration / 1440),"j ", as.integer(duration %% 1440 / 60),"h ", as.integer(duration %% 1440 %% 60),"min", sep="")
-				title_b = p( actionButton(buttonGotoRun , fc),  duration)
+				duration = paste( as.integer(duration / 1440),"j      ", as.integer(duration %% 1440 / 60),"h ", as.integer(duration %% 1440 %% 60),"min", sep="")
+				title_b = tags$div( actionButton(buttonGotoRun , fc, style="margin-right: 25px;"), duration)
 				insertUI(
 					selector = '#placeholder',
 					where = "afterEnd",
@@ -108,12 +108,12 @@ observeEvent( ripList(), {
 
 				# boxs contening some run stat
 				output[[valBoxN50]] <- renderValueBox({
-					valueBox( formatNumber( runInfoStatReader()[RunID==fc, "N50(b)"]) , "N50")
+					valueBox( paste( formatNumber( runInfoStatReader()[RunID==fc, "N50(b)"] / 1000), "Kb") , "N50")
 				})
 
 				# for speed we display the value of the last non cumulative step
 				output[[valBoxSpeed]] <- renderValueBox({ 
-					valueBox( formatNumber( tail( rip_currentFileReader[[ fc ]](), 1)$`Speed(b/mn)` ) , "Speed (b/mn)")
+					valueBox( paste( formatNumber( tail( rip_currentFileReader[[ fc ]](), 1)$`Speed(b/mn)` ), "b/mn"), "Speed")
 				})
 
 				output[[valBoxQuality]] <- renderValueBox({
@@ -121,11 +121,11 @@ observeEvent( ripList(), {
 				})
 
 				output[[valBoxYield]] <- renderValueBox({
-					valueBox( formatNumber( runInfoStatReader()[RunID==fc, "Yield(b)"] / 1e9) , "Yield(Gb)")
+					valueBox( paste( formatNumber( runInfoStatReader()[RunID==fc, "Yield(b)"] / 1e9), "Gb") , "Yield")
 				})
 
 				output[[valBoxNbReads]] <- renderValueBox({
-					valueBox( formatNumber( runInfoStatReader()[RunID==fc, "#Reads"]) , "Reads")
+					valueBox( paste( formatNumber( runInfoStatReader()[RunID==fc, "#Reads"] / 1000, d=0), "K") , "#Reads")
 				})
 
 				# Make the button in the box header display the corresponding run in tabRun

@@ -54,8 +54,8 @@ channel_name    = "_channel_stat.txt"
 # FUNCTIONS
 
 # format number
-formatNumber <- function(x) {
-	return( format( x, nsmall = 2, digits = 2, scientific = FALSE, big.mark= ' ', drop0trailing = TRUE ))
+formatNumber <- function(x, d=2) {
+	return( format( x, nsmall = d, digits = d, scientific = FALSE, big.mark= ' ', drop0trailing = TRUE ))
 }
 
 # Delete elemtents from vector

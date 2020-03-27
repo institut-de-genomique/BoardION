@@ -54,7 +54,7 @@ plotCompTime <- function(x, y_axe) {
 		)
 	) +
 	geom_line(size=0.5) +
-	xlab("Duration(mn)") +
+	xlab("Duration (mn)") +
 	ylab(y_axe) +
 	theme_bw()
 }
