@@ -10,16 +10,6 @@ Bin::Bin()
 	this->speed = 0;
 }
 
-void Bin::add(const uint_fast32_t& read_length, const float& start_time, const float& duration, const float& template_duration, const float& speed)
-{
-	this->count++;
-	this->read_length += read_length;
-	this->start_time += start_time;
-	this->duration += duration;
-	this->template_duration += template_duration;
-	this->speed += speed;
-}
-
 void Bin::add(Read r)
 {
 	this->count++;
@@ -87,13 +77,6 @@ void QTStat::resizeStat2ndDim(const uint_fast16_t& quality_idx, const uint_fast1
 	}
 }
 
-void QTStat::add(const float& quality, const float& time, const uint_fast32_t& read_length, const float& start_time, const float& duration, const float& template_duration, const float& speed)
-{
-	unsigned int quality_idx, time_idx;
-	this->bin(quality, time, quality_idx, time_idx);
-	this->data[quality_idx][time_idx].add(read_length,start_time,duration,template_duration, speed);
-}
-
 void QTStat::add(Read r)
 {
 	unsigned int quality_idx, time_idx;
@@ -159,7 +142,7 @@ void QTStat::read(const std::filesystem::path& input_path)
 
 	while(input >> quality >> template_start >> nb_reads >> start_time >> duration >> template_duration >> reads_length >> speed)
 	{
-		this->add(quality, template_start, nb_reads, reads_length, start_time, duration, template_duration, speed);
+		this->add(quality, template_start*60, nb_reads, reads_length, start_time, duration, template_duration, speed);
 	}
 	input.close();
 }

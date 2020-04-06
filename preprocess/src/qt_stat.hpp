@@ -26,7 +26,6 @@ public:
 	float speed;
 	
 	Bin();
-	void add(const uint_fast32_t& read_length, const float& start_time, const float& duration, const float& template_duration, const float& speed);
 	void add(Read r);
 	void add(const uint_fast32_t& count, const uint_fast32_t& read_length, const float& start_time, const float& duration, const float& template_duration, const float& speed);
 	friend std::ostream& operator<<(std::ostream& os, const Bin& b);
@@ -39,7 +38,6 @@ class QTStat
 {
 public:
 	QTStat();
-	void add(const float& quality, const float& time, const uint_fast32_t& read_length, const float& start_time, const float& duration, const float& template_duration, const float& speed);
 	void add(Read r);
 	void add(const float& quality_idx, const float& time_idx, const uint_fast32_t& count, const uint_fast32_t& reads_length, const float& start_time, const float& duration, const float& template_duration, const float& speed);
 	void bin(const float& quality, const float& time, unsigned int& quality_idx, unsigned int& time_idx);
@@ -58,6 +56,7 @@ private:
 TEST_CASE("Bin")
 {
 	Bin b;
+	Read r;
 
 	SUBCASE("Constructor")
 	{
@@ -69,22 +68,25 @@ TEST_CASE("Bin")
 		CHECK( b.speed              == 0 );
 	}
 
-	SUBCASE("Add read 1 at time")
+	SUBCASE("Add 2 read one by one")
 	{
-		b.add( 1000, 200.59, 2.36, 2.36, 301.54);
-		b.add( 1000, 200.59, 2.36, 2.36, 301.54);
+		r.set( 10, 200.59, 2.36, 200.59, 2.36, 1000, 8.3 );
+		b.add( r );
+
+		r.set( 10, 200.59, 2.36, 200.59, 2.36, 1000, 8.3 );
+		b.add( r );
 
 		CHECK( b.count                              == 2 );
 		CHECK( b.read_length                        == 2000 );
 		CHECK( doctest::Approx(b.start_time)        == 401.18);
 		CHECK( doctest::Approx(b.duration)          == 4.72 );
 		CHECK( doctest::Approx(b.template_duration) == 4.72 );
-		CHECK( doctest::Approx(b.speed)             == 603.08 );
+		CHECK( doctest::Approx(b.speed)             == 847.45 );
 	}
 
-	SUBCASE("Add 2 reads at time")
+	SUBCASE("Add 2 reads")
 	{
-		b.add( 2, 1000, 200.59, 2.36, 2.36, 301.54);
+		b.add( 2, 1000, 200.59, 2.36, 2.36, 301.54 );
 
 		CHECK( b.count                              == 2 );
 		CHECK( b.read_length                        == 2000 );
@@ -96,18 +98,20 @@ TEST_CASE("Bin")
 
 	SUBCASE("Operator<<")
 	{
-		b.add( 1000, 200.591, 2.361, 2.365, 301.548);
+		r.set( 10, 200.59, 2.36, 200.59, 2.36, 1000, 8.3 );
+		b.add( r );
 
 		std::stringstream ss;
 		ss << b;
 
-		CHECK(ss.str() == "1 200.591 2.361 2.365 1000 301.548");
+		CHECK(ss.str() == "1 200.59 2.36 2.36 1000 423.729");
 	}
 }
 
 TEST_CASE("QTStat")
 {
 	QTStat qt;
+	Read r;
 
 	SUBCASE("resize 1st dim")
 	{
@@ -129,10 +133,17 @@ TEST_CASE("QTStat")
 
 	SUBCASE("add read 1 by 1")
 	{
-		qt.add(7.168042, 1206.977500, 222, 6.732000, 0.837500, 0.592000, 265.075);
-		qt.add(7.172516, 1206.706000, 409, 6.706000, 1.540500, 1.540500, 265.498);
-		qt.add(7.732130, 607.108250, 388, 7.108250, 1.354750, 1.354750, 286.4  );
-		qt.add(7.775364, 607.071000, 395, 6.902500, 1.333500, 1.165000, 296.213);
+		r.set(10, 6.732000, 0.837500, 1206.977500, 0.592000, 222, 7.168042 );
+		qt.add( r );
+
+		r.set( 10, 6.706000, 1.540500, 1206.706000, 1.540500, 409, 7.172516 );
+		qt.add( r );
+
+		r.set( 10, 7.108250, 1.354750, 607.108250, 1.354750, 388, 7.732130 );
+		qt.add( r );
+
+		r.set( 10, 6.902500, 1.333500, 607.071000, 1.165000, 395, 7.775364 );
+		qt.add( r );
 
 		CHECK( qt.at(72,2).count       == 2);
 		CHECK( qt.at(72,2).read_length == 631);
@@ -159,7 +170,7 @@ TEST_CASE("QTStat")
 
 	SUBCASE("add read by group")
 	{
-		qt.add(7.2135, 20.054, 100, 222, 6.732000, 0.837500, 0.592000, 265.075);
+		qt.add(7.2135, 1200.054, 100, 222, 6.732000, 0.837500, 0.592000, 265.075);
 
 		CHECK( qt.at(72,2).count       == 100);
 		CHECK( qt.at(72,2).read_length == 22200);
@@ -171,10 +182,18 @@ TEST_CASE("QTStat")
 
 	SUBCASE("Read write")
 	{
-		qt.add(7.168042, 1206.977500, 222, 6.732000, 0.837500, 0.592000, 265.075);
-		qt.add(7.172516, 1206.706000, 409, 6.706000, 1.540500, 1.540500, 265.498);
-		qt.add(7.732130, 607.108250, 388, 7.108250, 1.354750, 1.354750, 286.4  );
-		qt.add(7.775364, 607.071000, 395, 6.902500, 1.333500, 1.165000, 296.213);
+		r.set(10, 6.732000, 0.837500, 1206.977500, 0.592000, 222, 7.168042 );
+		qt.add( r );
+
+		r.set( 10, 6.706000, 1.540500, 1206.706000, 1.540500, 409, 7.172516 );
+		qt.add( r );
+
+		r.set( 10, 7.108250, 1.354750, 607.108250, 1.354750, 388, 7.732130 );
+		qt.add( r );
+
+		r.set( 10, 6.902500, 1.333500, 607.071000, 1.165000, 395, 7.775364 );
+		qt.add( r );
+
 		qt.write(std::filesystem::path("test_qt.txt"));
 
 		QTStat qt2;

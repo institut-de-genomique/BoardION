@@ -396,8 +396,8 @@ int main(int argc, char** argv)
 					current_stat = std::ofstream(current_stat_path);
 
 					// Files headers
-					global_stat << "RunID Duration(mn) Yield(b) #Reads Speed(b/mn) Quality Average(b) N50 Median(b)\n";
-					current_stat << "RunID Duration(mn) Yield(b) #Reads Speed(b/mn) Quality Average(b) N50 Median(b)\n";
+					global_stat << "RunID Duration(mn) Yield(b) #Reads Speed(b/mn) Quality AverageSize(b) N50 MedianSize(b)\n";
+					current_stat << "RunID Duration(mn) Yield(b) #Reads Speed(b/mn) Quality AverageSize(b) N50 MedianSize(b)\n";
 				}
 
 				//
