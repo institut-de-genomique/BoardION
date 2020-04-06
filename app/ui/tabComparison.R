@@ -16,9 +16,9 @@ b_compPlotGlobal <- box (
 	collapsible = TRUE,
 	width=12,
 	fluidRow(
-		column(width=2, uiOutput("tabComp_runs_xAxeChoice") ),
-		column(width=2, uiOutput("tabComp_runs_yAxeChoice") ),
-		column(width=2, uiOutput("tabComp_runs_groupByChoice")),
+		column(width=3, uiOutput("tabComp_runs_xAxeChoice") ),
+		column(width=3, uiOutput("tabComp_runs_yAxeChoice") ),
+		column(width=3, uiOutput("tabComp_runs_groupByChoice")),
 		column(width=2, makeRefreshButton("ab_owr_refreshRuns"))
 	),
 	plotlyOutput("tabComp_runs_plot", height = "350px") %>% withSpinner(type=6)
@@ -32,12 +32,12 @@ b_owr_time <- box(
 	collapsed = TRUE,
 	width = 12,
 	fluidRow( 
-		column(width=2, uiOutput("tabComp_cumul_yAxeChoice")),
+		column(width=3, uiOutput("tabComp_cumul_yAxeChoice")),
 		makeRefreshButton("ab_owr_refreshCompTime")
 	),
-	h4("Cumulative"),
+	h4("Since run start"),
 	plotlyOutput("tabComp_cumul_plot", height = "300px") %>% withSpinner(type=6),
-	h4("Non cumulative"),
+	h4("Every 10mn"),
 	plotlyOutput("tabComp_current_plot", height = "300px") %>% withSpinner(type=6)
 )
 
@@ -49,7 +49,7 @@ b_compPlotLength <- box(
 	collapsed = TRUE,
 	width = 12,
 	fluidRow(
-		column(width=2, selectInput("tabComp_length_dropdown","Y axe",c("Number of read","Number of base"))),
+		column(width=3, selectInput("tabComp_length_dropdown","Y axe",c("Number of read","Number of base"))),
 		column(width=1, checkboxInput( "tabComp_length_checkBox", "Percent", value=FALSE), style="margin-top: 25px;"),
 		makeRefreshButton("ab_owr_refreshCompLength")
 	),

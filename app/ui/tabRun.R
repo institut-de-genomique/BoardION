@@ -7,9 +7,9 @@ makeRunCustomablePlot <- function(name,w=12) {
 		collapsed = TRUE,
 		width=w,
 		fluidRow(
-			column(width=2, uiOutput(paste(name,"_xAxeChoice",sep="")) ),
-			column(width=2, uiOutput(paste(name,"_yAxeChoice",sep="")) ),
-			column(width=2, uiOutput(paste(name,"_colorChoice",sep=""))),
+			column(width=3, uiOutput(paste(name,"_xAxeChoice",sep="")) ),
+			column(width=3, uiOutput(paste(name,"_yAxeChoice",sep="")) ),
+			column(width=3, uiOutput(paste(name,"_colorChoice",sep=""))),
 			column(width=2, makeRefreshButton(paste(name,"_refreshPlotChoice",sep="")))
 		),
 		plotlyOutput(paste(name,"_plotAxeChoice",sep=""), height = "350px") %>% withSpinner(type=6)
@@ -26,7 +26,7 @@ makeRunChannelPlot <- function(name, w=12) {
 		collapsed = TRUE,
 		width=w,
 		fluidRow(
-			column(width=2, uiOutput(paste(name,"_colorMetricChoice",sep=""))),
+			column(width=3, uiOutput(paste(name,"_colorMetricChoice",sep=""))),
 			column(width=2, makeRefreshButton(paste(name,"_refresh",sep="")))
 		),
 		plotlyOutput(paste(name,"_plot",sep=""), height = "350px") %>% withSpinner(type=6)
@@ -42,8 +42,8 @@ makeRunQotPlot <- function(name, w=12) {
 		collapsed = TRUE,
 		width=w,
 		fluidRow(
-			column(width=2, uiOutput( paste(name, "_colorMetricChoice", sep="" ))),
-			column(width=1, checkboxInput( paste( name, "_logCheckBox", sep=""), "Log10_color", value = FALSE ), style="margin-top: 25px;"),
+			column(width=3, uiOutput( paste(name, "_colorMetricChoice", sep="" ))),
+			column(width=1, checkboxInput( paste( name, "_logCheckBox", sep=""), "Log10", value = FALSE ), style="margin-top: 25px;"),
 			column(width=1, makeRefreshButton(paste(name,"_refresh",sep="")))
 		),
 		plotlyOutput(paste(name,"_plot",sep=""), height = "500px") %>% withSpinner(type=6)
