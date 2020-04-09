@@ -89,6 +89,12 @@ plotlyConfig <- function(p) {
 	)
 }
 
+isPromethionRun <- function( runID ) {
+	if( startsWith( runID, "P" )) {
+		return(TRUE)
+	}
+	return(FALSE)
+}
 
 getRunInfoStatFilePath <- function() {
 	return( paste(reportingFolder,"/",runInfo_name, sep=""))

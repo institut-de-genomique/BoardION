@@ -51,7 +51,7 @@ makeRunQotPlot <- function(name, w=12) {
 }
 tabRunGlobal <- tabPanel(
 
-	"Cumlative stat",
+	"Since run start",
 	fluidRow(
 		makeGraphBox("Yield","globalRunNbBase", width=6),
 		makeGraphBox("Read length", "globalReadLength"),
@@ -61,7 +61,7 @@ tabRunGlobal <- tabPanel(
 )
 
 tabRunCurrent <- tabPanel(
-	"Real time stat",
+	"Every 10 min",
 	fluidRow(
 		makeGraphBox("Yield","currentRunNbBase", width=12),
 		makeRunQotPlot("qot"),

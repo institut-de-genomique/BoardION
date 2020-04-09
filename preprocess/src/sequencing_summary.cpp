@@ -79,7 +79,7 @@ bool SequencingSummary::getShortRunId ( fs::path filePath, std::string &id )
 {
 	std::string line, fastq_name, fast5_name, read_id, run_id;
 	std::stringstream s;
-	std::regex r( R"((PA\w\d{5,})_)" );
+	std::regex r( R"((\w{3}\d{5,})_)" );
 	std::smatch m;
 
 	std::ifstream f ( filePath );
