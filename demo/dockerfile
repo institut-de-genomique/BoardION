@@ -15,8 +15,8 @@ RUN yum update -y && yum install -y \
 RUN yum install -y htop && mkdir /usr/local/src/logs
 
 COPY ./ /usr/local/src/
-COPY ./demo/raw/ /usr/local/raw
-COPY ./demo/data /usr/local/data
+COPY ./raw/ /usr/local/raw
+COPY ./data /usr/local/data
 
 ENTRYPOINT ["/usr/local/src/demo/demo.sh"]
 

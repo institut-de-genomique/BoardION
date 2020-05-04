@@ -70,7 +70,7 @@ output$channelCumul_plot <- renderPlotly({
 output$channelCumul_colorMetricChoice <- renderUI({
         req(nrow(channelStatReader())>0)
 	cn <- colnames(channelStatReader())
-        cn = vectRemove(cn, c("Channel", "TemplateDuration"))
+        cn = vectRemove(cn, c("Channel", "TemplateDuration(s)", "TemplateStart(s)"))
 	selectInput(
 		"channelStatCumul_col",
 		"Select metric",
@@ -133,8 +133,8 @@ formatDataGridion <- function(x) {
 
 	channel = as.integer(as.character(x$Channel))
 
-	x$xcoord = rep( rep(1:8,4),16)
-	x$ycoord = c( rep( 1,8), rep( 2,8), rep( 3,8), rep( 4,8),
+	x$ycoord = rep( rep(1:8,4),16)
+	x$xcoord = c( rep( 1,8), rep( 2,8), rep( 3,8), rep( 4,8),
 		      rep( 1,8), rep( 2,8), rep( 3,8), rep( 4,8),
 		      rep(29,8), rep(30,8), rep(31,8), rep(32,8),
 		      rep(29,8), rep(30,8), rep(31,8), rep(32,8),

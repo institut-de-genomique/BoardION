@@ -51,6 +51,7 @@ observeEvent( ripList(), {
 				valBoxYield   <- paste("rip_box_yield_",   fc, sep="")
 				buttonGotoRun <- paste("rip_button_",      fc, sep="")
 				containerID   <- paste("rip_container_",   fc, sep="")
+				durationID    <- paste("rip_duration_",    fc, sep="")
 
 				# create dynamic file reader and save it in reactiveValues
 				rip_cumulativeFileReader[[ fc ]] <- makeReactiveFileReader(getRunCumulativeFilePath(fc))
@@ -58,9 +59,7 @@ observeEvent( ripList(), {
 				rip_lengthFileReader[[ fc ]]     <- makeReactiveFileReader(getRunLengthFilePath(fc))
 
 				# create a box per run
-				duration = runInfoStatReader()[RunID==fc, "Duration(mn)"]
-				duration = paste( as.integer(duration / 1440),"j      ", as.integer(duration %% 1440 / 60),"h ", as.integer(duration %% 1440 %% 60),"min", sep="")
-				title_b = tags$div( actionButton(buttonGotoRun , fc, style="margin-right: 25px;"), duration)
+				title_b = tags$div( actionButton(buttonGotoRun , fc, style="margin-right: 25px;"), textOutput(durationID, inline=TRUE))
 				insertUI(
 					selector = '#placeholder',
 					where = "afterEnd",
@@ -126,6 +125,12 @@ observeEvent( ripList(), {
 
 				output[[valBoxNbReads]] <- renderValueBox({
 					valueBox( paste( formatNumber( runInfoStatReader()[RunID==fc, "#Reads"] / 1000, d=0), "K") , "#Reads")
+				})
+
+				# set the duration of the run in box header
+				output[[durationID]] <- renderText({
+					duration = runInfoStatReader()[RunID==fc, "Duration(mn)"]
+					return( paste( as.integer(duration / 1440),"d      ", as.integer(duration %% 1440 / 60),"h ", as.integer(duration %% 1440 %% 60),"mn", sep="") )
 				})
 
 				# Make the button in the box header display the corresponding run in tabRun
