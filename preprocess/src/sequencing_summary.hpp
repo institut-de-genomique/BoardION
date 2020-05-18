@@ -21,6 +21,7 @@ public:
 	std::ifstream ifs;
 
 	// positions of the columns in the file
+	unsigned int runIdIdx;
 	unsigned int channelIdx;
 	unsigned int startTimeIdx;
 	unsigned int durationIdx;
@@ -32,8 +33,8 @@ public:
 	SequencingSummary(fs::path &filePath);	
 	void setColumnIndex();
 	bool readLine(Read &r, unsigned int &line_length);
-
-	static bool getShortRunId (fs::path filePath, std::string &id);
+	bool getShortRunId (std::string &id);
+	
 	static bool isSequencingSummary (fs::path &file);
 };
 

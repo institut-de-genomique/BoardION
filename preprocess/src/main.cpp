@@ -276,6 +276,9 @@ int main(int argc, char** argv)
 	{ 
 		std::string processed_runId;
 
+		// open input file
+		SequencingSummary sequencing_summary(input_file);
+
 		if( user_give_runId )
 		{
 			processed_runId = user_runId;
@@ -289,7 +292,7 @@ int main(int argc, char** argv)
 			}
 			else
 			{
-				res = SequencingSummary::getShortRunId( input_file, processed_runId );
+				res = sequencing_summary.getShortRunId( processed_runId );
 			}
 
 			if( !res )

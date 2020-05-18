@@ -16,6 +16,10 @@ void SequencingSummary::setColumnIndex()
 	unsigned int i = 0;
 	for(auto &it : columnName)
 	{
+		if( it.compare("run_id") == 0 )
+		{
+			this->runIdIdx = i;
+		}
 		if( it.compare("channel") == 0 )
 		{
 			this->channelIdx = i;
@@ -75,11 +79,10 @@ bool SequencingSummary::readLine(Read &r, unsigned int &line_length)
 Create a short run id from the second line of a sequencing_summary.txt file.
 The id is {flowcell name}_{first 8 chars from run_id}
 */
-bool SequencingSummary::getShortRunId ( fs::path filePath, std::string &id )
+bool SequencingSummary::getShortRunId ( std::string &id )
 {
-	std::string line, fastq_name, fast5_name, read_id, run_id;
-	std::stringstream s;
-	std::regex r( R"((\w{3}\d{5,})_)" );
+	std::string line, fastq_name;
+	std::regex r( R"((\w{3}\d{5,}_\w{8}))" );
 	std::smatch m;
 
 	std::ifstream f ( filePath );
@@ -87,14 +90,10 @@ bool SequencingSummary::getShortRunId ( fs::path filePath, std::string &id )
 	std::getline ( f, line ); // header
 	std::getline ( f, line );
 
-	s << line;
-	s >> fastq_name >> fast5_name >> read_id >> run_id;
-
-	if( std::regex_search( fastq_name, m, r) )
+	std::vector<std::string> field = splitString( line, '\t');
+	if( std::regex_search( field[0], m, r) )
 	{
-		std::stringstream s2;
-		s2 << m.str(1) << "_" << run_id.substr(0,8);
-		id = s2.str();
+		id = m.str(1);
 		return(true);
 	}
 	else
