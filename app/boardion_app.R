@@ -85,7 +85,8 @@ plotlyConfig <- function(p) {
 			format = "png",
 			width = 1600,
 			height = 900
-		)
+		),
+	       displayModeBar = TRUE
 	)
 }
 
@@ -128,7 +129,6 @@ makeReactiveFileReader <- function(filePath, fun=readCsvSpace) {
 		)
 	)
 }
-
 
 # ______________________________________________________________________________________
 # FRONTEND
