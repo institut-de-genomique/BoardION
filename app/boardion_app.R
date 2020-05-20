@@ -130,6 +130,33 @@ makeReactiveFileReader <- function(filePath, fun=readCsvSpace) {
 	)
 }
 
+# Function of package shinydashboard
+# modified to invert text and number in value box
+valueBox <- function (value, subtitle, icon = NULL, color = "aqua", width = 4, href = NULL)
+{
+	validateColor(color)
+	if (!is.null(icon)) tagAssert(icon, type = "i")
+
+	boxContent <- div(class = paste0("small-box bg-", color),
+		div(
+			class = "inner",
+			p(subtitle), # |-> this 2 lines are inverted
+			h3(value)    # |
+		),
+
+		if (!is.null(icon)) div(class = "icon-large", icon)
+	)
+
+	if (!is.null(href)) boxContent <- a(href = href, boxContent)
+	div(
+		class = if (!is.null(width)) paste0("col-sm-", width),
+		boxContent
+	)
+}
+
+# make the new function see hiden functions of the package
+environment(valueBox) <- asNamespace('shinydashboard')
+
 # ______________________________________________________________________________________
 # FRONTEND
 source("ui/ui.R")

@@ -56,7 +56,7 @@ body <- dashboardBody (
 	),
 
 	# style of the valueBox of run in progress	    
-	tags$style(HTML("#rip_box .small-box {padding-top: 0px; padding-bottom: 0px; height: 60px; margin-bottom: 5px;} #rip_box .inner {padding-top: 0px; padding-bottom: 0px;} #rip_box h3 {margin-bottom: 0px; font-size: 25px;}"))
+	tags$style(HTML("#rip_box .small-box {padding-top: 0px; padding-bottom: 0px; height: 60px; margin-bottom: 5px;} #rip_box .inner {padding-top: 0px; padding-bottom: 0px;} #rip_box h3 {margin-bottom: 0px; font-size: 25px;} #rip_box p {margin-bottom: 0px;}"))
 )
 
 
