@@ -14,7 +14,7 @@ output$runIPTable = DT::renderDataTable({
 
 	if( nrow( runInfoStatReader() ) > 0 ) {
 		data = runInfoStatReader()[Ended=="NO"]
-		removeDTCol( data, c("Date"))
+		removeDTCol( data, c("Date","Ended"))
 		runs <- data$RunID
 
 		for( run in data$RunID ) {
@@ -33,6 +33,9 @@ output$runIPTable = DT::renderDataTable({
 
 # Dynamically create box for each run in progress (RIP). If the number of RIP change, the ui update accordingly
 observeEvent( ripList(), {
+	
+	counter <- 1
+	nRun = length(ripList())
 	for(flowcell in ripList()) {
 
 		if( !flowcell %in% names(rip_runDisplayed) ) { # if the run insn't displayed yet
@@ -60,11 +63,17 @@ observeEvent( ripList(), {
 
 				# create a box per run
 				title_b = tags$div( actionButton(buttonGotoRun , fc, style="margin-right: 25px;"), textOutput(durationID, inline=TRUE))
+				
+				collapsed = TRUE
+				if( counter == nRun ) {
+					collapsed = FALSE
+				}
+
 				insertUI(
 					selector = '#placeholder',
 					where = "afterEnd",
 					ui = tags$div( id = containerID,
-						box( title = title_b, width = NULL, status = "primary", solidHeader = TRUE, collapsible = TRUE, collapsed = FALSE,
+						box( title = title_b, width = NULL, status = "primary", solidHeader = TRUE, collapsible = TRUE, collapsed = collapsed,
 							fluidRow(
 								column(5, plotlyOutput(plotYieldID, height = 320) %>% withSpinner(type=6) ),
 								column(5, plotlyOutput(plotLengthID, height = 320) %>% withSpinner(type=6) ),
@@ -143,6 +152,7 @@ observeEvent( ripList(), {
 				})
 			})
 		}
+		counter <- counter + 1
 	}
 
 	for(flowcell in names(rip_runDisplayed)) {
