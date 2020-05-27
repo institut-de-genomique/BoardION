@@ -17,4 +17,6 @@ A demo of BoardION is available [here](https://boardion.genoscope.cns.fr/).
 
 ![rip](docs/images/tabRunInProgress.png)
 
+---
+
 ![qot](docs/images/qot.png)
