@@ -31,7 +31,7 @@ This page is divided in 2 parts, the overview and the run comparison.
 
 ### Overview
 
-On this graph point is a run. You can select which statistic to display with the 2 dropdown lists.
+On this graph each point is a run. You can select which statistic to display with the 2 dropdown lists.
 
 ![overview tab](images/tabOverview.png)
 
@@ -50,9 +50,11 @@ In this part you can select multiple run (with the dropown list at the top of th
 
 ## Run view
 
-On this you can select run to view more statistic on it. It is divided in two tabs:
+On this page you can select a run to view more statistic on it. It is divided in two tabs:
 - the first one containing statstics for each step since the start of the run (for example on the yield graph below each bar represent all reads from the start of the run until this bar, that's mean the color of the last bar represent the mean quality of the whole run)
 - the second contain statistics on the reads sequenced only in the step
+
+> when you select a run do not forget to press the refresh button next to the drop down list
 
 ![runs tab](images/tabRun.png)
 
