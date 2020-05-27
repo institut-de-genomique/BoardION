@@ -27,11 +27,17 @@ Between the table and the first run, there is a toggle button. This button is us
 
 ## Sequencing overview
 
-This page is divided in 2 parts, the overview the run comparison.
+This page is divided in 2 parts, the overview and the run comparison.
 
 ### Overview
 
+On this graph point is a run. You can select which statistic to display with the 2 dropdown lists.
+
 ![overview tab](images/tabOverview.png)
+
+You can also bin the abscisse using the slider bar:
+
+![overview tab](images/tabOverview_bin.png)
 
 ### Run comparison
 
