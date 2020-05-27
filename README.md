@@ -12,3 +12,15 @@ A demo of BoardION is available [here](https://boardion.genoscope.cns.fr/).
 [Usage](docs/usage.md)
 
 [Interface description](docs/ui.md)
+
+---
+
+View of the runs currently sequenced:
+
+![rip](docs/images/tabRunInProgress.png)
+
+---
+
+Graph binned by quality and time:
+
+![qot](docs/images/qot.png)
