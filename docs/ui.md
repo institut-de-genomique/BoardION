@@ -35,7 +35,12 @@ This page is divided in 2 parts, the overview the run comparison.
 
 ### Run comparison
 
+In this part you can select multiple run (with the dropown list at the top of the box) and compare them ith 3 different graphs:
+- distribution over time with statistic computed since the start of the run for each interval (by default a interval last 10 min)
+- distribution over time with statistic computed separatly for each interval (by default a interval last 10 min)
+- distribution of the reads length
 
+![run comparison](images/runComparison.png)
 
 ## Run view
 
