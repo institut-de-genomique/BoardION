@@ -37,7 +37,7 @@ On this graph point is a run. You can select which statistic to display with the
 
 You can also bin the abscisse using the slider bar:
 
-![overview tab](images/tabOverview_bin.png)
+![overview tab](images/runOverview_bin.png)
 
 ### Run comparison
 
