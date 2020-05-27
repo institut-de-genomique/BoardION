@@ -21,6 +21,6 @@ View of the runs currently sequenced:
 
 ---
 
-Graph binned by quality on time:
+Graph binned by quality and time:
 
 ![qot](docs/images/qot.png)
