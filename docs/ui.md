@@ -35,19 +35,25 @@ On this graph point is a run. You can select which statistic to display with the
 
 ![overview tab](images/tabOverview.png)
 
-You can also bin the abscisse using the slider bar:
+You can also bin the abscisse using the slider bar, for example here the n50 in function of the quality binned every 1 quality:
 
 ![overview tab](images/runOverview_bin.png)
 
 ### Run comparison
 
 In this part you can select multiple run (with the dropown list at the top of the box) and compare them ith 3 different graphs:
-- distribution over time with statistic computed since the start of the run for each interval (by default a interval last 10 min)
-- distribution over time with statistic computed separatly for each interval (by default a interval last 10 min)
+- distribution over time with statistic computed since the start of the run for each step (by default a step last 10 min)
+- distribution over time with statistic computed separatly for each step (by default a step last 10 min)
 - distribution of the reads length
 
 ![run comparison](images/runComparison.png)
 
 ## Run view
 
+On this you can select run to view more statistic on it. It is divided in two tabs:
+- the first one containing statstics for each step since the start of the run (for example on the yield graph below each bar represent all reads from the start of the run until this bar, that's mean the color of the last bar represent the mean quality of the whole run)
+- the second contain statistics on the reads sequenced only in the step
+
 ![runs tab](images/tabRun.png)
+
+The channel view show for each channel statistics on the reads sequenced by it. Therefore if the run is in sequencing, this graph doe not show the current state of the channel.
