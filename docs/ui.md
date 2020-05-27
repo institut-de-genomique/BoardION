@@ -24,7 +24,9 @@ Between the table and the first run, there is a toggle button. This button is us
 
 ## Sequencing overview
 
+This page is divided in 2 parts
 
+- a graph 
 
 ![overview tab](images/tabOverview.png)
 
