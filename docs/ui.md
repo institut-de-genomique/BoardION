@@ -7,7 +7,7 @@ BoardION's interface is composed of 3 pages:
 
 ## Runs in progress view
 
-
+![runs in progress tab](runInProgress.png)
 
 ## Sequencing overview
 
