@@ -5,6 +5,10 @@ BoardION's interface is composed of 3 pages:
 - Sequencing overview: shows final metrics of all run and allows you to compare them
 - Run: more informations and plots on a selected run
 
+## Plots
+
+All the graphs are made with plotly and are therefore dynamic. To allow you to explore the data without the graph refreshing every few minutes, graphs in the sequencing overview page and run page are not refresh automatically. Instead there is a button next to each graph to refresh the data and the selection of axes.
+
 ## Runs in progress view
 
 This page show for each run currently sequenced 2 graphs:
@@ -24,11 +28,15 @@ Between the table and the first run, there is a toggle button. This button is us
 
 ## Sequencing overview
 
-This page is divided in 2 parts
+This page is divided in 2 parts, the overview the run comparison.
 
-- a graph 
+### Overview
 
 ![overview tab](images/tabOverview.png)
+
+### Run comparison
+
+
 
 ## Run view
 
