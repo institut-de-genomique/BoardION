@@ -7,7 +7,7 @@ BoardION's interface is composed of 3 pages:
 
 ## Plots
 
-All the graphs are made with plotly and are therefore dynamic. To allow you to explore the data without the graph refreshing every few minutes, graphs in the sequencing overview page and run page are not refresh automatically. Instead there is a button next to each graph to refresh the data and the selection of axes.
+All the graphs are made with plotly and are therefore dynamic. To allow you to explore the data without the graph refreshing every few minutes, graphs in the sequencing overview page and run page are not refresh automatically. Instead there is a button next to each graph to refresh the data and the selection of axes: ![refresh](images/refresh.png)
 
 ## Runs in progress view
 
@@ -23,8 +23,7 @@ Each run is displayed in a separate box which can be expended/reduced using the 
 
 Between the table and the first run, there is a toggle button. This button is used for switch between cumulative and non-cumualative mode for the yield graph.
 
-![runs in progress tab](images/tabRunInProgress_toggle.png)
-
+![toggle cumulative](images/tabRunInProgress_toggle.png)
 
 ## Sequencing overview
 
