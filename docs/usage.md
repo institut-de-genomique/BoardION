@@ -11,7 +11,7 @@ docker pull rdbioseq/boardion
 This image need to have access to 2 folders, the first one contains the input datas (sequencing summary file and final summary) and the second one is intially empty and will contain the output of the preprocessing program.
 
 ```
-docker run -it -p 80:80 -v input/folder/:/usr/local/src/data:z -v stat/folder/:/usr/local/src/stat:z boardion:latest -d 600 -f 5 -p 80
+docker run -it -p 80:80 -v input/folder/:/usr/local/src/data:z -v stat/folder/:/usr/local/src/stat:z rdbioseq/boardion:latest -d 600 -f 5 -p 80
 ```
 
 Here are the options you can set for the docker entrypoint:
