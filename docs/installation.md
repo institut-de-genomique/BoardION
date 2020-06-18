@@ -1,6 +1,6 @@
 # Installation
 
-BoardION use the sequencing summary file produced by the basecalling to get metrics on each reads. Since this file can be quite large (>10GB), the web application would be slow if it loaded and analyzed it directly. BoardION is therefore divided into two programs :
+BoardION uses the sequencing summary file produced by the basecalling to get metrics on each read. Since this file can be quite large (>10GB), the web application would be slow if it loaded and analyzed it directly. BoardION is therefore divided into two programs :
 - a preprocessing program in C++
 - the web application in R
 
@@ -50,7 +50,7 @@ cmake -G "Unix Makefiles"  -DCMAKE_INSTALL_PREFIX=path/to/install/dir ..
 cmake --build . --target install
 ```
 
-This program need to be executed regurlarly to update the data displayed in the web interface. For exemple, to execute it every 5 minutes with cron:
+This program needs to be executed regularly to update the data displayed in the web interface. For exemple, to execute it every 5 minutes with cron:
 
 ```
 crontab -e
@@ -65,11 +65,11 @@ See [here](usage.md#preprocessing-program) for the complete list of options.
 
 Inside the input directory it will detect and parse every sequencing_summary.txt and final_summary.txt. 
 
-> Note that the ouput directory need to be visible by the web server.
+> Note that the ouput directory needs to be visible by the web server.
 
 ## Install the web server
 
-The server require no installation as it is in R but require several R packages. Therefore an installation with docker or singularity is proposed.
+The server requires no installation as it is in R but requires several R packages. Therefore an installation with docker or singularity is proposed.
 
 To build the docker run in the app folder:
 ```
@@ -81,7 +81,7 @@ To build with singularity:
 singularity build boardion_app boardion.sif
 ```
 
-If you prefer to run it directly on your system, here is the list of depencies:
+If you prefer to run it directly on your system, here is the list of dependencies:
 
 - R (tested with R>=3.6.0)
 - R packages:
