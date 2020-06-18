@@ -375,18 +375,27 @@ observe({
 	runSelected = isolate(input$runList) # save the run selected before the update of the list
 	listRun = list()
 	
-	if(is.null(runInfoStatReader()) || nrow(runInfoStatReader())==0) {
+	runFinished = runList()[!runList() %in% ripList()]
+
+	if(length(runFinished) == 0 && length(ripList()) == 0) {
 		listRun <- character(0)
-		runSelected = NULL	
+		runSelected = NULL
+
+	} else if(length(ripList()) == 0) {
+		listRun = list( "Completed" = list(runList()) )
+
+	} else if(length(runFinished) == 0) {
+		listRun = list( "In progress" = list(ripList()) )
+
 	} else {
 		listRun = list(
-			"In progress" = c("",ripList()), # add an empty slot, else the list doen not display correctly
-			"Completed" = c(runList()[!runList() %in% ripList()])
+			"In progress" = list(ripList()),
+			"Completed" = list(runList()[!runList() %in% ripList()])
 		)
+	}
 
-		if (runSelected == "" || is.null(runSelected)) {
-			runSelected = runInfoStatReader()[StartTime==max(na.omit(StartTime)),RunID] # if there isn't a run selected, take the most recent one
-		}
+	if (runSelected == "" || is.null(runSelected)) {
+		runSelected = runInfoStatReader()[StartTime==max(na.omit(StartTime)),RunID] # if there isn't a run selected, take the most recent one
 	}
 	
 	updateSelectInput( 

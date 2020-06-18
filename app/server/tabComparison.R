@@ -172,6 +172,7 @@ output$ib_ow_nbBases <- renderInfoBox({
 observe({
 
 	runSelected = isolate(input$tabComp_runList)
+	runFinished = runList()[!runList() %in% ripList()]
 
 	# if there isn't a run selected, select run in progress or the most recent one
 	if (runSelected == "" || is.null(runSelected)) {
@@ -182,9 +183,24 @@ observe({
 		}
 	}
 
-	listRun <- list( "In progress" = c("", ripList()), # add empty slot else the list doesn't display correctly
-		         "Completed" = c(runList()[!runList() %in% ripList()])
-	)
+	listRun <- list()
+	
+	if(length(runFinished) == 0 && length(ripList()) == 0) {
+		listRun <- character(0)
+		runSelected = NULL
+
+	} else if(length(ripList()) == 0) {
+		listRun = list( "Completed" = list(runList()) )
+
+	} else if(length(runFinished) == 0) {
+		listRun = list( "In progress" = list(ripList()) )
+
+	} else {
+		listRun = list(
+			"In progress" = list(ripList()),
+			"Completed" = list(runList()[!runList() %in% ripList()])
+		)
+	}
 
 	updateSelectizeInput( 
 		session,
