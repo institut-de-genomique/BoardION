@@ -1,5 +1,4 @@
 #!/usr/bin/env Rscript
-#.libPaths(c( .libPaths(), "/data/R/x86_64-redhat-linux-gnu-library/3.6"))
 
 require(bit64)
 library(data.table)

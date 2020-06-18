@@ -239,23 +239,29 @@ output$qot_plot <- renderPlotly({
 # RENDER OTHER
 
 output$runTitle <- renderText({
-	req(input$runList != "")
-	state = ""
-	state = runInfoStatReader()[RunID==input$runList,Ended]
+	input$refreshTabRun
+	isolate({
+		req(input$runList != "")
+		state = ""
+		state = runInfoStatReader()[RunID==input$runList,Ended]
 	
-	if(state == "YES") {
-		state = "COMPLETED"
-	} else if(state == "NO") {
-		state = "IN PROGRESS"
-	}
-	paste(input$runList," - ",state,sep="")
+		if(state == "YES") {
+			state = "COMPLETED"
+		} else if(state == "NO") {
+			state = "IN PROGRESS"
+		}
+		paste(input$runList," - ",state,sep="")
+	})
 })
 
 output$runTable = DT::renderDataTable(
 	{
-		dt = runInfoStatReader()[RunID==input$runList]
-		removeDTCol( dt, c("Date"))
-		dt
+		input$refreshTabRun
+		isolate({
+			dt = runInfoStatReader()[RunID==input$runList]
+			removeDTCol( dt, c("Date"))
+			dt
+		})
 	},
 	options = list(searching = FALSE, paging = FALSE)
 )
@@ -381,16 +387,10 @@ observe({
 		listRun <- character(0)
 		runSelected = NULL
 
-	} else if(length(ripList()) == 0) {
-		listRun = list( "Completed" = list(runList()) )
-
-	} else if(length(runFinished) == 0) {
-		listRun = list( "In progress" = list(ripList()) )
-
 	} else {
 		listRun = list(
-			"In progress" = list(ripList()),
-			"Completed" = list(runList()[!runList() %in% ripList()])
+			"In progress" = as.list(ripList()),
+			"Completed" = as.list(runFinished)
 		)
 	}
 

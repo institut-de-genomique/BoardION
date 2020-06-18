@@ -150,7 +150,7 @@ output$ib_ow_nbRunInProgress <- renderInfoBox({
 
 output$ib_ow_nbRuns <- renderInfoBox({
 	req(nrow(runInfoStatReader())>0)
-	nb_runs = length(runList())
+	nb_runs = length( runList()[!runList() %in% ripList()] )
 	valueBox(
 		nb_runs,
 		"Runs sequenced",
@@ -189,16 +189,10 @@ observe({
 		listRun <- character(0)
 		runSelected = NULL
 
-	} else if(length(ripList()) == 0) {
-		listRun = list( "Completed" = list(runList()) )
-
-	} else if(length(runFinished) == 0) {
-		listRun = list( "In progress" = list(ripList()) )
-
 	} else {
 		listRun = list(
-			"In progress" = list(ripList()),
-			"Completed" = list(runList()[!runList() %in% ripList()])
+			"In progress" = as.list(ripList()),
+			"Completed" = as.list(runFinished)
 		)
 	}
 

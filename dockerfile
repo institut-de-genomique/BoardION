@@ -14,6 +14,7 @@ RUN yum update -y && yum install -y \
 
 RUN mkdir /usr/local/src/logs
 
+COPY ./boardion_preprocess /usr/local/src/
 COPY ./ /usr/local/src
 WORKDIR /usr/local/src
 
