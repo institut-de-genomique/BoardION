@@ -43,13 +43,12 @@ uint_fast32_t ReadsLengthMap::compute_n50(const uint_fast64_t& nb_bases)
 	const float middle = float(nb_bases)/2;
 	
 	while(sum_length<middle)
-	{
-		++length;
-        
+	{        
 		if(this->data.count(length) > 0)
 		{
 			sum_length+=this->data[length]*length;
 		}
+		++length;
 	}
 	return(length);
 }
@@ -67,11 +66,11 @@ float ReadsLengthMap::median_by_hash(const uint_fast32_t& nb_reads)
 	
 	while(count<middle)
 	{
-		++length;
 		if(this->data.count(length) > 0)
 		{
 			count+=this->data[length];
 		}
+		++length;
 	}
 	
 	if(nb_reads%2 == 0) // The median is the mean of the 2 middle items
