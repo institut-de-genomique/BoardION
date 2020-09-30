@@ -390,7 +390,7 @@ int main(int argc, char** argv)
 					}
 					
 					completStepReadLength(sequencing_summary, step_reads_length, run.lastReadPosition);
-					cumulative_step_stat.subtract(current_step_stat); // when a step end current_step_stat is added to cumulative_step_stat, but part of current_step_stat was already added in the precedent execution.
+					cumulative_step_stat.subtract(current_step_stat); // when a step end, current_step_stat is added to cumulative_step_stat, but part of current_step_stat was already added in the precedent execution.
 					reads_length.subtract(step_reads_length);
 				}
 				else
@@ -399,8 +399,8 @@ int main(int argc, char** argv)
 					current_stat = std::ofstream(current_stat_path);
 
 					// Files headers
-					global_stat << "RunID Duration(mn) Yield(b) #Reads Speed(b/mn) Quality AverageSize(b) N50 MedianSize(b)\n";
-					current_stat << "RunID Duration(mn) Yield(b) #Reads Speed(b/mn) Quality AverageSize(b) N50 MedianSize(b)\n";
+					global_stat << "RunID Duration(mn) Yield(b) #Reads Speed(b/s) Quality AverageSize(b) N50 MedianSize(b)\n";
+					current_stat << "RunID Duration(mn) Yield(b) #Reads Speed(b/s) Quality AverageSize(b) N50 MedianSize(b)\n";
 				}
 
 				//

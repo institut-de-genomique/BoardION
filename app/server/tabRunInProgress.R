@@ -121,7 +121,7 @@ observeEvent( ripList(), {
 
 				# for speed we display the value of the last non cumulative step
 				output[[valBoxSpeed]] <- renderValueBox({ 
-					valueBox( paste( formatNumber( tail( rip_currentFileReader[[ fc ]](), 1)$`Speed(b/mn)` ), "b/mn"), "Speed")
+					valueBox( paste( formatNumber( tail( rip_currentFileReader[[ fc ]](), 1)$`Speed(b/mn)` ), "b/s"), "Speed")
 				})
 
 				output[[valBoxQuality]] <- renderValueBox({
