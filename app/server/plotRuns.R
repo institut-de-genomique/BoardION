@@ -28,16 +28,35 @@ plotGlobalAxeChoice <- function(dt, groupBy, xAxe, yAxe) {
     } 
 
   } else {
-    p <- p + geom_point(
-			aes(
-			    text=paste(
-                                        xAxe,': ',get(xAxe),
-					'<br>',yAxe,': ',get(yAxe),
-				       	sep=''
-				      )
-                           )
-                       )
+    
+    if( xAxe == "RunID") {
+      p <- p + geom_point(
+        aes(
+          text=paste(
+                   xAxe,': ',get(xAxe),
+            '<br>',yAxe,': ',get(yAxe),
+            sep=''
+          )
+        )
+      )
+    } else {
+      p <- p + geom_point(
+        aes(
+          text=paste(
+                   xAxe,': ',get(xAxe),
+            '<br>',yAxe,': ',get(yAxe),
+            '<br>','RunID: ',get(RunID),
+            sep=''
+          )
+        )
+      )
+    }
   }
+
+  if( xAxe == "RunID" || xAxe == "Date" ) {
+    p <- p + theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
+  }
+
   return(p)
 }
 
