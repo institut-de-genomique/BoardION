@@ -45,7 +45,7 @@ plotGlobalAxeChoice <- function(dt, groupBy, xAxe, yAxe) {
           text=paste(
                    xAxe,': ',get(xAxe),
             '<br>',yAxe,': ',get(yAxe),
-            '<br>','RunID: ',get(RunID),
+            '<br>','RunID: ',RunID,
             sep=''
           )
         )
