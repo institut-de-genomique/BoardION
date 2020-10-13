@@ -71,7 +71,7 @@ Inside the input directory it will detect and parse every sequencing_summary.txt
 
 The server requires no installation as it is in R but requires several R packages. Therefore an installation with docker or singularity is proposed.
 
-To build the docker run in the app folder:
+To build the docker in the app folder:
 ```
 docker build -t boardion-app ./
 ```

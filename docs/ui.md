@@ -58,4 +58,4 @@ On this page you can select a run to view more statistics on it. It is divided i
 
 ![runs tab](images/tabRun.png)
 
-The channel view shows for each channel statistics on the reads sequenced by it. Therefore if the run is in sequencing, this graph does not show the current state of the channel.
+The channel view shows for each channel statistics on all reads sequenced by it. Therefore if the run is in sequencing, this graph does not show the current state of the channel.
