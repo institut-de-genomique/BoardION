@@ -102,7 +102,7 @@ TEST_CASE("TimeStepStat")
 
 		std::filesystem::path p ("test_tss.txt");
 		std::ofstream os(p);
-		os << "RunID Duration(mn) Yield(b) #Reads Speed(b/mn) Quality Average(b) N50 Median(b)\n";
+		os << "RunID Duration(mn) Yield(b) #Reads Speed(b/s) Quality Average(b) N50 Median(b)\n";
 		os << "RunID 60 " << tss << " 50 50"; // n50 and median
 		os.close();
 

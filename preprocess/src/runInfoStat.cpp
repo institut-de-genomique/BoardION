@@ -104,7 +104,7 @@ void RunsInfoStat::parseFile(const fs::path& run_info_file_path)
 void RunsInfoStat::createFile(const fs::path& run_info_path)
 {
 	std::ofstream file(run_info_path);
-	file << "RunID StartTime Ended Duration(mn) Yield(b) #Reads Speed(b/mn) Quality Average(b) N50(b) Median(b) LastReadPosition LastStepStartPosition\n"; // file header
+	file << "RunID StartTime Ended Duration(mn) Yield(b) #Reads Speed(b/s) Quality Average(b) N50(b) Median(b) LastReadPosition LastStepStartPosition\n"; // file header
 	
 	// write run marked as complete as they will not be processed
 	for( auto& n : this->runs )

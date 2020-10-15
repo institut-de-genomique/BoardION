@@ -173,7 +173,7 @@ output$tabRunGlobal_plotAxeChoice <- renderPlotly({
 		req(nrow(globalStatReader())>0)
 		if(input$refreshTabRun == 0 && input$tabRunGlobal_refreshPlotChoice == 0) {
 			xAxe = "Duration(mn)"
-			yAxe = "Speed(b/mn)"
+			yAxe = "Speed(b/s)"
 			colAxe = "Quality"
 		} else {
 			req( !is.null(input$trg_xc))
@@ -202,7 +202,7 @@ output$tabRunCurrent_plotAxeChoice <- renderPlotly({
 		req(nrow(currentStatReader())>0)
 		if(input$refreshTabRun == 0 && input$tabRunCurrent_refreshPlotChoice == 0) {
 			xAxe = "Duration(mn)"
-			yAxe = "Speed(b/mn)"
+			yAxe = "Speed(b/s)"
 			colAxe = "Quality"
 		} else {
 			req( !is.null(input$trc_xc))
@@ -300,7 +300,7 @@ output$tabRunGlobal_yAxeChoice <- renderUI({
 	req(nrow(isolate(globalStatReader())) > 0)
 
 	isolate({
-		selected = if(is.null(input$trg_yc)) "Speed(b/mn)" else input$trg_yc
+		selected = if(is.null(input$trg_yc)) "Speed(b/s)" else input$trg_yc
 	})
 
 	selectInput(
@@ -345,7 +345,7 @@ output$tabRunCurrent_yAxeChoice <- renderUI({
 	req(nrow(isolate(currentStatReader())) > 0)
 
 	isolate({
-		selected = if(is.null(input$trc_yc)) "Speed(b/mn)" else input$trc_yc
+		selected = if(is.null(input$trc_yc)) "Speed(b/s)" else input$trc_yc
 	})
 
 	selectInput(
