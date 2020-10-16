@@ -107,19 +107,19 @@ plotQualityOverTime <- function(x, colorColumn, doLogColor) {
 
 plotReadLength <- function(x) {
 
-	ggplot( x,
-		aes(x=Length,
-		    weight=Count
-		)
-	) +
-	geom_histogram(fill="#4f5dff",binwidth=1000) +
-
-	theme_bw() +
-	scale_x_continuous(expand=c(0,0)) +
+	plot_ly(
+		x=x$Length,
+		y=as.character(x$Count),
+		type = "histogram",
+		histfunc = "sum",
+		xbins = list(size=200)
 	
-	xlab("Read length (b)") +
-	ylab("Read count")
+	 ) %>% layout(
+		yaxis=list(type='linear'),
+		xaxis = list(range = c(0, 5e+4))
+	)
 }
+
 
 plotMulti <- function(data, x_col, y_col, color_col) {
 
