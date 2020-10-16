@@ -109,8 +109,6 @@ observeEvent( ripList(), {
 				output[[plotLengthID]] <- renderPlotly({
 					rip_lengthFileReader[[ fc ]]() %>%
 					plotReadLength() %>%
-					ggplotly(dynamicTicks = TRUE) %>% # can't use dynamicTicks and make an initial zoom with layout
-					#layout(xaxis = list(range = c(-1000, 105000))) %>%
 					plotlyConfig()
 				})
 

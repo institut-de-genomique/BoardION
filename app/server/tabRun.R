@@ -162,7 +162,7 @@ output$plot_globalReadLength <- renderPlotly({
 	input$refreshTabRun
 	isolate({
 		req(nrow(readLengthReader())>0)
-		ggplotly(plotReadLength(readLengthReader()), dynamicTicks = TRUE ) %>% plotlyConfig()
+		plotReadLength(readLengthReader()) %>% plotlyConfig()
 	})
 })
 
