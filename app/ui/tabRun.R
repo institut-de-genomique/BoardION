@@ -7,7 +7,6 @@ makeRunCustomablePlot <- function(name,w=12) {
 		collapsed = TRUE,
 		width=w,
 		fluidRow(
-			column(width=3, uiOutput(paste(name,"_xAxeChoice",sep="")) ),
 			column(width=3, uiOutput(paste(name,"_yAxeChoice",sep="")) ),
 			column(width=3, uiOutput(paste(name,"_colorChoice",sep=""))),
 			column(width=2, makeRefreshButton(paste(name,"_refreshPlotChoice",sep="")))

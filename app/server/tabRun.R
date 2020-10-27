@@ -107,6 +107,13 @@ plotQualityOverTime <- function(x, colorColumn, doLogColor) {
 
 plotReadLength <- function(x) {
 
+	# Get the N99 read length to limit the x axe on the plot
+	x[order(Length)] -> x
+	x[,Cumulative:=cumsum(Count)]
+	nbRead = x$Cumulative[nrow(x)]
+	# get the Length column of the first row which have a Cumulative count over 99% of the number of read
+	length99 = x[Cumulative>(nbRead*.99)][1]$Length
+
 	plot_ly(
 		x=x$Length,
 		y=as.character(x$Count),
@@ -116,33 +123,28 @@ plotReadLength <- function(x) {
 	
 	 ) %>% layout(
 		yaxis=list(type='linear'),
-		xaxis = list(range = c(0, 5e+4))
+		xaxis = list(range = c(0, length99))
 	)
 }
 
 
-plotMulti <- function(data, x_col, y_col, color_col) {
+plotMulti <- function(data, y_col, color_col) {
 
 	g <- ggplot( data,
-		aes(x = get(x_col),
+		aes(x = get("Duration(mn)"),
 		    y = get(y_col),
-		    text = paste(x_col,": ",formatNumber(get(x_col)),
+		    text = paste("Duration(mn): " ,get("Duration(mn)"),
 		                 "<br>",y_col,": ",formatNumber(get(y_col)),
 		                 "<br>",color_col,": ",formatNumber(get(color_col)),
 		                 sep=""
 		   )
 		)
 	) 
-	if(x_col == "Duration(mn)") { # if abcisse is duration -> barplot
 		g <- g + geom_col(aes(fill = get(color_col)), position="dodge", width = 10) +
 		scale_fill_gradientn( colors=myColorGrandient, values=myColorStep, name=color_col)
-	} else {
-		g <- g + geom_point(aes(col = get(color_col))) +
-		scale_color_gradientn( colors=myColorGrandient, values=myColorStep, name=color_col)
-	}
 
 	g <- g + theme_bw() +
-	xlab(x_col) + 
+	xlab("Duration(mn)") + 
 	ylab(y_col)
 	return(g)
 }
@@ -172,18 +174,15 @@ output$tabRunGlobal_plotAxeChoice <- renderPlotly({
 	isolate({
 		req(nrow(globalStatReader())>0)
 		if(input$refreshTabRun == 0 && input$tabRunGlobal_refreshPlotChoice == 0) {
-			xAxe = "Duration(mn)"
 			yAxe = "Speed(b/s)"
 			colAxe = "Quality"
 		} else {
-			req( !is.null(input$trg_xc))
 			req( !is.null(input$trg_yc))
 			req( !is.null(input$trg_cc))
-			xAxe = input$trg_xc
 			yAxe = input$trg_yc
 			colAxe = input$trg_cc
 		}
-		ggplotly(plotMulti(globalStatReader(), xAxe, yAxe, colAxe), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
+		ggplotly(plotMulti(globalStatReader(), yAxe, colAxe), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
 	})
 })
 
@@ -201,18 +200,15 @@ output$tabRunCurrent_plotAxeChoice <- renderPlotly({
 	isolate({
 		req(nrow(currentStatReader())>0)
 		if(input$refreshTabRun == 0 && input$tabRunCurrent_refreshPlotChoice == 0) {
-			xAxe = "Duration(mn)"
 			yAxe = "Speed(b/s)"
 			colAxe = "Quality"
 		} else {
-			req( !is.null(input$trc_xc))
 			req( !is.null(input$trc_yc))
 			req( !is.null(input$trc_cc))
-			xAxe = input$trc_xc
 			yAxe = input$trc_yc
 			colAxe = input$trc_cc
 		}
-		ggplotly(plotMulti(currentStatReader(), xAxe, yAxe, colAxe), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
+		ggplotly(plotMulti(currentStatReader(), yAxe, colAxe), dynamicTicks = TRUE, tooltip = "text")  %>% plotlyConfig()
 	})
 })
 
