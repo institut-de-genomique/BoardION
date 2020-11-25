@@ -1,6 +1,6 @@
 makeRunCustomablePlot <- function(name,w=12) {
 	box(
-		title = "Customable plot",
+		title = "Customisable plot",
 		status = "primary",
 		solidHeader = TRUE,
 		collapsible = TRUE,
