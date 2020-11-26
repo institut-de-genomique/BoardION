@@ -5,7 +5,7 @@
 channelStatReader <- reactive ({
 	dt = makeReactiveFileReader( getRunChannelFilePath(input$runList) )()
 	
-	dt[,CumulativeLength:=Length*`#Reads`]
+	dt[,"Yield(b)":=Length*`#Reads`]
 	return(dt)
 })
 

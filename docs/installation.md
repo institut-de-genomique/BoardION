@@ -18,7 +18,7 @@ See this [page](usage.md#docker) for the usage.
 
 To compile the preprocessing program:
 - gcc>=8.3.0
-- cmake>2.8
+- cmake>=2.8
 
 For running the web application:
 - R (tested with R 3.6.0)
