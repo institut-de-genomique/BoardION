@@ -123,7 +123,7 @@ plotReadLength <- function(x) {
 	
 	 ) %>% layout(
 		yaxis=list(type='linear', ticks = "outside", showline = TRUE, title="Read count"),
-		xaxis = list(range = c(0, length99), ticks = "outside", showgrid = TRUE, title="Read length (b)")
+		xaxis = list(range = c(0, length99), ticks = "outside", showgrid = TRUE, title="Read length (bases)")
 	)
 }
 
