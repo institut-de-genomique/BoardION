@@ -122,8 +122,8 @@ plotReadLength <- function(x) {
 		xbins = list(size=200)
 	
 	 ) %>% layout(
-		yaxis=list(type='linear'),
-		xaxis = list(range = c(0, length99))
+		yaxis=list(type='linear', ticks = "outside", showline = TRUE, title="Read count"),
+		xaxis = list(range = c(0, length99), ticks = "outside", showgrid = TRUE, title="Read length (b)")
 	)
 }
 
